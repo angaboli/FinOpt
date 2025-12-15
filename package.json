@@ -1,0 +1,34 @@
+{
+  "name": "finopt-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI-powered personal finance management platform",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "mobile": "npm run start --workspace=@finopt/mobile",
+    "mobile:ios": "npm run ios --workspace=@finopt/mobile",
+    "mobile:android": "npm run android --workspace=@finopt/mobile",
+    "api": "cd apps/api && uvicorn src.presentation.api.main:app --reload",
+    "worker": "cd apps/api && celery -A src.infrastructure.workers.celery_app worker --loglevel=info",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "type-check": "npm run type-check --workspaces --if-present"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "eslint": "^8.56.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
