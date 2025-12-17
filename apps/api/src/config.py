@@ -17,13 +17,9 @@ class Settings(BaseSettings):
     api_port: int = 8000
     api_reload: bool = True
 
-    # Supabase
-    supabase_url: str
-    supabase_key: str
-    supabase_service_role_key: str
-
-    # Database
+    # Database (Neon)
     database_url: str
+    neon_project_id: Optional[str] = None
 
     # Redis
     redis_url: str = "redis://localhost:6379/0"

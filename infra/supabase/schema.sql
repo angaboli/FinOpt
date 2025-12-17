@@ -1,5 +1,5 @@
 -- Finopt Database Schema
--- Run this on Supabase SQL Editor
+-- Run this on Neon SQL Editor or any PostgreSQL database
 
 -- Enable necessary extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -31,11 +31,12 @@ CREATE TYPE notification_type AS ENUM (
 
 CREATE TYPE goal_status AS ENUM ('ACTIVE', 'PAUSED', 'COMPLETED', 'CANCELLED');
 
--- Users table (extends Supabase auth.users)
+-- Users table
 CREATE TABLE users (
-    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     email TEXT NOT NULL UNIQUE,
     full_name TEXT,
+    password_hash TEXT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -318,64 +319,61 @@ ALTER TABLE notification_preferences ENABLE ROW LEVEL SECURITY;
 ALTER TABLE goals ENABLE ROW LEVEL SECURITY;
 ALTER TABLE import_history ENABLE ROW LEVEL SECURITY;
 
--- RLS Policies
+-- RLS Policies (using session variable for current user)
+-- Set current_user_id with: SET app.current_user_id = 'user-uuid';
+CREATE OR REPLACE FUNCTION current_user_id() RETURNS UUID AS $$
+    SELECT NULLIF(current_setting('app.current_user_id', true), '')::UUID;
+$$ LANGUAGE SQL STABLE;
+
 CREATE POLICY "Users can view own data" ON users
-    FOR SELECT USING (auth.uid() = id);
+    FOR SELECT USING (current_user_id() = id);
 
 CREATE POLICY "Users can update own data" ON users
-    FOR UPDATE USING (auth.uid() = id);
+    FOR UPDATE USING (current_user_id() = id);
 
 CREATE POLICY "Users can view own accounts" ON accounts
-    FOR ALL USING (auth.uid() = user_id);
+    FOR ALL USING (current_user_id() = user_id);
 
 CREATE POLICY "Users can view own transactions" ON transactions
-    FOR ALL USING (auth.uid() = user_id);
+    FOR ALL USING (current_user_id() = user_id);
 
 CREATE POLICY "Users can view categories" ON categories
-    FOR SELECT USING (is_system = true OR auth.uid() = user_id);
+    FOR SELECT USING (is_system = true OR current_user_id() = user_id);
 
 CREATE POLICY "Users can manage own categories" ON categories
-    FOR ALL USING (auth.uid() = user_id);
+    FOR ALL USING (current_user_id() = user_id);
 
 CREATE POLICY "Users can view own budgets" ON budgets
-    FOR ALL USING (auth.uid() = user_id);
+    FOR ALL USING (current_user_id() = user_id);
 
 CREATE POLICY "Users can view own budget_events" ON budget_events
-    FOR ALL USING (auth.uid() = user_id);
+    FOR ALL USING (current_user_id() = user_id);
 
 CREATE POLICY "Users can view own insights" ON insights
-    FOR ALL USING (auth.uid() = user_id);
+    FOR ALL USING (current_user_id() = user_id);
 
 CREATE POLICY "Users can view own notifications" ON notifications
-    FOR ALL USING (auth.uid() = user_id);
+    FOR ALL USING (current_user_id() = user_id);
 
 CREATE POLICY "Users can manage own notification_preferences" ON notification_preferences
-    FOR ALL USING (auth.uid() = user_id);
+    FOR ALL USING (current_user_id() = user_id);
 
 CREATE POLICY "Users can view own goals" ON goals
-    FOR ALL USING (auth.uid() = user_id);
+    FOR ALL USING (current_user_id() = user_id);
 
 CREATE POLICY "Users can view own import_history" ON import_history
-    FOR ALL USING (auth.uid() = user_id);
+    FOR ALL USING (current_user_id() = user_id);
 
--- Create initial admin function
-CREATE OR REPLACE FUNCTION handle_new_user()
-RETURNS TRIGGER AS $$
+-- Function to create notification preferences for new users
+-- Call this after inserting a new user
+CREATE OR REPLACE FUNCTION create_user_preferences(user_uuid UUID)
+RETURNS VOID AS $$
 BEGIN
-    INSERT INTO users (id, email, full_name)
-    VALUES (NEW.id, NEW.email, NEW.raw_user_meta_data->>'full_name');
-
     INSERT INTO notification_preferences (user_id)
-    VALUES (NEW.id);
-
-    RETURN NEW;
+    VALUES (user_uuid)
+    ON CONFLICT (user_id) DO NOTHING;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Trigger for new user registration
-CREATE TRIGGER on_auth_user_created
-    AFTER INSERT ON auth.users
-    FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+$$ LANGUAGE plpgsql;
 
 COMMENT ON TABLE accounts IS 'User financial accounts with type differentiation';
 COMMENT ON TABLE transactions IS 'Financial transactions with manual entry support';

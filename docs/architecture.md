@@ -54,7 +54,7 @@ External concerns and implementations.
 
 **Components:**
 - **Database** (`database/`): Database connection and ORM
-  - Supabase client configuration
+  - Neon Postgres configuration
   - Connection pooling
 
 - **Repositories** (`repositories/`): Concrete repository implementations
@@ -147,7 +147,7 @@ Repository → Database/External Services
 
 ### Core Tables
 
-**users**: User accounts (extends Supabase auth)
+**users**: User accounts
 **accounts**: Financial accounts with types
 **transactions**: Financial transactions (manual + imported)
 **categories**: Transaction categories (system + custom)
@@ -258,7 +258,7 @@ Repository → Database/External Services
 ## Security Considerations
 
 ### Authentication
-- Supabase Auth for user management
+- JWT-based authentication
 - JWT tokens for API authentication
 - Secure token storage on mobile
 
@@ -310,7 +310,7 @@ npm run mobile
 
 ### Production
 - API: Docker containers (AWS ECS, GCP Cloud Run, etc.)
-- Database: Supabase managed Postgres
+- Database: Neon serverless Postgres
 - Workers: Separate container instances
 - Mobile: Expo EAS Build
 

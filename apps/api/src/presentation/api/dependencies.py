@@ -2,16 +2,16 @@
 
 from fastapi import Depends, HTTPException, status, Header
 from typing import Optional
-from supabase import Client
+from jose import JWTError, jwt
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.infrastructure.database.connection import get_db
 from src.config import settings
 
 
-async def get_current_user_id(authorization: Optional[str] = Header(None), db: Client = Depends(get_db)) -> str:
+async def get_current_user_id(authorization: Optional[str] = Header(None)) -> str:
     """
-    Get current user ID from Supabase JWT token.
-    This is a simplified version - in production, validate the JWT properly.
+    Get current user ID from JWT token.
     """
     if not authorization:
         raise HTTPException(
@@ -28,15 +28,19 @@ async def get_current_user_id(authorization: Optional[str] = Header(None), db: C
     token = authorization.replace("Bearer ", "")
 
     try:
-        # Get user from Supabase using the token
-        user = db.auth.get_user(token)
-        if not user:
+        payload = jwt.decode(
+            token,
+            settings.jwt_secret_key,
+            algorithms=[settings.jwt_algorithm]
+        )
+        user_id: str = payload.get("sub")
+        if user_id is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid token",
+                detail="Invalid token payload",
             )
-        return user.user.id
-    except Exception as e:
+        return user_id
+    except JWTError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Authentication failed: {str(e)}",
@@ -44,14 +48,13 @@ async def get_current_user_id(authorization: Optional[str] = Header(None), db: C
 
 
 # Dependency injection helpers for repositories and services
-# These would be initialized with proper dependency injection in production
 
 from src.infrastructure.repositories.transaction_repository_impl import TransactionRepositoryImpl
 from src.infrastructure.services.llm_client_impl import AnthropicLLMClient
 from src.infrastructure.services.push_notification_impl import ExpoPushNotificationService
 
 
-def get_transaction_repository(db: Client = Depends(get_db)) -> TransactionRepositoryImpl:
+def get_transaction_repository(db: AsyncSession = Depends(get_db)) -> TransactionRepositoryImpl:
     """Get transaction repository instance."""
     return TransactionRepositoryImpl(db)
 

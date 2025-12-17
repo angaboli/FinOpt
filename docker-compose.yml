@@ -1,7 +1,5 @@
-version: '3.8'
-
 services:
-  # PostgreSQL Database (local development only - use Supabase in production)
+  # PostgreSQL Database (local development only - use Neon in production)
   postgres:
     image: postgres:15-alpine
     container_name: finopt-postgres

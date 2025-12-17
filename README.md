@@ -27,7 +27,7 @@ Production-ready monorepo for personal and professional finance management with 
 ### Backend
 - Python 3.11+ with FastAPI
 - Clean Architecture (Domain/Application/Infrastructure/Presentation)
-- Supabase (Postgres)
+- Neon (Serverless Postgres)
 - Celery + Redis (async workers)
 - Pydantic (validation)
 - Anthropic Claude API (AI insights)
@@ -55,10 +55,10 @@ finopt/
 
 ### Prerequisites
 - Node.js 18+
-- Python 3.11+
+- Python 3.11 (recommended for local dev) or Docker (recommended)
 - Docker & Docker Compose
 - Expo CLI (`npm install -g expo-cli`)
-- Supabase account
+- Neon account (for production)
 
 ### Environment Setup
 
@@ -69,7 +69,7 @@ cp apps/mobile/.env.example apps/mobile/.env
 ```
 
 2. Update `.env` files with your credentials:
-   - Supabase URL and keys
+   - Neon database connection string
    - Anthropic API key
    - Redis connection
 

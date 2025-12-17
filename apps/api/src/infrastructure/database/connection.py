@@ -1,33 +1,39 @@
-"""Database connection management with Supabase."""
+"""Database connection management with SQLAlchemy for Neon/Postgres."""
 
-from supabase import create_client, Client
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy.pool import NullPool
 from src.config import settings
 
 
-class Database:
-    """Database connection manager."""
-
-    _client: Client = None
-
-    @classmethod
-    def get_client(cls) -> Client:
-        """Get Supabase client instance."""
-        if cls._client is None:
-            cls._client = create_client(
-                supabase_url=settings.supabase_url,
-                supabase_key=settings.supabase_key,
-            )
-        return cls._client
-
-    @classmethod
-    def get_service_client(cls) -> Client:
-        """Get Supabase client with service role (bypasses RLS)."""
-        return create_client(
-            supabase_url=settings.supabase_url,
-            supabase_key=settings.supabase_service_role_key,
-        )
+# Convert DATABASE_URL to async format if needed
+def get_async_database_url(url: str) -> str:
+    """Convert postgres:// to postgresql+asyncpg://"""
+    if url.startswith("postgres://"):
+        return url.replace("postgres://", "postgresql+asyncpg://", 1)
+    elif url.startswith("postgresql://"):
+        return url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    return url
 
 
-def get_db() -> Client:
-    """Dependency for getting database client."""
-    return Database.get_client()
+# Create async engine
+engine = create_async_engine(
+    get_async_database_url(settings.database_url),
+    poolclass=NullPool,  # Recommended for serverless (Neon)
+    echo=settings.debug,
+)
+
+# Session factory
+async_session_maker = async_sessionmaker(
+    engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
+)
+
+
+async def get_db() -> AsyncSession:
+    """Dependency for getting database session."""
+    async with async_session_maker() as session:
+        try:
+            yield session
+        finally:
+            await session.close()

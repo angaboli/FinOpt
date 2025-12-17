@@ -282,7 +282,7 @@ finopt/
 ### Schema Changes
 
 1. Update `infra/supabase/schema.sql`
-2. Test locally with Supabase
+2. Test locally with Neon
 3. Document changes
 4. Update repository implementations
 5. Update entity models
@@ -290,7 +290,7 @@ finopt/
 ### Migrations
 
 For production:
-- Use Supabase migrations
+- Use Neon branching for safe migrations
 - Or implement Alembic migrations
 - Never make breaking changes without migration path
 

@@ -22,7 +22,7 @@ finopt/
 
 ### 2. Database Schema ✅
 
-**Complete Supabase Postgres schema** with:
+**Complete Postgres schema (Neon)** with:
 - 12+ tables (users, accounts, transactions, budgets, goals, etc.)
 - Row Level Security (RLS) policies
 - Triggers and functions
@@ -46,14 +46,14 @@ finopt/
 - Account use cases (CRUD operations)
 
 **Infrastructure Layer:**
-- Supabase repository implementation (example: TransactionRepository)
+- Neon Postgres repository implementation (example: TransactionRepository)
 - Anthropic Claude LLM client for AI insights
 - Expo push notification service
 - Database connection management
 
 **Presentation Layer:**
 - RESTful API endpoints
-- Authentication (Supabase Auth integration)
+- Authentication (JWT-based)
 - Request/response validation (Pydantic)
 - OpenAPI documentation
 - Error handling
@@ -209,7 +209,7 @@ finopt/
 ### Backend
 - **FastAPI** - Modern Python web framework
 - **Python 3.11+** - Latest Python features
-- **Supabase** - Postgres database + auth
+- **Neon** - Serverless Postgres database
 - **Celery** - Distributed task queue
 - **Redis** - Message broker
 - **Anthropic Claude** - AI insights
@@ -229,7 +229,7 @@ finopt/
 - **Docker** - Containerization
 - **Docker Compose** - Multi-container orchestration
 - **GitHub Actions** - CI/CD
-- **Supabase** - Database hosting
+- **Neon** - Serverless Postgres hosting
 
 ## Architecture Highlights
 

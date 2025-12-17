@@ -7,10 +7,12 @@ Complete guide to set up and run Finopt locally.
 Ensure you have the following installed:
 
 - **Node.js** 18+ and npm
-- **Python** 3.11+
-- **Docker** and Docker Compose
+- **Python** 3.11 (recommended) - Python 3.12+ may have compatibility issues with some dependencies on Windows
+- **Docker** and Docker Compose (recommended for backend)
 - **Expo CLI**: `npm install -g expo-cli`
 - **Git**
+
+> **Note:** Running the backend with Docker is strongly recommended as it handles all dependencies automatically.
 
 ## 1. Clone Repository
 
@@ -19,25 +21,26 @@ git clone https://github.com/your-org/finopt.git
 cd finopt
 ```
 
-## 2. Set Up Supabase
+## 2. Set Up Neon Database
 
-### Create Supabase Project
+### Create Neon Project
 
-1. Go to [supabase.com](https://supabase.com)
+1. Go to [neon.tech](https://neon.tech)
 2. Create a new project
-3. Note your project URL and keys
+3. Note your connection string (found in Dashboard → Connection Details)
 
 ### Run Database Schema
 
-1. Go to Supabase Dashboard → SQL Editor
+1. Go to Neon Console → SQL Editor
 2. Copy contents of `infra/supabase/schema.sql`
 3. Execute the SQL
 
 Your database is now ready with:
 - All tables created
-- Row Level Security enabled
 - Triggers and functions set up
 - Default categories inserted
+
+> **Note:** Neon provides serverless Postgres with automatic scaling and branching capabilities.
 
 ## 3. Configure Environment Variables
 
@@ -51,13 +54,9 @@ cp .env.example .env
 Edit `apps/api/.env`:
 
 ```env
-# Supabase
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-
-# Database (from Supabase settings)
-DATABASE_URL=postgresql://postgres:password@db.your-project.supabase.co:5432/postgres
+# Neon Database (from Neon Dashboard → Connection Details)
+DATABASE_URL=postgresql://username:password@your-project.neon.tech/neondb?sslmode=require
+NEON_PROJECT_ID=your-neon-project-id
 
 # Anthropic AI
 ANTHROPIC_API_KEY=your-anthropic-api-key
@@ -80,8 +79,8 @@ Edit `apps/mobile/.env`:
 
 ```env
 API_URL=http://localhost:8000/api/v1
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_ANON_KEY=your-anon-key
+# Backend API handles database connection via Neon
+# No direct database access from mobile app
 ```
 
 ## 4. Install Dependencies
@@ -101,9 +100,9 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## 5. Running with Docker (Recommended)
+## 5. Running with Docker (Strongly Recommended)
 
-The easiest way to run everything:
+The easiest and most reliable way to run the backend:
 
 ```bash
 # From project root
@@ -132,12 +131,16 @@ docker-compose logs -f
 
 ## 6. Running Locally (Without Docker)
 
+> **Warning:** Local development requires Python 3.11. Python 3.12+ may fail to install some dependencies (bcrypt, pandas) on Windows due to missing pre-built wheels.
+
 ### Start Backend
 
 Terminal 1 - API Server:
 ```bash
 cd apps/api
-source venv/bin/activate
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
 uvicorn src.presentation.api.main:app --reload
 ```
 
@@ -173,12 +176,6 @@ Then:
 - Scan QR code with Expo Go app on your device
 
 ## 7. Create Your First User
-
-### Using Supabase Dashboard
-
-1. Go to Supabase Dashboard → Authentication → Users
-2. Click "Add user"
-3. Enter email and password
 
 ### Using API
 
@@ -289,9 +286,10 @@ npm test
 **Problem:** Cannot connect to database
 
 **Solution:**
-- Check Supabase is running
-- Verify `DATABASE_URL` in `.env`
+- Check Neon project is active
+- Verify `DATABASE_URL` in `.env` (ensure `?sslmode=require` is included)
 - Check network connectivity
+- Verify your IP is not blocked in Neon settings
 
 ### Redis Connection Error
 
@@ -374,11 +372,11 @@ git push origin feature/your-feature
 When modifying database schema:
 
 1. Update `infra/supabase/schema.sql`
-2. Apply changes in Supabase SQL Editor
+2. Apply changes in Neon SQL Editor
 3. Test locally
 4. Document changes
 
-For production: Use Supabase migrations or Alembic.
+For production: Use Neon branching for safe migrations or Alembic.
 
 ## 13. Debugging
 
@@ -410,7 +408,7 @@ docker-compose logs -f worker
 
 ### Database Queries
 
-Use Supabase Dashboard → Table Editor or SQL Editor to inspect data.
+Use Neon Console → SQL Editor or Tables view to inspect data.
 
 ## 14. Next Steps
 
@@ -439,7 +437,7 @@ See `docs/deployment.md` for production deployment guide (create this file with 
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
 - [React Native Documentation](https://reactnative.dev/)
 - [Expo Documentation](https://docs.expo.dev/)
-- [Supabase Documentation](https://supabase.com/docs)
+- [Neon Documentation](https://neon.tech/docs)
 - [Celery Documentation](https://docs.celeryq.dev/)
 - [Anthropic API Documentation](https://docs.anthropic.com/)
 
