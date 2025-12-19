@@ -1,4 +1,4 @@
-# Finopt - AI-Powered Personal Finance Manager
+# FinOpt - AI-Powered Personal Finance Manager
 
 Production-ready monorepo for personal and professional finance management with AI-powered insights.
 
@@ -55,10 +55,10 @@ finopt/
 
 ### Prerequisites
 - Node.js 18+
-- Python 3.11 (recommended for local dev) or Docker (recommended)
-- Docker & Docker Compose
+- Python 3.11 or 3.12 (recommended: 3.12)
+- Docker & Docker Compose (strongly recommended)
 - Expo CLI (`npm install -g expo-cli`)
-- Neon account (for production)
+- Neon account (free tier available at neon.tech)
 
 ### Environment Setup
 
@@ -73,7 +73,22 @@ cp apps/mobile/.env.example apps/mobile/.env
    - Anthropic API key
    - Redis connection
 
-### Running with Docker
+### Quick Setup with Scripts
+
+**Automated setup (recommended):**
+
+Linux/Mac:
+```bash
+chmod +x scripts/setup.sh scripts/test-setup.sh
+./scripts/setup.sh
+```
+
+Windows:
+```bash
+scripts\setup.bat
+```
+
+**Manual Docker setup:**
 
 ```bash
 # Start all services
@@ -81,6 +96,10 @@ docker-compose up -d
 
 # View logs
 docker-compose logs -f
+
+# Test setup
+./scripts/test-setup.sh  # Linux/Mac
+scripts\test-setup.bat   # Windows
 
 # Stop services
 docker-compose down
@@ -90,7 +109,8 @@ Services:
 - API: http://localhost:8000
 - API Docs: http://localhost:8000/docs
 - Redis: localhost:6379
-- Postgres: localhost:5432
+
+**Detailed Docker guide:** See `docs/docker-guide.md`
 
 ### Running Locally
 

@@ -43,6 +43,7 @@
     ],
     "scheme": "finopt",
     "extra": {
+      "apiUrl": "http://172.19.144.1:8000/api/v1",
       "router": {
         "origin": false
       },

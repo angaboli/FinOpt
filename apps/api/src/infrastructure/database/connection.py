@@ -7,11 +7,24 @@ from src.config import settings
 
 # Convert DATABASE_URL to async format if needed
 def get_async_database_url(url: str) -> str:
-    """Convert postgres:// to postgresql+asyncpg://"""
+    """Convert postgres:// to postgresql+asyncpg:// and fix SSL params"""
+    import re
+
+    # Replace protocol
     if url.startswith("postgres://"):
-        return url.replace("postgres://", "postgresql+asyncpg://", 1)
+        url = url.replace("postgres://", "postgresql+asyncpg://", 1)
     elif url.startswith("postgresql://"):
-        return url.replace("postgresql://", "postgresql+asyncpg://", 1)
+        url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+
+    # asyncpg uses 'ssl=require' not 'sslmode=require'
+    url = url.replace("sslmode=require", "ssl=require")
+
+    # Remove channel_binding parameter (not supported by asyncpg)
+    url = re.sub(r'[&?]channel_binding=[^&]*', '', url)
+
+    # Clean up double question marks or trailing & or ?
+    url = url.replace('??', '?').rstrip('&?')
+
     return url
 
 

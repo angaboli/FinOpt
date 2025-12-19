@@ -1,5 +1,6 @@
 """Celery application configuration."""
 
+import os
 from celery import Celery
 from src.config import settings
 
@@ -16,6 +17,10 @@ celery_app = Celery(
 )
 
 # Celery configuration
+# Use a native Linux filesystem location for beat schedule (fixes WSL2 file locking issues)
+beat_schedule_file = os.path.join(os.path.expanduser("~"), ".celery", "finopt-beat-schedule")
+os.makedirs(os.path.dirname(beat_schedule_file), exist_ok=True)
+
 celery_app.conf.update(
     task_serializer="json",
     accept_content=["json"],
@@ -27,6 +32,7 @@ celery_app.conf.update(
     task_soft_time_limit=240,  # 4 minutes
     worker_prefetch_multiplier=1,
     worker_max_tasks_per_child=1000,
+    beat_schedule_filename=beat_schedule_file,
 )
 
 # Task routes

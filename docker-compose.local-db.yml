@@ -1,0 +1,23 @@
+# Override configuration for using local PostgreSQL instead of Neon
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.local-db.yml up
+
+services:
+  api:
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/finopt
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+  worker:
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/finopt
+
+  beat:
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/finopt
+
+  postgres:
+    profiles: []  # Remove profile to enable by default with this config

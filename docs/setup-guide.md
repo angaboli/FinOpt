@@ -7,12 +7,12 @@ Complete guide to set up and run Finopt locally.
 Ensure you have the following installed:
 
 - **Node.js** 18+ and npm
-- **Python** 3.11 (recommended) - Python 3.12+ may have compatibility issues with some dependencies on Windows
-- **Docker** and Docker Compose (recommended for backend)
+- **Python** 3.11 or 3.12 (only if running without Docker)
+- **Docker** and Docker Compose (strongly recommended)
 - **Expo CLI**: `npm install -g expo-cli`
 - **Git**
 
-> **Note:** Running the backend with Docker is strongly recommended as it handles all dependencies automatically.
+> **⚠️ IMPORTANT:** Running the backend with Docker is **strongly recommended**. It handles all dependencies automatically and ensures consistent behavior across all platforms. Python 3.12 is fully supported.
 
 ## 1. Clone Repository
 
@@ -20,6 +20,31 @@ Ensure you have the following installed:
 git clone https://github.com/your-org/finopt.git
 cd finopt
 ```
+
+## 1.5 Quick Setup Script (Recommended)
+
+Pour un setup rapide, utilisez le script automatisé :
+
+**Linux/Mac:**
+```bash
+chmod +x scripts/setup.sh
+./scripts/setup.sh
+```
+
+**Windows:**
+```bash
+scripts\setup.bat
+```
+
+Le script va :
+- Vérifier les prérequis
+- Créer les fichiers `.env`
+- Installer les dépendances
+- Builder les images Docker
+
+Ensuite, suivez les instructions affichées pour configurer Neon et Anthropic.
+
+> **Note:** Si vous préférez le setup manuel, continuez avec les sections suivantes.
 
 ## 2. Set Up Neon Database
 
@@ -102,36 +127,41 @@ pip install -r requirements.txt
 
 ## 5. Running with Docker (Strongly Recommended)
 
-The easiest and most reliable way to run the backend:
+Le moyen le plus simple et fiable d'exécuter le backend :
 
 ```bash
-# From project root
+# Depuis la racine du projet
 docker-compose up -d
 ```
 
-This starts:
-- PostgreSQL (local dev database)
-- Redis (for Celery)
+Cela démarre :
+- Redis (pour Celery)
 - FastAPI backend (port 8000)
 - Celery worker
 - Celery beat (scheduler)
 
-### Check Status
+> **Note:** Le PostgreSQL local est optionnel. Par défaut, l'app se connecte à votre base Neon.
+
+### Vérifier le statut
 
 ```bash
 docker-compose ps
 docker-compose logs -f
 ```
 
-### Access Services
+### Accéder aux services
 
 - API: http://localhost:8000
 - API Docs: http://localhost:8000/docs
 - Health Check: http://localhost:8000/health
 
+### Guide complet Docker
+
+Pour plus de détails, consultez : **`docs/docker-guide.md`**
+
 ## 6. Running Locally (Without Docker)
 
-> **Warning:** Local development requires Python 3.11. Python 3.12+ may fail to install some dependencies (bcrypt, pandas) on Windows due to missing pre-built wheels.
+> **Note:** Utiliser Docker est fortement recommandé. Le setup local nécessite Python 3.11 ou 3.12 et l'installation manuelle de toutes les dépendances.
 
 ### Start Backend
 

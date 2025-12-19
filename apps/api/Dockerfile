@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 # Set working directory
 WORKDIR /app
@@ -19,9 +19,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Create non-root user
+# Copy and make entrypoint script executable
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+# Create non-root user (but keep root for entrypoint)
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
-USER appuser
 
 # Expose port
 EXPOSE 8000
@@ -30,5 +33,8 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD curl -f http://localhost:8000/health || exit 1
 
-# Default command
+# Use entrypoint script
+ENTRYPOINT ["/app/entrypoint.sh"]
+
+# Default command (will be passed to entrypoint)
 CMD ["uvicorn", "src.presentation.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
