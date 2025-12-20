@@ -1,12 +1,17 @@
 # 🎯 Stratégie d'Implémentation Mobile Recommandée
 
-## ✅ Approche en 2 Phases (Recommandé)
+## ✅ Approche en 2 Phases avec TDD + SOLID (Recommandé)
 
 ### 📦 Phase 1: Version Complète (7 jours)
-**Construire toutes les fonctionnalités de base**
+**Construire toutes les fonctionnalités de base avec TDD et architecture SOLID**
 
 ### 🚀 Phase 2: Améliorations Progressives (3-5 jours)
 **Ajouter les optimisations après avoir utilisé l'app**
+
+### 🏗️ Architecture
+- **TDD (Test-Driven Development)**: Tests avant le code
+- **SOLID**: Principes pour code maintenable et évolutif
+- **Clean Architecture**: Séparation des responsabilités
 
 ---
 
@@ -43,11 +48,13 @@
 
 ### Planning Détaillé
 
-**Jour 1: Foundation**
-- ✅ Design system (colors, typography, spacing)
-- ✅ Composants UI de base (ProgressBar, Icon, Avatar, FAB, SearchBar)
-- ✅ Configuration API (axios, interceptors)
-- ✅ Services de base (auth, api config)
+**Jour 1: Foundation + TDD Setup**
+- ✅ Configuration TDD (Jest, Testing Library)
+- ✅ Structure SOLID (core, infrastructure, presentation)
+- ✅ Design system avec tests (colors, typography, spacing)
+- ✅ Utils testés (formatters, validators)
+- ✅ Entities + Use Cases de base
+- ✅ API Client avec tests
 
 **Jour 2: Home Screen**
 - ✅ BalanceCard, StatCard, InsightCard
