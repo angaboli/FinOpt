@@ -196,17 +196,33 @@ MVP plus:
 
 ## 🎯 Recommendation
 
-**Je recommande l'Option 2: Version Complète (7 jours)**
+**Je recommande l'Approche Itérative: Option 2 + Option 3** ⭐⭐⭐
 
-Pourquoi?
-- Vous aurez toutes les fonctionnalités du design
-- C'est un bon équilibre entre rapidité et qualité
-- Vous pourrez montrer une app complète
+### Phase 1: Version Complète (7 jours)
+- Construire toutes les fonctionnalités de base
+- App complète et utilisable
 
-Après ces 7 jours, on peut toujours ajouter:
-- Les animations avancées
-- Le mode offline
-- Les optimisations de performance
+### 🔄 Pause Stratégique (1-2 semaines)
+- **Utiliser l'app quotidiennement**
+- **Noter ce qui manque**
+- **Identifier les vraies priorités**
+
+### Phase 2: Améliorations Progressives (3-5 jours)
+- Ajouter les animations si nécessaire
+- Optimiser les performances identifiées
+- Implémenter le mode offline si besoin
+- Ajouter les fonctionnalités manquantes
+
+**Pourquoi cette approche?**
+- ✅ Feedback réel après 7 jours
+- ✅ Améliorations ciblées sur les vrais besoins
+- ✅ Pas de sur-engineering
+- ✅ Motivation maintenue
+- ✅ Flexibilité totale
+
+**Total: 10-12 jours** (mieux répartis qu'en une seule phase!)
+
+📖 **Voir MOBILE_STRATEGY.md pour le plan détaillé**
 
 ---
 

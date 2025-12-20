@@ -139,8 +139,9 @@ Ajout de fichiers `__init__.py` dans tous les packages:
 
 ## 🎯 Recommandation Mobile
 
-Pour l'implémentation mobile, je recommande l'**Option 2: Version Complète (7 jours)**
+Pour l'implémentation mobile, je recommande l'**Approche Itérative (Option 2 + 3)**
 
+### Phase 1: Version Complète (7 jours)
 **Planning:**
 - **Jour 1:** Setup (design system + composants de base)
 - **Jour 2:** Home Screen
@@ -150,11 +151,25 @@ Pour l'implémentation mobile, je recommande l'**Option 2: Version Complète (7 
 - **Jour 6:** Settings Screen
 - **Jour 7:** Polish & Tests
 
+### 🔄 Pause Stratégique (1-2 semaines)
+- Utiliser l'app quotidiennement
+- Noter ce qui manque
+- Identifier les vraies priorités
+
+### Phase 2: Améliorations Progressives (3-5 jours)
+- Animations si nécessaire
+- Optimisations identifiées
+- Mode offline si besoin
+- Fonctionnalités manquantes
+
 **Avantages:**
-- ✅ Toutes les fonctionnalités du design
-- ✅ App complète et utilisable
-- ✅ Bon équilibre qualité/rapidité
-- ✅ Possibilité d'ajouter des animations après
+- ✅ Feedback réel après 7 jours
+- ✅ Améliorations ciblées sur les vrais besoins
+- ✅ Pas de sur-engineering
+- ✅ Motivation maintenue
+- ✅ Total: 10-12 jours (mieux répartis!)
+
+📖 **Détails:** MOBILE_STRATEGY.md
 
 ---
 
