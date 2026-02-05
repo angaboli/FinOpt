@@ -135,28 +135,28 @@ export default function InsightsScreen() {
           insights.map((insight) => (
             <View key={insight.id} style={styles.insightCard}>
               <View style={styles.insightHeader}>
-                <Text style={styles.insightMonth}>{formatMonth(insight.month_year)}</Text>
+                <Text style={styles.insightMonth}>{formatMonth(insight.monthYear)}</Text>
                 <Text style={styles.insightDate}>
-                  {new Date(insight.generated_at).toLocaleDateString('fr-FR')}
+                  {new Date(insight.generatedAt).toLocaleDateString('fr-FR')}
                 </Text>
               </View>
 
               {/* Estimations */}
-              {(insight.income_estimate || insight.fixed_costs_estimate) && (
+              {(insight.incomeEstimate || insight.fixedCostsEstimate) && (
                 <View style={styles.estimatesRow}>
-                  {insight.income_estimate != null && (
+                  {insight.incomeEstimate != null && (
                     <View style={styles.estimateItem}>
                       <Text style={styles.estimateLabel}>Revenus estimés</Text>
                       <Text style={[styles.estimateValue, { color: colors.status.success }]}>
-                        {insight.income_estimate.toFixed(0)} €
+                        {insight.incomeEstimate.toFixed(0)} €
                       </Text>
                     </View>
                   )}
-                  {insight.fixed_costs_estimate != null && (
+                  {insight.fixedCostsEstimate != null && (
                     <View style={styles.estimateItem}>
                       <Text style={styles.estimateLabel}>Charges fixes</Text>
                       <Text style={[styles.estimateValue, { color: colors.status.error }]}>
-                        {insight.fixed_costs_estimate.toFixed(0)} €
+                        {insight.fixedCostsEstimate.toFixed(0)} €
                       </Text>
                     </View>
                   )}

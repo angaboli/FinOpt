@@ -41,7 +41,7 @@ export default function AccountsScreen({ navigation }: any) {
   const handleAccountPress = (account: Account) => {
     Alert.alert(
       account.name,
-      `Solde: ${account.balance.toFixed(2)} ${account.currency}\nType: ${account.type}\nStatut: ${account.is_active ? 'Actif' : 'Inactif'}`,
+      `Solde: ${account.balance.toFixed(2)} ${account.currency}\nType: ${account.type}\nStatut: ${account.isActive ? 'Actif' : 'Inactif'}`,
       [
         { text: 'OK' },
         {
@@ -108,7 +108,7 @@ export default function AccountsScreen({ navigation }: any) {
 
   const calculateTotalBalance = () => {
     return accounts.reduce((total, account) => {
-      if (account.is_active) {
+      if (account.isActive) {
         return total + account.balance;
       }
       return total;
@@ -136,7 +136,7 @@ export default function AccountsScreen({ navigation }: any) {
           {calculateTotalBalance().toFixed(2)} EUR
         </Text>
         <Text style={styles.totalSubtext}>
-          {accounts.filter((a) => a.is_active).length} compte(s) actif(s)
+          {accounts.filter((a) => a.isActive).length} compte(s) actif(s)
         </Text>
       </Card>
 
@@ -194,15 +194,15 @@ export default function AccountsScreen({ navigation }: any) {
                     <Text style={styles.accountCurrency}>{account.currency}</Text>
                   </View>
                 </View>
-                {account.bank_name && (
+                {account.bankName && (
                   <View style={styles.accountCardFooter}>
-                    <Text style={styles.accountBank}>🏦 {account.bank_name}</Text>
-                    {account.iban_last4 && (
-                      <Text style={styles.accountIban}>•••• {account.iban_last4}</Text>
+                    <Text style={styles.accountBank}>🏦 {account.bankName}</Text>
+                    {account.ibanLast4 && (
+                      <Text style={styles.accountIban}>•••• {account.ibanLast4}</Text>
                     )}
                   </View>
                 )}
-                {!account.is_active && (
+                {!account.isActive && (
                   <View style={styles.inactiveBadge}>
                     <Text style={styles.inactiveBadgeText}>Inactif</Text>
                   </View>
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
   accountBalance: {
     fontSize: typography.heading.h3.fontSize,
     fontWeight: '700',
-    color: colors.success.main,
+    color: colors.status.success,
     marginBottom: spacing.xs,
   },
   accountBalanceNegative: {

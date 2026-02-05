@@ -5,6 +5,7 @@ import { colors } from '@shared/constants/colors';
 import { spacing } from '@shared/constants/spacing';
 import { typography } from '@shared/constants/typography';
 import { formatCurrency, formatPercentage } from '@shared/utils/formatters';
+import { Target, CheckCircle, PauseCircle, XCircle, Calendar, PiggyBank } from 'lucide-react-native';
 import type { GoalStatus } from '@finopt/shared';
 
 interface GoalCardProps {
@@ -38,17 +39,27 @@ export const GoalCard: React.FC<GoalCardProps> = ({
   const target = new Date(targetDate);
   const daysRemaining = Math.ceil((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
+  // Calculer l'épargne mensuelle nécessaire
+  const calculatedMonthlySaving = (() => {
+    if (remaining <= 0 || daysRemaining <= 0) return null;
+    const monthsRemaining = daysRemaining / 30;
+    return remaining / monthsRemaining;
+  })();
+
+  const displayMonthlySaving = monthlySavingTarget || calculatedMonthlySaving;
+
   // Icône selon le status
   const getStatusIcon = () => {
+    const iconSize = 24;
     switch (status) {
       case 'COMPLETED':
-        return '✅';
+        return <CheckCircle size={iconSize} color={colors.status.success} />;
       case 'PAUSED':
-        return '⏸️';
+        return <PauseCircle size={iconSize} color={colors.neutral[500]} />;
       case 'CANCELLED':
-        return '❌';
+        return <XCircle size={iconSize} color={colors.status.error} />;
       default:
-        return '🎯';
+        return <Target size={iconSize} color={colors.primary.main} />;
     }
   };
 
@@ -94,7 +105,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
     <Card onPress={onPress} style={styles.card}>
       <View style={styles.header}>
         <View style={styles.titleContainer}>
-          <Text style={styles.icon}>{getStatusIcon()}</Text>
+          <View style={styles.icon}>{getStatusIcon()}</View>
           <View style={styles.titleInfo}>
             <Text style={styles.title}>{title}</Text>
             {description && <Text style={styles.description}>{description}</Text>}
@@ -155,14 +166,18 @@ export const GoalCard: React.FC<GoalCardProps> = ({
       {/* Footer avec date et épargne mensuelle */}
       <View style={styles.footer}>
         <View style={styles.footerItem}>
+          <Calendar size={14} color={colors.neutral[600]} style={{ marginRight: 4 }} />
           <Text style={styles.footerLabel}>
-            {daysRemaining > 0 ? `📅 ${daysRemaining} jours restants` : '📅 Date dépassée'}
+            {daysRemaining > 0 ? `${daysRemaining} jours restants` : 'Date dépassée'}
           </Text>
         </View>
 
-        {monthlySavingTarget && status === 'ACTIVE' && (
+        {displayMonthlySaving && displayMonthlySaving > 0 && status === 'ACTIVE' && (
           <View style={styles.footerItem}>
-            <Text style={styles.footerLabel}>💰 {formatCurrency(monthlySavingTarget, currency)}/mois</Text>
+            <PiggyBank size={14} color={colors.primary.main} style={{ marginRight: 4 }} />
+            <Text style={[styles.footerLabel, { color: colors.primary.main, fontWeight: '600' }]}>
+              {formatCurrency(displayMonthlySaving, currency)}/mois
+            </Text>
           </View>
         )}
       </View>
@@ -186,8 +201,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   icon: {
-    fontSize: 28,
     marginRight: spacing.sm,
+    justifyContent: 'center',
   },
   titleInfo: {
     flex: 1,

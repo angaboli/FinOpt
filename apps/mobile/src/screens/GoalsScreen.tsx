@@ -43,8 +43,7 @@ export default function GoalsScreen({ navigation }: any) {
   };
 
   const handleGoalPress = (goal: Goal) => {
-    // TODO: Navigate to Goal Details
-    console.log('Goal pressed:', goal);
+    navigation.navigate('EditGoal', { goal });
   };
 
   // Trier les objectifs par status et priorité

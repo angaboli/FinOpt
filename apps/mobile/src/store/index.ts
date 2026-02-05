@@ -37,7 +37,7 @@ interface CategoryItem {
   name: string;
   icon: string | null;
   color: string | null;
-  is_system: boolean;
+  isSystem: boolean;
 }
 
 interface DataState {
@@ -68,14 +68,14 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: true });
     try {
       const response = await apiClient.signIn(email, password);
-      apiClient.setToken(response.access_token);
+      apiClient.setToken(response.accessToken);
       await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({
         user: response.user,
-        token: response.access_token,
+        token: response.accessToken,
       }));
       set({
         user: response.user,
-        token: response.access_token,
+        token: response.accessToken,
         isAuthenticated: true,
         isLoading: false,
       });
@@ -92,14 +92,14 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: true });
     try {
       const response = await apiClient.signUp(email, password, fullName);
-      apiClient.setToken(response.access_token);
+      apiClient.setToken(response.accessToken);
       await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({
         user: response.user,
-        token: response.access_token,
+        token: response.accessToken,
       }));
       set({
         user: response.user,
-        token: response.access_token,
+        token: response.accessToken,
         isAuthenticated: true,
         isLoading: false,
       });

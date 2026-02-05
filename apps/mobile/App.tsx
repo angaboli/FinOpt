@@ -3,12 +3,11 @@
  */
 
 import React, { useEffect } from 'react';
-import { Text } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import * as Notifications from 'expo-notifications';
+import { Home, CreditCard, PieChart, Target, Settings } from 'lucide-react-native';
 
 import { useAuthStore } from './src/store';
 
@@ -22,6 +21,7 @@ import BudgetsScreen from './src/screens/BudgetsScreen';
 import AddBudgetScreen from './src/screens/AddBudgetScreen';
 import GoalsScreen from './src/screens/GoalsScreen';
 import AddGoalScreen from './src/screens/AddGoalScreen';
+import EditGoalScreen from './src/screens/EditGoalScreen';
 import InsightsScreen from './src/screens/InsightsScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import SignInScreen from './src/screens/SignInScreen';
@@ -29,27 +29,13 @@ import SignInScreen from './src/screens/SignInScreen';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// Configure notifications
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
-
-const TabIcon = ({ label, focused }: { label: string; focused: boolean }) => (
-  <Text style={{ fontSize: 20, opacity: focused ? 1 : 0.5 }}>{label}</Text>
-);
-
 function MainTabs() {
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: '#3b82f6',
+        tabBarInactiveTintColor: '#9ca3af',
       }}
     >
       <Tab.Screen
@@ -57,7 +43,7 @@ function MainTabs() {
         component={DashboardScreen}
         options={{
           tabBarLabel: 'Accueil',
-          tabBarIcon: ({ focused }) => <TabIcon label="🏠" focused={focused} />,
+          tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
         }}
       />
       <Tab.Screen
@@ -65,7 +51,7 @@ function MainTabs() {
         component={TransactionsScreen}
         options={{
           tabBarLabel: 'Transactions',
-          tabBarIcon: ({ focused }) => <TabIcon label="💳" focused={focused} />,
+          tabBarIcon: ({ color, size }) => <CreditCard size={size} color={color} />,
         }}
       />
       <Tab.Screen
@@ -73,7 +59,7 @@ function MainTabs() {
         component={BudgetsScreen}
         options={{
           tabBarLabel: 'Budgets',
-          tabBarIcon: ({ focused }) => <TabIcon label="📊" focused={focused} />,
+          tabBarIcon: ({ color, size }) => <PieChart size={size} color={color} />,
         }}
       />
       <Tab.Screen
@@ -81,7 +67,7 @@ function MainTabs() {
         component={GoalsScreen}
         options={{
           tabBarLabel: 'Objectifs',
-          tabBarIcon: ({ focused }) => <TabIcon label="🎯" focused={focused} />,
+          tabBarIcon: ({ color, size }) => <Target size={size} color={color} />,
         }}
       />
       <Tab.Screen
@@ -89,7 +75,7 @@ function MainTabs() {
         component={SettingsScreen}
         options={{
           tabBarLabel: 'Plus',
-          tabBarIcon: ({ focused }) => <TabIcon label="⚙️" focused={focused} />,
+          tabBarIcon: ({ color, size }) => <Settings size={size} color={color} />,
         }}
       />
     </Tab.Navigator>
@@ -101,12 +87,6 @@ export default function App() {
 
   useEffect(() => {
     restoreSession();
-    (async () => {
-      const { status } = await Notifications.requestPermissionsAsync();
-      if (status !== 'granted') {
-        console.warn('Notification permissions not granted');
-      }
-    })();
   }, []);
 
   return (
@@ -137,6 +117,11 @@ export default function App() {
               <Stack.Screen
                 name="AddGoal"
                 component={AddGoalScreen}
+                options={{ presentation: 'modal' }}
+              />
+              <Stack.Screen
+                name="EditGoal"
+                component={EditGoalScreen}
                 options={{ presentation: 'modal' }}
               />
               <Stack.Screen

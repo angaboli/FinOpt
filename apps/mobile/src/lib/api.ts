@@ -37,6 +37,22 @@ interface InsightRecord {
 
 const API_URL = Constants.expoConfig?.extra?.apiUrl || 'http://localhost:8000/api/v1';
 
+/** Convert snake_case keys to camelCase recursively */
+function snakeToCamel(data: any): any {
+  if (Array.isArray(data)) {
+    return data.map(snakeToCamel);
+  }
+  if (data !== null && typeof data === 'object' && !(data instanceof Date)) {
+    const result: any = {};
+    for (const key of Object.keys(data)) {
+      const camelKey = key.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
+      result[camelKey] = snakeToCamel(data[key]);
+    }
+    return result;
+  }
+  return data;
+}
+
 if (__DEV__) {
   console.log('API Configuration:', { url: API_URL });
 }
@@ -48,15 +64,28 @@ class ApiClient {
   constructor() {
     this.client = axios.create({
       baseURL: API_URL,
-      timeout: 30000, // 30 seconds pour les opérations qui peuvent prendre du temps
+      timeout: 30000,
       headers: {
         'Content-Type': 'application/json',
       },
     });
 
-    // Request interceptor
+    // Request interceptor - restore token from AsyncStorage if needed
     this.client.interceptors.request.use(
-      (config) => {
+      async (config) => {
+        if (!this.token) {
+          // Try to restore token from AsyncStorage (handles hot reload)
+          try {
+            const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+            const stored = await AsyncStorage.getItem('finopt_auth');
+            if (stored) {
+              const { token } = JSON.parse(stored);
+              if (token) {
+                this.token = token;
+              }
+            }
+          } catch {}
+        }
         if (this.token) {
           config.headers.Authorization = `Bearer ${this.token}`;
         }
@@ -65,14 +94,13 @@ class ApiClient {
       (error) => Promise.reject(error)
     );
 
-    // Response interceptor
+    // Response interceptor - convert snake_case to camelCase
     this.client.interceptors.response.use(
-      (response) => response,
+      (response) => {
+        response.data = snakeToCamel(response.data);
+        return response;
+      },
       (error: AxiosError) => {
-        if (error.response?.status === 401) {
-          // Handle unauthorized
-          this.clearToken();
-        }
         return Promise.reject(error);
       }
     );
@@ -107,7 +135,7 @@ class ApiClient {
   }
 
   // Categories
-  async getCategories(): Promise<{ id: string; name: string; icon: string | null; color: string | null; is_system: boolean }[]> {
+  async getCategories(): Promise<{ id: string; name: string; icon: string | null; color: string | null; isSystem: boolean }[]> {
     const response = await this.client.get('/categories/');
     return response.data;
   }

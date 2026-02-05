@@ -1,5 +1,5 @@
 /**
- * Add Goal Screen - Modal for creating a new financial goal
+ * Edit Goal Screen - Modal for editing an existing financial goal
  */
 
 import React, { useState } from 'react';
@@ -21,24 +21,35 @@ import { spacing } from '@shared/constants/spacing';
 import { typography } from '@shared/constants/typography';
 import { apiClient } from '../lib/api';
 import { useDataStore } from '../store';
+import { GoalStatus } from '@finopt/shared';
 
 type Priority = 1 | 2 | 3;
 
 const PRIORITY_OPTIONS = [
-  { value: 1 as Priority, label: 'Haute 🔥', color: colors.status.error },
-  { value: 2 as Priority, label: 'Moyenne ⚡', color: colors.status.warning },
-  { value: 3 as Priority, label: 'Basse 💤', color: colors.status.info },
+  { value: 1 as Priority, label: 'Haute \u{1F525}', color: colors.status.error },
+  { value: 2 as Priority, label: 'Moyenne \u26A1', color: colors.status.warning },
+  { value: 3 as Priority, label: 'Basse \u{1F4A4}', color: colors.status.info },
 ];
 
-export default function AddGoalScreen({ navigation }: any) {
+const STATUS_OPTIONS = [
+  { value: GoalStatus.ACTIVE, label: 'Actif' },
+  { value: GoalStatus.PAUSED, label: 'En pause' },
+  { value: GoalStatus.COMPLETED, label: 'Terminé' },
+  { value: GoalStatus.CANCELLED, label: 'Annulé' },
+];
+
+export default function EditGoalScreen({ navigation, route }: any) {
+  const { goal } = route.params;
   const { fetchGoals } = useDataStore();
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [targetAmount, setTargetAmount] = useState('');
-  const [currentAmount, setCurrentAmount] = useState('0');
-  const [targetDateObj, setTargetDateObj] = useState<Date | null>(null);
+
+  const [title, setTitle] = useState(goal.title);
+  const [description, setDescription] = useState(goal.description || '');
+  const [targetAmount, setTargetAmount] = useState(String(goal.targetAmount));
+  const [currentAmount, setCurrentAmount] = useState(String(goal.currentAmount));
+  const [targetDateObj, setTargetDateObj] = useState<Date>(new Date(goal.targetDate));
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [priority, setPriority] = useState<Priority>(2);
+  const [priority, setPriority] = useState<Priority>(goal.priority as Priority);
+  const [status, setStatus] = useState<GoalStatus>(goal.status);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -53,7 +64,6 @@ export default function AddGoalScreen({ navigation }: any) {
   };
 
   const handleSubmit = async () => {
-    // Validation
     if (!title.trim()) {
       setError('Veuillez entrer un titre');
       return;
@@ -70,47 +80,30 @@ export default function AddGoalScreen({ navigation }: any) {
       return;
     }
 
-    if (!targetDateObj) {
-      setError('Veuillez sélectionner une date cible');
-      return;
-    }
-
     setIsLoading(true);
     setError(null);
 
     try {
-      const goalData = {
+      const updateData = {
         title,
         description: description || undefined,
         target_amount: parseFloat(targetAmount),
+        current_amount: currentAmountValue,
         target_date: formatApiDate(targetDateObj),
         priority,
+        status,
       };
 
-      console.log('🎯 Création de l\'objectif:', goalData);
-
-      const createdGoal = await apiClient.createGoal(goalData);
-
-      // Si l'utilisateur a entré un montant initial, faire une mise à jour
-      if (currentAmountValue > 0) {
-        console.log('💰 Mise à jour du montant initial:', currentAmountValue);
-        await apiClient.updateGoal(createdGoal.id, { current_amount: currentAmountValue });
-      }
-
-      console.log('✅ Objectif créé avec succès!');
-
-      // Rafraîchir les objectifs
+      await apiClient.updateGoal(goal.id, updateData);
       await fetchGoals();
 
-      // Afficher un message de succès
       Alert.alert(
         'Succès',
-        'Objectif créé avec succès!',
+        'Objectif mis à jour!',
         [{ text: 'OK', onPress: () => navigation.goBack() }]
       );
     } catch (err: any) {
       const detail = err.response?.data?.detail || err.response?.data?.message || err.message || 'Erreur inconnue';
-      console.error('❌ Erreur création objectif:', detail);
       setError(typeof detail === 'string' ? detail.substring(0, 200) : JSON.stringify(detail));
       Alert.alert('Erreur', typeof detail === 'string' ? detail.substring(0, 500) : JSON.stringify(detail));
     } finally {
@@ -118,29 +111,55 @@ export default function AddGoalScreen({ navigation }: any) {
     }
   };
 
+  const handleDelete = () => {
+    Alert.alert(
+      'Supprimer l\'objectif',
+      `Voulez-vous vraiment supprimer "${goal.title}" ?`,
+      [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Supprimer',
+          style: 'destructive',
+          onPress: async () => {
+            setIsLoading(true);
+            try {
+              await apiClient.deleteGoal(goal.id);
+              await fetchGoals();
+              navigation.goBack();
+            } catch (err: any) {
+              const detail = err.response?.data?.detail || err.message || 'Erreur';
+              Alert.alert('Erreur', typeof detail === 'string' ? detail : JSON.stringify(detail));
+            } finally {
+              setIsLoading(false);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const handleCancel = () => {
     navigation.goBack();
   };
 
   if (isLoading) {
-    return <LoadingSpinner fullScreen message="Création de l'objectif..." />;
+    return <LoadingSpinner fullScreen message="Mise à jour..." />;
   }
 
   // Calculer le nombre de jours restants
   const calculateDaysRemaining = (): number | null => {
-    if (!targetDateObj) return null;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const diff = targetDateObj.getTime() - today.getTime();
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
   };
 
-  // Calculer l'épargne mensuelle recommandée
   const calculateMonthlySaving = (): number | null => {
-    if (!targetAmount || !targetDateObj) return null;
+    if (!targetAmount) return null;
     const target = parseFloat(targetAmount);
     const current = parseFloat(currentAmount) || 0;
     const remaining = target - current;
+    if (remaining <= 0) return null;
     const daysRemaining = calculateDaysRemaining();
     if (!daysRemaining || daysRemaining <= 0) return null;
     const monthsRemaining = daysRemaining / 30;
@@ -149,6 +168,9 @@ export default function AddGoalScreen({ navigation }: any) {
 
   const daysRemaining = calculateDaysRemaining();
   const monthlySaving = calculateMonthlySaving();
+  const progressPercent = parseFloat(targetAmount) > 0
+    ? ((parseFloat(currentAmount) / parseFloat(targetAmount)) * 100)
+    : 0;
 
   return (
     <KeyboardAvoidingView
@@ -159,8 +181,10 @@ export default function AddGoalScreen({ navigation }: any) {
         <TouchableOpacity onPress={handleCancel}>
           <Text style={styles.cancelButton}>Annuler</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Nouvel Objectif</Text>
-        <View style={styles.placeholder} />
+        <Text style={styles.title}>Modifier Objectif</Text>
+        <TouchableOpacity onPress={handleDelete}>
+          <Text style={styles.deleteButton}>Supprimer</Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView
@@ -168,6 +192,15 @@ export default function AddGoalScreen({ navigation }: any) {
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
+        {/* Progression */}
+        <View style={styles.progressCard}>
+          <Text style={styles.progressTitle}>Progression</Text>
+          <View style={styles.progressBarContainer}>
+            <View style={[styles.progressBar, { width: `${Math.min(progressPercent, 100)}%` }]} />
+          </View>
+          <Text style={styles.progressText}>{progressPercent.toFixed(1)}%</Text>
+        </View>
+
         {/* Titre */}
         <View style={styles.section}>
           <Input
@@ -207,7 +240,7 @@ export default function AddGoalScreen({ navigation }: any) {
         {/* Montant actuel */}
         <View style={styles.section}>
           <Input
-            label="Montant déjà épargné"
+            label="Montant épargné"
             placeholder="0.00"
             value={currentAmount}
             onChangeText={setCurrentAmount}
@@ -223,16 +256,15 @@ export default function AddGoalScreen({ navigation }: any) {
             style={styles.datePickerButton}
             onPress={() => setShowDatePicker(true)}
           >
-            <Text style={targetDateObj ? styles.datePickerText : styles.datePickerPlaceholder}>
-              {targetDateObj ? formatDisplayDate(targetDateObj) : 'Sélectionner une date'}
+            <Text style={styles.datePickerText}>
+              {formatDisplayDate(targetDateObj)}
             </Text>
             <CalendarDays size={20} color={colors.neutral[500]} />
           </TouchableOpacity>
           <DateTimePickerModal
             isVisible={showDatePicker}
             mode="date"
-            date={targetDateObj || new Date()}
-            minimumDate={new Date()}
+            date={targetDateObj}
             onConfirm={handleDateConfirm}
             onCancel={() => setShowDatePicker(false)}
             confirmTextIOS="Valider"
@@ -243,7 +275,7 @@ export default function AddGoalScreen({ navigation }: any) {
         {/* Priorité */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Priorité</Text>
-          <View style={styles.priorityContainer}>
+          <View style={styles.chipContainer}>
             {PRIORITY_OPTIONS.map((option) => (
               <FilterChip
                 key={option.value}
@@ -255,34 +287,34 @@ export default function AddGoalScreen({ navigation }: any) {
           </View>
         </View>
 
-        {/* Preview / Recommandations */}
-        {targetAmount && targetDateObj && (
+        {/* Statut */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Statut</Text>
+          <View style={styles.chipContainer}>
+            {STATUS_OPTIONS.map((option) => (
+              <FilterChip
+                key={option.value}
+                label={option.label}
+                selected={status === option.value}
+                onPress={() => setStatus(option.value)}
+              />
+            ))}
+          </View>
+        </View>
+
+        {/* Recommandations */}
+        {targetAmount && daysRemaining !== null && daysRemaining > 0 && (
           <View style={styles.recommendationCard}>
-            <Text style={styles.recommendationTitle}>💡 Recommandations</Text>
-
-            {daysRemaining !== null && (
-              <View style={styles.recommendationRow}>
-                <Text style={styles.recommendationLabel}>Jours restants:</Text>
-                <Text style={styles.recommendationValue}>
-                  {daysRemaining > 0 ? `${daysRemaining} jours` : 'Date dépassée'}
-                </Text>
-              </View>
-            )}
-
+            <Text style={styles.recommendationTitle}>{'\u{1F4A1}'} Recommandations</Text>
+            <View style={styles.recommendationRow}>
+              <Text style={styles.recommendationLabel}>Jours restants:</Text>
+              <Text style={styles.recommendationValue}>{daysRemaining} jours</Text>
+            </View>
             {monthlySaving !== null && monthlySaving > 0 && (
               <View style={styles.recommendationRow}>
                 <Text style={styles.recommendationLabel}>Épargne mensuelle:</Text>
                 <Text style={[styles.recommendationValue, { color: colors.primary.main, fontWeight: '600' }]}>
                   {monthlySaving.toFixed(2)} €/mois
-                </Text>
-              </View>
-            )}
-
-            {parseFloat(targetAmount) > 0 && parseFloat(currentAmount) > 0 && (
-              <View style={styles.recommendationRow}>
-                <Text style={styles.recommendationLabel}>Progression initiale:</Text>
-                <Text style={styles.recommendationValue}>
-                  {((parseFloat(currentAmount) / parseFloat(targetAmount)) * 100).toFixed(1)}%
                 </Text>
               </View>
             )}
@@ -305,7 +337,7 @@ export default function AddGoalScreen({ navigation }: any) {
             style={styles.actionButton}
           />
           <Button
-            title="Créer"
+            title="Enregistrer"
             variant="primary"
             onPress={handleSubmit}
             loading={isLoading}
@@ -338,13 +370,15 @@ const styles = StyleSheet.create({
     color: colors.primary.main,
     fontWeight: '600',
   },
+  deleteButton: {
+    fontSize: typography.body.regular.fontSize,
+    color: colors.status.error,
+    fontWeight: '600',
+  },
   title: {
     fontSize: typography.heading.h3.fontSize,
     fontWeight: typography.heading.h3.fontWeight,
     color: colors.neutral[800],
-  },
-  placeholder: {
-    width: 60,
   },
   content: {
     flex: 1,
@@ -353,6 +387,39 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingTop: spacing.lg,
     paddingBottom: spacing.xl * 2,
+  },
+  progressCard: {
+    backgroundColor: colors.neutral.white,
+    borderRadius: 12,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.neutral[200],
+    alignItems: 'center',
+  },
+  progressTitle: {
+    fontSize: typography.body.regular.fontSize,
+    fontWeight: '600',
+    color: colors.neutral[800],
+    marginBottom: spacing.sm,
+  },
+  progressBarContainer: {
+    width: '100%',
+    height: 12,
+    backgroundColor: colors.neutral[200],
+    borderRadius: 6,
+    overflow: 'hidden',
+    marginBottom: spacing.xs,
+  },
+  progressBar: {
+    height: '100%',
+    backgroundColor: colors.primary.main,
+    borderRadius: 6,
+  },
+  progressText: {
+    fontSize: typography.body.small.fontSize,
+    fontWeight: '600',
+    color: colors.primary.main,
   },
   section: {
     marginBottom: spacing.md,
@@ -363,7 +430,7 @@ const styles = StyleSheet.create({
     color: colors.neutral[800],
     marginBottom: spacing.sm,
   },
-  priorityContainer: {
+  chipContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
@@ -386,10 +453,6 @@ const styles = StyleSheet.create({
   datePickerText: {
     fontSize: typography.body.regular.fontSize,
     color: colors.neutral[800],
-  },
-  datePickerPlaceholder: {
-    fontSize: typography.body.regular.fontSize,
-    color: colors.neutral[400],
   },
   recommendationCard: {
     backgroundColor: colors.primary.light + '20',

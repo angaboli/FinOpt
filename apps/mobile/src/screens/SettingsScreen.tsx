@@ -103,10 +103,10 @@ export default function SettingsScreen() {
     try {
       const prefs = await apiClient.getNotificationPreferences();
       setNotificationPrefs({
-        budgetAlerts: prefs.budget_warnings_enabled ?? true,
-        goalMilestones: prefs.budget_exceeded_enabled ?? true,
-        insights: prefs.insights_enabled ?? true,
-        transactionAlerts: prefs.anomaly_alerts_enabled ?? false,
+        budgetAlerts: prefs.budgetWarningsEnabled ?? true,
+        goalMilestones: prefs.budgetExceededEnabled ?? true,
+        insights: prefs.insightsEnabled ?? true,
+        transactionAlerts: prefs.anomalyAlertsEnabled ?? false,
       });
     } catch {
       // Use defaults if API fails

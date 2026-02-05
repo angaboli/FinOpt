@@ -13,6 +13,8 @@ import {
   Platform,
   Alert,
 } from 'react-native';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import { CalendarDays } from 'lucide-react-native';
 import { Button, Input, LoadingSpinner, FilterChip } from '@presentation/components/common';
 import { colors } from '@shared/constants/colors';
 import { spacing } from '@shared/constants/spacing';
@@ -29,8 +31,19 @@ export default function AddTransactionScreen({ navigation }: any) {
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const [merchantName, setMerchantName] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [dateObj, setDateObj] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [notes, setNotes] = useState('');
+
+  const formatDisplayDate = (d: Date) =>
+    `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+
+  const formatApiDate = (d: Date) => d.toISOString().split('T')[0];
+
+  const handleDateConfirm = (date: Date) => {
+    setDateObj(date);
+    setShowDatePicker(false);
+  };
   const [selectedAccountId, setSelectedAccountId] = useState<string | null>(
     accounts.length > 0 ? accounts[0].id : null
   );
@@ -92,7 +105,7 @@ export default function AddTransactionScreen({ navigation }: any) {
         description,
         category_id: selectedCategoryId || undefined,
         merchant_name: merchantName || undefined,
-        date,
+        date: formatApiDate(dateObj),
         notes: notes || undefined,
       });
 
@@ -253,12 +266,24 @@ export default function AddTransactionScreen({ navigation }: any) {
 
         {/* Date */}
         <View style={styles.section}>
-          <Input
-            label="Date"
-            placeholder="YYYY-MM-DD"
-            value={date}
-            onChangeText={setDate}
-            helperText="Format: AAAA-MM-JJ"
+          <Text style={styles.sectionTitle}>Date</Text>
+          <TouchableOpacity
+            style={styles.datePickerButton}
+            onPress={() => setShowDatePicker(true)}
+          >
+            <Text style={styles.datePickerText}>
+              {formatDisplayDate(dateObj)}
+            </Text>
+            <CalendarDays size={20} color={colors.neutral[500]} />
+          </TouchableOpacity>
+          <DateTimePickerModal
+            isVisible={showDatePicker}
+            mode="date"
+            date={dateObj}
+            onConfirm={handleDateConfirm}
+            onCancel={() => setShowDatePicker(false)}
+            confirmTextIOS="Valider"
+            cancelTextIOS="Annuler"
           />
         </View>
 
@@ -409,6 +434,21 @@ const styles = StyleSheet.create({
     fontSize: typography.body.regular.fontSize,
     color: colors.neutral[600],
     fontWeight: '600',
+  },
+  datePickerButton: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: colors.neutral.white,
+    borderWidth: 1,
+    borderColor: colors.neutral[300],
+    borderRadius: 12,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+  },
+  datePickerText: {
+    fontSize: typography.body.regular.fontSize,
+    color: colors.neutral[800],
   },
   errorContainer: {
     backgroundColor: colors.status.errorLight,
