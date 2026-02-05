@@ -273,7 +273,7 @@ sleep 30
 - 📖 **Setup détaillé**: `docs/setup-guide.md`
 - 🏗️ **Architecture**: `docs/architecture.md`
 - 🔌 **API**: `docs/api.md`
-- 🔄 **Migration Neon**: `MIGRATION_NEON.md`
+- 🔄 **Migration Neon**: `docs/migration-neon.md`
 
 ---
 
