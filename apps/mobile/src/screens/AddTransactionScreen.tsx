@@ -158,12 +158,12 @@ export default function AddTransactionScreen({ navigation }: any) {
           <Text style={styles.sectionTitle}>Type</Text>
           <View style={styles.typeContainer}>
             <FilterChip
-              label="💸 Dépense"
+              label="Depense"
               selected={type === 'expense'}
               onPress={() => setType('expense')}
             />
             <FilterChip
-              label="💰 Revenu"
+              label="Revenu"
               selected={type === 'income'}
               onPress={() => setType('income')}
             />
@@ -244,7 +244,7 @@ export default function AddTransactionScreen({ navigation }: any) {
               {categories.map((cat) => (
                 <FilterChip
                   key={cat.id}
-                  label={`${cat.icon || '📊'} ${cat.name}`}
+                  label={`${cat.icon || ''} ${cat.name}`}
                   selected={selectedCategoryId === cat.id}
                   onPress={() => setSelectedCategoryId(selectedCategoryId === cat.id ? null : cat.id)}
                 />

@@ -3,6 +3,7 @@
 from typing import List, Optional, Dict, Any
 from datetime import datetime, date
 from decimal import Decimal
+import json
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
 
@@ -51,7 +52,7 @@ class GoalRepositoryImpl(GoalRepository):
                 INSERT INTO goals (id, user_id, title, description, target_amount, current_amount,
                     target_date, priority, linked_account_id, status, plan, created_at, updated_at)
                 VALUES (:id, :user_id, :title, :description, :target_amount, :current_amount,
-                    :target_date, :priority, :linked_account_id, :status, :plan::jsonb, :created_at, :updated_at)
+                    :target_date, :priority, :linked_account_id, :status, CAST(:plan AS JSONB), :created_at, :updated_at)
                 RETURNING *
             """),
             {
@@ -65,7 +66,7 @@ class GoalRepositoryImpl(GoalRepository):
                 "priority": goal.priority,
                 "linked_account_id": goal.linked_account_id,
                 "status": goal.status.value,
-                "plan": None,
+                "plan": json.dumps(goal.plan) if goal.plan else None,
                 "created_at": goal.created_at,
                 "updated_at": goal.updated_at,
             }
@@ -96,7 +97,6 @@ class GoalRepositoryImpl(GoalRepository):
         return [self._to_entity(row._asdict()) for row in result.fetchall()]
 
     async def update(self, goal: Goal) -> Goal:
-        import json
         result = await self.db.execute(
             text("""
                 UPDATE goals
@@ -104,7 +104,7 @@ class GoalRepositoryImpl(GoalRepository):
                     target_amount = :target_amount, current_amount = :current_amount,
                     target_date = :target_date, priority = :priority,
                     linked_account_id = :linked_account_id, status = :status,
-                    plan = :plan::jsonb, updated_at = :updated_at
+                    plan = CAST(:plan AS JSONB), updated_at = :updated_at
                 WHERE id = :id AND user_id = :user_id
                 RETURNING *
             """),

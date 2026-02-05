@@ -12,6 +12,7 @@ import {
   RefreshControl,
   Alert,
 } from 'react-native';
+import { CreditCard, Wallet, TrendingUp, Building2 } from 'lucide-react-native';
 import { Card, LoadingSpinner, Button } from '@presentation/components/common';
 import { colors } from '@shared/constants/colors';
 import { spacing } from '@shared/constants/spacing';
@@ -77,17 +78,18 @@ export default function AccountsScreen({ navigation }: any) {
   };
 
   const getAccountIcon = (type: string) => {
+    const iconProps = { size: 28, color: colors.primary.main };
     switch (type) {
       case 'CHECKING':
-        return '💳';
+        return <CreditCard {...iconProps} />;
       case 'SAVINGS':
-        return '💰';
+        return <Wallet {...iconProps} />;
       case 'INVESTMENT':
-        return '📈';
+        return <TrendingUp {...iconProps} />;
       case 'CREDIT_CARD':
-        return '💳';
+        return <CreditCard {...iconProps} />;
       default:
-        return '🏦';
+        return <Building2 {...iconProps} />;
     }
   };
 
@@ -151,7 +153,7 @@ export default function AccountsScreen({ navigation }: any) {
       >
         {accounts.length === 0 ? (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyStateIcon}>🏦</Text>
+            <View style={styles.emptyStateIcon}><Building2 size={64} color={colors.neutral[400]} /></View>
             <Text style={styles.emptyStateTitle}>Aucun compte</Text>
             <Text style={styles.emptyStateText}>
               Commencez par créer votre premier compte bancaire
@@ -172,9 +174,9 @@ export default function AccountsScreen({ navigation }: any) {
               <Card style={styles.accountCard}>
                 <View style={styles.accountCardHeader}>
                   <View style={styles.accountCardLeft}>
-                    <Text style={styles.accountIcon}>
+                    <View style={styles.accountIcon}>
                       {getAccountIcon(account.type)}
-                    </Text>
+                    </View>
                     <View style={styles.accountInfo}>
                       <Text style={styles.accountName}>{account.name}</Text>
                       <Text style={styles.accountType}>
@@ -196,7 +198,10 @@ export default function AccountsScreen({ navigation }: any) {
                 </View>
                 {account.bankName && (
                   <View style={styles.accountCardFooter}>
-                    <Text style={styles.accountBank}>🏦 {account.bankName}</Text>
+                    <View style={styles.accountBankRow}>
+                      <Building2 size={14} color={colors.neutral[600]} />
+                      <Text style={styles.accountBank}>{account.bankName}</Text>
+                    </View>
                     {account.ibanLast4 && (
                       <Text style={styles.accountIban}>•••• {account.ibanLast4}</Text>
                     )}
@@ -294,7 +299,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   accountIcon: {
-    fontSize: 32,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.primary.light,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
     marginRight: spacing.sm,
   },
   accountInfo: {
@@ -316,7 +326,7 @@ const styles = StyleSheet.create({
   accountBalance: {
     fontSize: typography.heading.h3.fontSize,
     fontWeight: '700',
-    color: colors.status.success,
+    color: colors.neutral[800],
     marginBottom: spacing.xs,
   },
   accountBalanceNegative: {
@@ -333,6 +343,11 @@ const styles = StyleSheet.create({
     paddingTop: spacing.sm,
     borderTopWidth: 1,
     borderTopColor: colors.neutral[200],
+  },
+  accountBankRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 4,
   },
   accountBank: {
     fontSize: typography.body.small.fontSize,
@@ -364,8 +379,8 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xl * 3,
   },
   emptyStateIcon: {
-    fontSize: 64,
     marginBottom: spacing.md,
+    alignItems: 'center' as const,
   },
   emptyStateTitle: {
     fontSize: typography.heading.h3.fontSize,

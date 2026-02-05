@@ -8,6 +8,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Home, CreditCard, PieChart, Target, Settings } from 'lucide-react-native';
+import { colors } from './src/shared/constants/colors';
 
 import { useAuthStore } from './src/store';
 
@@ -34,8 +35,8 @@ function MainTabs() {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#3b82f6',
-        tabBarInactiveTintColor: '#9ca3af',
+        tabBarActiveTintColor: colors.primary.main,
+        tabBarInactiveTintColor: colors.neutral[400],
       }}
     >
       <Tab.Screen

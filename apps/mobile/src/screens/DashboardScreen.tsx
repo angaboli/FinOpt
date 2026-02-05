@@ -11,6 +11,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, RefreshControl, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { Lightbulb, Building2, Inbox, AlertTriangle, AlertCircle } from 'lucide-react-native';
 import { useDataStore } from '../store';
 import { BalanceCard, StatCard, QuickActions, TransactionItem } from '@presentation/components/cards';
 import { LoadingSpinner, ErrorMessage } from '@presentation/components/common';
@@ -101,11 +102,11 @@ export default function DashboardScreen() {
       {/* Shortcuts */}
       <View style={styles.shortcutsRow}>
         <TouchableOpacity style={styles.shortcutButton} onPress={() => navigation.navigate('Insights')}>
-          <Text style={styles.shortcutIcon}>💡</Text>
+          <Lightbulb size={28} color={colors.primary.main} />
           <Text style={styles.shortcutLabel}>Insights IA</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.shortcutButton} onPress={() => navigation.navigate('Accounts')}>
-          <Text style={styles.shortcutIcon}>🏦</Text>
+          <Building2 size={28} color={colors.primary.main} />
           <Text style={styles.shortcutLabel}>Comptes</Text>
         </TouchableOpacity>
       </View>
@@ -138,9 +139,15 @@ export default function DashboardScreen() {
             <Text style={styles.sectionTitle}>Alertes Budget</Text>
             {alerts.map((a) => (
               <View key={a.id} style={[styles.alertCard, a.pct >= 1 ? styles.alertDanger : styles.alertWarning]}>
-                <Text style={styles.alertText}>
-                  {a.pct >= 1 ? '🔴' : '🟡'} {a.catName}: {a.spent.toFixed(0)}€ / {a.amount.toFixed(0)}€ ({(a.pct * 100).toFixed(0)}%)
-                </Text>
+                <View style={styles.alertRow}>
+                  {a.pct >= 1
+                    ? <AlertCircle size={16} color={colors.status.error} />
+                    : <AlertTriangle size={16} color={colors.status.warning} />
+                  }
+                  <Text style={styles.alertText}>
+                    {a.catName}: {a.spent.toFixed(0)}€ / {a.amount.toFixed(0)}€ ({(a.pct * 100).toFixed(0)}%)
+                  </Text>
+                </View>
               </View>
             ))}
           </View>
@@ -158,7 +165,9 @@ export default function DashboardScreen() {
           <LoadingSpinner message="Chargement des transactions..." />
         ) : recentTransactions.length === 0 ? (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyStateIcon}>📭</Text>
+            <View style={{ marginBottom: spacing.sm }}>
+              <Inbox size={48} color={colors.neutral[400]} />
+            </View>
             <Text style={styles.emptyStateText}>Aucune transaction récente</Text>
           </View>
         ) : (
@@ -227,10 +236,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: spacing.xl,
   },
-  emptyStateIcon: {
-    fontSize: 48,
-    marginBottom: spacing.sm,
-  },
   emptyStateText: {
     fontSize: typography.body.regular.fontSize,
     color: colors.neutral[500],
@@ -249,10 +254,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: colors.neutral[200],
-  },
-  shortcutIcon: {
-    fontSize: 28,
-    marginBottom: spacing.xs,
   },
   shortcutLabel: {
     fontSize: typography.body.small.fontSize,
@@ -274,9 +275,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#F5C6CB',
   },
+  alertRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
   alertText: {
     fontSize: typography.body.regular.fontSize,
     color: colors.neutral[800],
     fontWeight: '500',
+    flex: 1,
   },
 });

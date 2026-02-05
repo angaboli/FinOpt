@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { TrendingUp, TrendingDown, PiggyBank } from 'lucide-react-native';
 import { Card } from '@presentation/components/common';
 import { colors } from '@shared/constants/colors';
 import { spacing } from '@shared/constants/spacing';
@@ -31,7 +32,7 @@ export const StatCard: React.FC<StatCardProps> = ({
     <Card style={styles.card} onPress={onPress} elevated>
       <View style={styles.header}>
         <View style={[styles.iconContainer, { backgroundColor: config.bgColor }]}>
-          <Text style={styles.icon}>{config.icon}</Text>
+          {config.icon}
         </View>
         {change !== undefined && (
           <View
@@ -77,21 +78,21 @@ function getStatConfig(type: StatType) {
     case 'income':
       return {
         label: 'Revenus',
-        icon: '💰',
+        icon: <TrendingUp size={20} color={colors.status.success} />,
         color: colors.status.success,
         bgColor: colors.status.successLight,
       };
     case 'expense':
       return {
         label: 'Dépenses',
-        icon: '💸',
+        icon: <TrendingDown size={20} color={colors.status.error} />,
         color: colors.status.error,
         bgColor: colors.status.errorLight,
       };
     case 'savings':
       return {
         label: 'Économies',
-        icon: '🏦',
+        icon: <PiggyBank size={20} color={colors.primary.main} />,
         color: colors.primary.main,
         bgColor: colors.primary.light,
       };
@@ -115,9 +116,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  icon: {
-    fontSize: 20,
   },
   badge: {
     paddingHorizontal: spacing.xs,

@@ -43,7 +43,7 @@ class NotificationRepositoryImpl(NotificationRepository):
         result = await self.db.execute(
             text("""
                 INSERT INTO notifications (id, user_id, type, title, body, data, is_read, sent_at, created_at)
-                VALUES (:id, :user_id, :type, :title, :body, :data::jsonb, :is_read, :sent_at, :created_at)
+                VALUES (:id, :user_id, :type, :title, :body, CAST(:data AS JSONB), :is_read, :sent_at, :created_at)
                 RETURNING *
             """),
             {

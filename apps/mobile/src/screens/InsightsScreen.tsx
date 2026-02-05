@@ -13,6 +13,7 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
+import { Lightbulb, AlertTriangle, Target } from 'lucide-react-native';
 import { LoadingSpinner, ErrorMessage } from '@presentation/components/common';
 import { colors } from '@shared/constants/colors';
 import { spacing } from '@shared/constants/spacing';
@@ -120,7 +121,7 @@ export default function InsightsScreen() {
           <LoadingSpinner message="Chargement des insights..." />
         ) : insights.length === 0 ? (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyStateIcon}>💡</Text>
+            <View style={styles.emptyStateIcon}><Lightbulb size={64} color={colors.neutral[400]} /></View>
             <Text style={styles.emptyStateTitle}>Aucun insight</Text>
             <Text style={styles.emptyStateText}>
               Générez vos premiers insights IA pour recevoir des recommandations personnalisées
@@ -177,7 +178,7 @@ export default function InsightsScreen() {
                   <Text style={styles.sectionTitle}>Recommandations</Text>
                   {insight.data.recommendations.map((rec, i) => (
                     <View key={i} style={styles.listItem}>
-                      <Text style={styles.listBullet}>💡</Text>
+                      <Lightbulb size={14} color={colors.primary.main} style={styles.listBullet} />
                       <Text style={styles.listText}>{rec}</Text>
                     </View>
                   ))}
@@ -190,7 +191,7 @@ export default function InsightsScreen() {
                   <Text style={styles.sectionTitle}>Anomalies détectées</Text>
                   {insight.data.anomalies.map((a, i) => (
                     <View key={i} style={styles.listItem}>
-                      <Text style={styles.listBullet}>⚠️</Text>
+                      <AlertTriangle size={14} color={colors.status.warning} style={styles.listBullet} />
                       <Text style={styles.listText}>{a}</Text>
                     </View>
                   ))}
@@ -203,7 +204,7 @@ export default function InsightsScreen() {
                   <Text style={styles.sectionTitle}>Opportunités</Text>
                   {insight.data.opportunities.map((o, i) => (
                     <View key={i} style={styles.listItem}>
-                      <Text style={styles.listBullet}>🎯</Text>
+                      <Target size={14} color={colors.status.info} style={styles.listBullet} />
                       <Text style={styles.listText}>{o}</Text>
                     </View>
                   ))}
@@ -266,8 +267,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
   },
   emptyStateIcon: {
-    fontSize: 64,
     marginBottom: spacing.md,
+    alignItems: 'center' as const,
   },
   emptyStateTitle: {
     fontSize: typography.heading.h3.fontSize,
@@ -355,7 +356,6 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   listBullet: {
-    fontSize: 14,
     marginRight: spacing.sm,
     marginTop: 2,
   },

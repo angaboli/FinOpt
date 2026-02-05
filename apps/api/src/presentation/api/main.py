@@ -43,10 +43,13 @@ app = FastAPI(
 # Global exception handler
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
-    logger.error(f"Unhandled error: {exc}", exc_info=True)
+    import traceback
+    tb = traceback.format_exc()
+    logger.error(f"Unhandled error: {exc}\n{tb}")
+    detail = f"{type(exc).__name__}: {exc}\n{tb}" if settings.debug else "Internal server error"
     return JSONResponse(
         status_code=500,
-        content={"detail": "Internal server error"},
+        content={"detail": detail},
     )
 
 # CORS middleware

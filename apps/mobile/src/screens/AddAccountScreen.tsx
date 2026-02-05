@@ -33,16 +33,16 @@ export default function AddAccountScreen({ navigation }: any) {
   const [error, setError] = useState<string | null>(null);
 
   const accountTypes = [
-    { value: AccountType.CHECKING, label: '💳 Compte Courant', icon: '💳' },
-    { value: AccountType.SAVINGS, label: '💰 Épargne', icon: '💰' },
-    { value: AccountType.INVESTMENT, label: '📈 Investissement', icon: '📈' },
-    { value: AccountType.CREDIT_CARD, label: '💳 Carte Crédit', icon: '💳' },
+    { value: AccountType.CHECKING, label: 'Compte Courant' },
+    { value: AccountType.SAVINGS, label: 'Epargne' },
+    { value: AccountType.INVESTMENT, label: 'Investissement' },
+    { value: AccountType.CREDIT_CARD, label: 'Carte Credit' },
   ];
 
   const ownerScopes = [
-    { value: OwnerScope.PERSONAL, label: '👤 Personnel' },
-    { value: OwnerScope.JOINT, label: '👥 Joint' },
-    { value: OwnerScope.BUSINESS, label: '🏢 Professionnel' },
+    { value: OwnerScope.PERSONAL, label: 'Personnel' },
+    { value: OwnerScope.JOINT, label: 'Joint' },
+    { value: OwnerScope.BUSINESS, label: 'Professionnel' },
   ];
 
   const currencies = [

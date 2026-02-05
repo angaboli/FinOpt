@@ -11,6 +11,7 @@ import {
   RefreshControl,
   TouchableOpacity,
 } from 'react-native';
+import { BarChart3, PiggyBank, Target } from 'lucide-react-native';
 import { useDataStore } from '../store';
 import { GoalCard } from '@presentation/components/cards';
 import { LoadingSpinner, ErrorMessage } from '@presentation/components/common';
@@ -101,7 +102,10 @@ export default function GoalsScreen({ navigation }: any) {
         {/* Summary Card */}
         {activeGoals.length > 0 && (
           <View style={styles.summaryCard}>
-            <Text style={styles.summaryTitle}>📊 Vue d'Ensemble</Text>
+            <View style={styles.summaryTitleRow}>
+              <BarChart3 size={20} color={colors.neutral[800]} />
+              <Text style={styles.summaryTitle}>Vue d'Ensemble</Text>
+            </View>
 
             <View style={styles.summaryRow}>
               <View style={styles.summaryItem}>
@@ -131,7 +135,10 @@ export default function GoalsScreen({ navigation }: any) {
 
             {totalMonthlySaving > 0 && (
               <View style={styles.monthlySavingBox}>
-                <Text style={styles.monthlySavingLabel}>💰 Épargne mensuelle recommandée</Text>
+                <View style={styles.monthlySavingLabelRow}>
+                  <PiggyBank size={16} color={colors.neutral[700]} />
+                  <Text style={styles.monthlySavingLabel}>Epargne mensuelle recommandee</Text>
+                </View>
                 <Text style={styles.monthlySavingValue}>
                   {formatCurrency(totalMonthlySaving, 'EUR')}/mois
                 </Text>
@@ -145,7 +152,7 @@ export default function GoalsScreen({ navigation }: any) {
           <LoadingSpinner message="Chargement des objectifs..." />
         ) : goals.length === 0 ? (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyStateIcon}>🎯</Text>
+            <View style={styles.emptyStateIcon}><Target size={64} color={colors.neutral[400]} /></View>
             <Text style={styles.emptyStateTitle}>Aucun objectif</Text>
             <Text style={styles.emptyStateText}>
               Définissez vos objectifs financiers pour mieux planifier votre épargne
@@ -277,11 +284,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.neutral[200],
   },
+  summaryTitleRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
   summaryTitle: {
     fontSize: typography.heading.h3.fontSize,
     fontWeight: typography.heading.h3.fontWeight,
     color: colors.neutral[800],
-    marginBottom: spacing.md,
   },
   summaryRow: {
     flexDirection: 'row',
@@ -335,10 +347,15 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     alignItems: 'center',
   },
+  monthlySavingLabelRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: spacing.xs,
+    marginBottom: spacing.xs,
+  },
   monthlySavingLabel: {
     fontSize: typography.body.small.fontSize,
     color: colors.neutral[700],
-    marginBottom: spacing.xs,
   },
   monthlySavingValue: {
     fontSize: typography.heading.h3.fontSize,
@@ -361,8 +378,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
   },
   emptyStateIcon: {
-    fontSize: 64,
     marginBottom: spacing.md,
+    alignItems: 'center' as const,
   },
   emptyStateTitle: {
     fontSize: typography.heading.h3.fontSize,

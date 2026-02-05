@@ -11,6 +11,7 @@ import {
   RefreshControl,
   TouchableOpacity,
 } from 'react-native';
+import { BarChart3 } from 'lucide-react-native';
 import { useDataStore } from '../store';
 import { BudgetCard } from '@presentation/components/cards';
 import { LoadingSpinner, ErrorMessage } from '@presentation/components/common';
@@ -45,7 +46,7 @@ export default function BudgetsScreen({ navigation }: any) {
 
   const getCategoryIcon = (categoryId: string): string => {
     const cat = categories.find((c) => c.id === categoryId);
-    return cat?.icon || '📊';
+    return cat?.icon || '';
   };
 
   // Calculer les dépenses par catégorie pour le mois en cours
@@ -169,7 +170,7 @@ export default function BudgetsScreen({ navigation }: any) {
           <LoadingSpinner message="Chargement des budgets..." />
         ) : budgets.length === 0 ? (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyStateIcon}>📊</Text>
+            <View style={styles.emptyStateIcon}><BarChart3 size={64} color={colors.neutral[400]} /></View>
             <Text style={styles.emptyStateTitle}>Aucun budget</Text>
             <Text style={styles.emptyStateText}>
               Créez votre premier budget pour suivre vos dépenses par catégorie
@@ -293,8 +294,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
   },
   emptyStateIcon: {
-    fontSize: 64,
     marginBottom: spacing.md,
+    alignItems: 'center' as const,
   },
   emptyStateTitle: {
     fontSize: typography.heading.h3.fontSize,

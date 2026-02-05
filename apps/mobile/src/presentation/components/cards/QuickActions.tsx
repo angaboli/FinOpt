@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { DollarSign, CreditCard, BarChart3, Target } from 'lucide-react-native';
 import { colors } from '@shared/constants/colors';
 import { spacing, borderRadius } from '@shared/constants/spacing';
 import { typography } from '@shared/constants/typography';
@@ -7,7 +8,7 @@ import { typography } from '@shared/constants/typography';
 interface QuickAction {
   id: string;
   label: string;
-  icon: string;
+  icon: React.ReactNode;
   color: string;
   onPress: () => void;
 }
@@ -20,28 +21,28 @@ const defaultActions: QuickAction[] = [
   {
     id: 'add-income',
     label: 'Revenus',
-    icon: '💵',
+    icon: <DollarSign size={28} color={colors.status.success} />,
     color: colors.status.success,
     onPress: () => console.log('Add income'),
   },
   {
     id: 'add-expense',
     label: 'Dépenses',
-    icon: '💳',
+    icon: <CreditCard size={28} color={colors.status.error} />,
     color: colors.status.error,
     onPress: () => console.log('Add expense'),
   },
   {
     id: 'view-budget',
     label: 'Budget',
-    icon: '📊',
+    icon: <BarChart3 size={28} color={colors.primary.main} />,
     color: colors.primary.main,
     onPress: () => console.log('View budget'),
   },
   {
     id: 'view-goals',
     label: 'Objectifs',
-    icon: '🎯',
+    icon: <Target size={28} color={colors.status.info} />,
     color: colors.status.info,
     onPress: () => console.log('View goals'),
   },
@@ -60,7 +61,7 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ actions = defaultAct
             activeOpacity={0.7}
           >
             <View style={[styles.iconContainer, { backgroundColor: `${action.color}15` }]}>
-              <Text style={styles.icon}>{action.icon}</Text>
+              {action.icon}
             </View>
             <Text style={styles.label}>{action.label}</Text>
           </TouchableOpacity>
@@ -98,9 +99,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.xs,
-  },
-  icon: {
-    fontSize: 28,
   },
   label: {
     fontSize: typography.body.small.fontSize,

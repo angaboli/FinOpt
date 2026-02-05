@@ -14,7 +14,7 @@ import {
   Alert,
 } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import { CalendarDays } from 'lucide-react-native';
+import { CalendarDays, Lightbulb } from 'lucide-react-native';
 import { Button, Input, LoadingSpinner, FilterChip } from '@presentation/components/common';
 import { colors } from '@shared/constants/colors';
 import { spacing } from '@shared/constants/spacing';
@@ -26,9 +26,9 @@ import { GoalStatus } from '@finopt/shared';
 type Priority = 1 | 2 | 3;
 
 const PRIORITY_OPTIONS = [
-  { value: 1 as Priority, label: 'Haute \u{1F525}', color: colors.status.error },
-  { value: 2 as Priority, label: 'Moyenne \u26A1', color: colors.status.warning },
-  { value: 3 as Priority, label: 'Basse \u{1F4A4}', color: colors.status.info },
+  { value: 1 as Priority, label: 'Haute', color: colors.status.error },
+  { value: 2 as Priority, label: 'Moyenne', color: colors.status.warning },
+  { value: 3 as Priority, label: 'Basse', color: colors.status.info },
 ];
 
 const STATUS_OPTIONS = [
@@ -305,7 +305,10 @@ export default function EditGoalScreen({ navigation, route }: any) {
         {/* Recommandations */}
         {targetAmount && daysRemaining !== null && daysRemaining > 0 && (
           <View style={styles.recommendationCard}>
-            <Text style={styles.recommendationTitle}>{'\u{1F4A1}'} Recommandations</Text>
+            <View style={styles.recommendationTitleRow}>
+              <Lightbulb size={18} color={colors.neutral[800]} />
+              <Text style={styles.recommendationTitle}>Recommandations</Text>
+            </View>
             <View style={styles.recommendationRow}>
               <Text style={styles.recommendationLabel}>Jours restants:</Text>
               <Text style={styles.recommendationValue}>{daysRemaining} jours</Text>
@@ -462,11 +465,16 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     marginBottom: spacing.md,
   },
+  recommendationTitleRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: spacing.xs,
+    marginBottom: spacing.sm,
+  },
   recommendationTitle: {
     fontSize: typography.body.regular.fontSize,
     fontWeight: '600',
     color: colors.neutral[800],
-    marginBottom: spacing.sm,
   },
   recommendationRow: {
     flexDirection: 'row',

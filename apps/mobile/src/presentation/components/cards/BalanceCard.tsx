@@ -26,7 +26,7 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
         <Text
           style={[
             styles.amount,
-            { color: isPositive ? colors.status.success : colors.status.error },
+            { color: isPositive ? colors.neutral.white : colors.status.error },
           ]}
         >
           {formatCurrency(balance, currency)}
@@ -58,6 +58,7 @@ function getRelativeTime(date: Date): string {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.primary.main,
+    margin: spacing.md,
   },
   container: {
     alignItems: 'center',

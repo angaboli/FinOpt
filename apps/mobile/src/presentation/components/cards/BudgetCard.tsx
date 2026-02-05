@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { BarChart3, AlertTriangle } from 'lucide-react-native';
 import { Card } from '@presentation/components/common';
 import { colors } from '@shared/constants/colors';
 import { spacing } from '@shared/constants/spacing';
@@ -17,7 +18,7 @@ interface BudgetCardProps {
 
 export const BudgetCard: React.FC<BudgetCardProps> = ({
   categoryName,
-  categoryIcon = '📊',
+  categoryIcon = '',
   budgetAmount,
   spent,
   currency = 'EUR',
@@ -46,7 +47,9 @@ export const BudgetCard: React.FC<BudgetCardProps> = ({
     <Card onPress={onPress} style={styles.card}>
       <View style={styles.header}>
         <View style={styles.categoryInfo}>
-          <Text style={styles.icon}>{categoryIcon}</Text>
+          <View style={styles.iconWrapper}>
+            {categoryIcon ? <Text style={styles.icon}>{categoryIcon}</Text> : <BarChart3 size={28} color={colors.primary.main} />}
+          </View>
           <View>
             <Text style={styles.categoryName}>{categoryName}</Text>
             <Text style={styles.amounts}>
@@ -89,9 +92,12 @@ export const BudgetCard: React.FC<BudgetCardProps> = ({
       {/* Remaining */}
       <View style={styles.footer}>
         {isOverBudget ? (
-          <Text style={[styles.remainingText, { color: colors.status.error }]}>
-            ⚠️ Dépassement de {formatCurrency(Math.abs(remaining), currency)}
-          </Text>
+          <View style={styles.overBudgetRow}>
+            <AlertTriangle size={14} color={colors.status.error} />
+            <Text style={[styles.remainingText, { color: colors.status.error }]}>
+              Dépassement de {formatCurrency(Math.abs(remaining), currency)}
+            </Text>
+          </View>
         ) : (
           <Text style={styles.remainingText}>
             Reste: {formatCurrency(remaining, currency)}
@@ -117,9 +123,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
   },
+  iconWrapper: {
+    marginRight: spacing.sm,
+  },
   icon: {
     fontSize: 32,
-    marginRight: spacing.sm,
+  },
+  overBudgetRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 4,
   },
   categoryName: {
     fontSize: typography.body.regular.fontSize,

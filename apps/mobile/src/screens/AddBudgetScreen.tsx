@@ -141,7 +141,7 @@ export default function AddBudgetScreen({ navigation }: any) {
             {categories.map((category) => (
               <FilterChip
                 key={category.id}
-                label={`${category.icon || '📊'} ${category.name}`}
+                label={`${category.icon || ''} ${category.name}`}
                 selected={selectedCategory === category.id}
                 onPress={() => setSelectedCategory(category.id)}
               />
@@ -166,12 +166,12 @@ export default function AddBudgetScreen({ navigation }: any) {
           <Text style={styles.sectionTitle}>Période</Text>
           <View style={styles.periodContainer}>
             <FilterChip
-              label="📅 Mensuel"
+              label="Mensuel"
               selected={period === 'MONTHLY'}
               onPress={() => setPeriod('MONTHLY')}
             />
             <FilterChip
-              label="📆 Hebdomadaire"
+              label="Hebdomadaire"
               selected={period === 'WEEKLY'}
               onPress={() => setPeriod('WEEKLY')}
             />
@@ -195,7 +195,7 @@ export default function AddBudgetScreen({ navigation }: any) {
         <View style={styles.previewCard}>
           <Text style={styles.previewTitle}>Aperçu</Text>
           <View style={styles.previewContent}>
-            <Text style={styles.previewIcon}>{(selectedCat?.icon) || '📊'}</Text>
+            <Text style={styles.previewIcon}>{(selectedCat?.icon) || ''}</Text>
             <View style={styles.previewInfo}>
               <Text style={styles.previewCategory}>{selectedCat?.name || 'Catégorie'}</Text>
               <Text style={styles.previewAmount}>

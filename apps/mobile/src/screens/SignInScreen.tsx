@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { Wallet, AlertCircle } from 'lucide-react-native';
 import { Button, Input, LoadingSpinner } from '@presentation/components/common';
 import { colors } from '@shared/constants/colors';
 import { spacing } from '@shared/constants/spacing';
@@ -69,7 +70,9 @@ export default function SignInScreen() {
       <View style={styles.content}>
         {/* Logo et titre */}
         <View style={styles.header}>
-          <Text style={styles.logo}>💰</Text>
+          <View style={styles.logoContainer}>
+            <Wallet size={48} color={colors.neutral.white} />
+          </View>
           <Text style={styles.title}>Finopt</Text>
           <Text style={styles.subtitle}>Gérez vos finances intelligemment</Text>
         </View>
@@ -114,7 +117,10 @@ export default function SignInScreen() {
 
           {error && (
             <View style={styles.errorBox}>
-              <Text style={styles.errorTitle}>❌ Erreur</Text>
+              <View style={styles.errorTitleRow}>
+                <AlertCircle size={16} color={colors.status.error} />
+                <Text style={styles.errorTitle}>Erreur</Text>
+              </View>
               <Text style={styles.error}>{error}</Text>
             </View>
           )}
@@ -165,8 +171,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.xl * 2,
   },
-  logo: {
-    fontSize: 64,
+  logoContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
     marginBottom: spacing.md,
   },
   title: {
@@ -198,11 +209,16 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     marginTop: spacing.md,
   },
+  errorTitleRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: spacing.xs,
+    marginBottom: spacing.xs,
+  },
   errorTitle: {
     fontSize: typography.body.regular.fontSize,
     fontWeight: '600',
     color: colors.status.error,
-    marginBottom: spacing.xs,
   },
   error: {
     color: colors.neutral[800],

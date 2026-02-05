@@ -3,6 +3,7 @@
 from typing import List, Optional, Dict, Any
 from datetime import datetime, date
 from decimal import Decimal
+import json
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
 
@@ -61,8 +62,8 @@ class TransactionRepositoryImpl(TransactionRepository):
             "is_manual": transaction.is_manual,
             "status": transaction.status.value,
             "notes": transaction.notes,
-            "tags": transaction.tags,
-            "metadata": transaction.metadata,
+            "tags": "{" + ",".join(transaction.tags) + "}" if transaction.tags else "{}",
+            "metadata": json.dumps(transaction.metadata) if transaction.metadata else "{}",
             "created_at": transaction.created_at,
             "updated_at": transaction.updated_at,
             "deleted_at": transaction.deleted_at if transaction.deleted_at else None,
@@ -77,7 +78,8 @@ class TransactionRepositoryImpl(TransactionRepository):
                     category_id, merchant_name, is_recurring, is_manual, status, notes, tags, metadata,
                     created_at, updated_at, deleted_at)
                 VALUES (:id, :user_id, :account_id, :amount, :currency, :date, :description,
-                    :category_id, :merchant_name, :is_recurring, :is_manual, :status, :notes, :tags, :metadata,
+                    :category_id, :merchant_name, :is_recurring, :is_manual, :status, :notes,
+                    CAST(:tags AS TEXT[]), CAST(:metadata AS JSONB),
                     :created_at, :updated_at, :deleted_at)
                 RETURNING *
             """),
@@ -227,7 +229,8 @@ class TransactionRepositoryImpl(TransactionRepository):
                     date = :date, description = :description, category_id = :category_id,
                     merchant_name = :merchant_name, is_recurring = :is_recurring,
                     is_manual = :is_manual, status = :status, notes = :notes,
-                    tags = :tags, metadata = :metadata, updated_at = :updated_at, deleted_at = :deleted_at
+                    tags = CAST(:tags AS TEXT[]), metadata = CAST(:metadata AS JSONB),
+                    updated_at = :updated_at, deleted_at = :deleted_at
                 WHERE id = :tid AND user_id = :tuser_id
                 RETURNING *
             """),

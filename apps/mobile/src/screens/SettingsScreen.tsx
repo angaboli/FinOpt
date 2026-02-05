@@ -13,6 +13,11 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
+import {
+  Pencil, Lock, CreditCard, Wallet, Target, Lightbulb, Bell,
+  DollarSign, Globe, Download, FileText, HelpCircle, Info,
+  TestTube, Trash2,
+} from 'lucide-react-native';
 import { useAuthStore } from '../store';
 import { Card } from '@presentation/components/common';
 import { colors } from '@shared/constants/colors';
@@ -22,7 +27,7 @@ import { apiClient } from '../lib/api';
 import runManualTests from '../test/manual-test';
 
 interface SettingsItemProps {
-  icon: string;
+  icon: React.ReactNode;
   label: string;
   value?: string;
   onPress?: () => void;
@@ -43,7 +48,7 @@ const SettingsItem: React.FC<SettingsItemProps> = ({
     activeOpacity={onPress ? 0.7 : 1}
   >
     <View style={styles.settingsItemLeft}>
-      <Text style={styles.settingsItemIcon}>{icon}</Text>
+      <View style={styles.settingsItemIcon}>{icon}</View>
       <Text style={styles.settingsItemLabel}>{label}</Text>
     </View>
     <View style={styles.settingsItemRight}>
@@ -54,7 +59,7 @@ const SettingsItem: React.FC<SettingsItemProps> = ({
 );
 
 interface SettingsToggleProps {
-  icon: string;
+  icon: React.ReactNode;
   label: string;
   description?: string;
   value: boolean;
@@ -70,7 +75,7 @@ const SettingsToggle: React.FC<SettingsToggleProps> = ({
 }) => (
   <View style={styles.settingsToggle}>
     <View style={styles.settingsToggleLeft}>
-      <Text style={styles.settingsItemIcon}>{icon}</Text>
+      <View style={styles.settingsItemIcon}>{icon}</View>
       <View style={styles.settingsToggleText}>
         <Text style={styles.settingsItemLabel}>{label}</Text>
         {description && <Text style={styles.settingsToggleDescription}>{description}</Text>}
@@ -262,9 +267,9 @@ export default function SettingsScreen() {
 
             <View style={styles.divider} />
 
-            <SettingsItem icon="✏️" label="Modifier le profil" onPress={handleEditProfile} />
-            <SettingsItem icon="🔒" label="Changer le mot de passe" onPress={handleChangePassword} />
-            <SettingsItem icon="💳" label="Gérer les comptes" onPress={handleManageAccounts} />
+            <SettingsItem icon={<Pencil size={20} color={colors.neutral[600]} />} label="Modifier le profil" onPress={handleEditProfile} />
+            <SettingsItem icon={<Lock size={20} color={colors.neutral[600]} />} label="Changer le mot de passe" onPress={handleChangePassword} />
+            <SettingsItem icon={<CreditCard size={20} color={colors.neutral[600]} />} label="Gérer les comptes" onPress={handleManageAccounts} />
           </Card>
         </View>
 
@@ -273,7 +278,7 @@ export default function SettingsScreen() {
           <Text style={styles.sectionTitle}>Notifications</Text>
           <Card style={styles.sectionCard}>
             <SettingsToggle
-              icon="💰"
+              icon={<Wallet size={20} color={colors.neutral[600]} />}
               label="Alertes de budget"
               description="Recevoir des alertes lorsque vous dépassez vos budgets"
               value={notificationPrefs.budgetAlerts}
@@ -281,7 +286,7 @@ export default function SettingsScreen() {
             />
             <View style={styles.divider} />
             <SettingsToggle
-              icon="🎯"
+              icon={<Target size={20} color={colors.neutral[600]} />}
               label="Étapes des objectifs"
               description="Notifications pour les étapes importantes de vos objectifs"
               value={notificationPrefs.goalMilestones}
@@ -289,7 +294,7 @@ export default function SettingsScreen() {
             />
             <View style={styles.divider} />
             <SettingsToggle
-              icon="💡"
+              icon={<Lightbulb size={20} color={colors.neutral[600]} />}
               label="Insights mensuels"
               description="Recevoir des analyses et recommandations chaque mois"
               value={notificationPrefs.insights}
@@ -297,7 +302,7 @@ export default function SettingsScreen() {
             />
             <View style={styles.divider} />
             <SettingsToggle
-              icon="🔔"
+              icon={<Bell size={20} color={colors.neutral[600]} />}
               label="Alertes de transactions"
               description="Notifications pour chaque nouvelle transaction"
               value={notificationPrefs.transactionAlerts}
@@ -310,9 +315,9 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Préférences</Text>
           <Card style={styles.sectionCard}>
-            <SettingsItem icon="💵" label="Devise" value="EUR (€)" onPress={handleCurrency} />
+            <SettingsItem icon={<DollarSign size={20} color={colors.neutral[600]} />} label="Devise" value="EUR (€)" onPress={handleCurrency} />
             <View style={styles.divider} />
-            <SettingsItem icon="🌍" label="Langue" value="Français" onPress={handleLanguage} />
+            <SettingsItem icon={<Globe size={20} color={colors.neutral[600]} />} label="Langue" value="Français" onPress={handleLanguage} />
           </Card>
         </View>
 
@@ -320,11 +325,11 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Données & Confidentialité</Text>
           <Card style={styles.sectionCard}>
-            <SettingsItem icon="📥" label="Exporter mes données" onPress={handleExportData} />
+            <SettingsItem icon={<Download size={20} color={colors.neutral[600]} />} label="Exporter mes données" onPress={handleExportData} />
             <View style={styles.divider} />
-            <SettingsItem icon="🔒" label="Politique de confidentialité" onPress={handlePrivacy} />
+            <SettingsItem icon={<Lock size={20} color={colors.neutral[600]} />} label="Politique de confidentialité" onPress={handlePrivacy} />
             <View style={styles.divider} />
-            <SettingsItem icon="📜" label="Conditions d'utilisation" onPress={handleTerms} />
+            <SettingsItem icon={<FileText size={20} color={colors.neutral[600]} />} label="Conditions d'utilisation" onPress={handleTerms} />
           </Card>
         </View>
 
@@ -332,9 +337,9 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Support</Text>
           <Card style={styles.sectionCard}>
-            <SettingsItem icon="❓" label="Aide & FAQ" onPress={handleHelp} />
+            <SettingsItem icon={<HelpCircle size={20} color={colors.neutral[600]} />} label="Aide & FAQ" onPress={handleHelp} />
             <View style={styles.divider} />
-            <SettingsItem icon="ℹ️" label="À propos" value="v1.0.0" showArrow={false} />
+            <SettingsItem icon={<Info size={20} color={colors.neutral[600]} />} label="À propos" value="v1.0.0" showArrow={false} />
           </Card>
         </View>
 
@@ -351,7 +356,7 @@ export default function SettingsScreen() {
                 {isRunningTests ? (
                   <ActivityIndicator color={colors.primary.main} />
                 ) : (
-                  <Text style={styles.testButtonIcon}>🧪</Text>
+                  <View style={styles.testButtonIcon}><TestTube size={24} color={colors.primary.main} /></View>
                 )}
                 <View style={styles.testButtonContent}>
                   <Text style={styles.testButtonLabel}>
@@ -371,7 +376,7 @@ export default function SettingsScreen() {
           <Text style={styles.sectionTitle}>Zone de danger</Text>
           <Card style={styles.sectionCard}>
             <TouchableOpacity style={styles.dangerItem} onPress={handleDeleteAccount}>
-              <Text style={styles.dangerItemIcon}>🗑️</Text>
+              <View style={styles.dangerItemIcon}><Trash2 size={20} color={colors.status.error} /></View>
               <Text style={styles.dangerItemLabel}>Supprimer mon compte</Text>
             </TouchableOpacity>
           </Card>
@@ -474,7 +479,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   settingsItemIcon: {
-    fontSize: 20,
+    width: 24,
+    alignItems: 'center' as const,
     marginRight: spacing.sm,
   },
   settingsItemLabel: {
@@ -528,7 +534,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
   },
   testButtonIcon: {
-    fontSize: 24,
+    width: 28,
+    alignItems: 'center' as const,
     marginRight: spacing.md,
   },
   testButtonContent: {
@@ -552,7 +559,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
   },
   dangerItemIcon: {
-    fontSize: 20,
+    width: 24,
+    alignItems: 'center' as const,
     marginRight: spacing.sm,
   },
   dangerItemLabel: {

@@ -1,5 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  Utensils, Car, ShoppingCart, Film, Heart, Zap, DollarSign,
+  Briefcase, TrendingUp, Gift, MapPin,
+} from 'lucide-react-native';
 import { colors } from '@shared/constants/colors';
 import { spacing, borderRadius } from '@shared/constants/spacing';
 import { typography } from '@shared/constants/typography';
@@ -15,7 +19,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, o
   const isExpense = transaction.amount < 0;
   const isIncome = transaction.amount > 0;
 
-  const categoryIcon = getCategoryIcon('other'); // We'll fetch category later
+  const CategoryIcon = getCategoryIcon('other'); // We'll fetch category later
   const amountColor = isExpense
     ? colors.status.error
     : isIncome
@@ -30,7 +34,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, o
       disabled={!onPress}
     >
       <View style={styles.iconContainer}>
-        <Text style={styles.icon}>{categoryIcon}</Text>
+        <CategoryIcon size={22} color={colors.neutral[600]} />
       </View>
 
       <View style={styles.content}>
@@ -54,19 +58,19 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, o
   );
 };
 
-function getCategoryIcon(categoryName: string): string {
-  const icons: Record<string, string> = {
-    food: '🍔',
-    transport: '🚗',
-    shopping: '🛒',
-    entertainment: '🎬',
-    health: '💊',
-    utilities: '💡',
-    salary: '💰',
-    freelance: '💼',
-    investment: '📈',
-    gift: '🎁',
-    other: '📌',
+function getCategoryIcon(categoryName: string): React.FC<{ size: number; color: string }> {
+  const icons: Record<string, React.FC<{ size: number; color: string }>> = {
+    food: Utensils,
+    transport: Car,
+    shopping: ShoppingCart,
+    entertainment: Film,
+    health: Heart,
+    utilities: Zap,
+    salary: DollarSign,
+    freelance: Briefcase,
+    investment: TrendingUp,
+    gift: Gift,
+    other: MapPin,
   };
 
   return icons[categoryName.toLowerCase()] || icons.other;
@@ -91,9 +95,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: spacing.sm,
-  },
-  icon: {
-    fontSize: 22,
   },
   content: {
     flex: 1,

@@ -11,6 +11,7 @@ import {
   RefreshControl,
   TouchableOpacity,
 } from 'react-native';
+import { Inbox } from 'lucide-react-native';
 import { useDataStore } from '../store';
 import { TransactionItem } from '@presentation/components/cards';
 import { Input, LoadingSpinner, ErrorMessage, FilterChip } from '@presentation/components/common';
@@ -135,7 +136,7 @@ export default function TransactionsScreen({ navigation }: any) {
         <LoadingSpinner message="Chargement des transactions..." />
       ) : filteredTransactions.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyStateIcon}>📭</Text>
+          <View style={styles.emptyStateIcon}><Inbox size={64} color={colors.neutral[400]} /></View>
           <Text style={styles.emptyStateTitle}>Aucune transaction</Text>
           <Text style={styles.emptyStateText}>
             {searchQuery || selectedFilter !== 'all'
@@ -229,8 +230,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
   },
   emptyStateIcon: {
-    fontSize: 64,
     marginBottom: spacing.md,
+    alignItems: 'center' as const,
   },
   emptyStateTitle: {
     fontSize: typography.heading.h3.fontSize,

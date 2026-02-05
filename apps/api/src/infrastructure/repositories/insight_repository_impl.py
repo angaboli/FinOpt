@@ -39,7 +39,7 @@ class InsightRepositoryImpl(InsightRepository):
             text("""
                 INSERT INTO insights (id, user_id, month_year, data, income_estimate,
                     fixed_costs_estimate, generated_at)
-                VALUES (:id, :user_id, :month_year, :data::jsonb, :income_estimate,
+                VALUES (:id, :user_id, :month_year, CAST(:data AS JSONB), :income_estimate,
                     :fixed_costs_estimate, :generated_at)
                 RETURNING *
             """),
