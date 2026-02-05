@@ -2,7 +2,7 @@
  * Settings Screen - User preferences and app settings
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -18,6 +18,7 @@ import { Card } from '@presentation/components/common';
 import { colors } from '@shared/constants/colors';
 import { spacing } from '@shared/constants/spacing';
 import { typography } from '@shared/constants/typography';
+import { apiClient } from '../lib/api';
 import runManualTests from '../test/manual-test';
 
 interface SettingsItemProps {
@@ -93,6 +94,40 @@ export default function SettingsScreen() {
     transactionAlerts: false,
   });
   const [isRunningTests, setIsRunningTests] = useState(false);
+
+  useEffect(() => {
+    loadNotificationPrefs();
+  }, []);
+
+  const loadNotificationPrefs = async () => {
+    try {
+      const prefs = await apiClient.getNotificationPreferences();
+      setNotificationPrefs({
+        budgetAlerts: prefs.budget_warnings_enabled ?? true,
+        goalMilestones: prefs.budget_exceeded_enabled ?? true,
+        insights: prefs.insights_enabled ?? true,
+        transactionAlerts: prefs.anomaly_alerts_enabled ?? false,
+      });
+    } catch {
+      // Use defaults if API fails
+    }
+  };
+
+  const updateNotifPref = async (key: string, value: boolean) => {
+    setNotificationPrefs((prev) => ({ ...prev, [key]: value }));
+    const mapping: Record<string, string> = {
+      budgetAlerts: 'budget_warnings_enabled',
+      goalMilestones: 'budget_exceeded_enabled',
+      insights: 'insights_enabled',
+      transactionAlerts: 'anomaly_alerts_enabled',
+    };
+    try {
+      await apiClient.updateNotificationPreferences({ [mapping[key]]: value });
+    } catch {
+      // Revert on failure
+      setNotificationPrefs((prev) => ({ ...prev, [key]: !value }));
+    }
+  };
 
   const handleSignOut = () => {
     Alert.alert(
@@ -242,9 +277,7 @@ export default function SettingsScreen() {
               label="Alertes de budget"
               description="Recevoir des alertes lorsque vous dépassez vos budgets"
               value={notificationPrefs.budgetAlerts}
-              onValueChange={(value) =>
-                setNotificationPrefs({ ...notificationPrefs, budgetAlerts: value })
-              }
+              onValueChange={(value) => updateNotifPref('budgetAlerts', value)}
             />
             <View style={styles.divider} />
             <SettingsToggle
@@ -252,9 +285,7 @@ export default function SettingsScreen() {
               label="Étapes des objectifs"
               description="Notifications pour les étapes importantes de vos objectifs"
               value={notificationPrefs.goalMilestones}
-              onValueChange={(value) =>
-                setNotificationPrefs({ ...notificationPrefs, goalMilestones: value })
-              }
+              onValueChange={(value) => updateNotifPref('goalMilestones', value)}
             />
             <View style={styles.divider} />
             <SettingsToggle
@@ -262,9 +293,7 @@ export default function SettingsScreen() {
               label="Insights mensuels"
               description="Recevoir des analyses et recommandations chaque mois"
               value={notificationPrefs.insights}
-              onValueChange={(value) =>
-                setNotificationPrefs({ ...notificationPrefs, insights: value })
-              }
+              onValueChange={(value) => updateNotifPref('insights', value)}
             />
             <View style={styles.divider} />
             <SettingsToggle
@@ -272,9 +301,7 @@ export default function SettingsScreen() {
               label="Alertes de transactions"
               description="Notifications pour chaque nouvelle transaction"
               value={notificationPrefs.transactionAlerts}
-              onValueChange={(value) =>
-                setNotificationPrefs({ ...notificationPrefs, transactionAlerts: value })
-              }
+              onValueChange={(value) => updateNotifPref('transactionAlerts', value)}
             />
           </Card>
         </View>
@@ -311,31 +338,33 @@ export default function SettingsScreen() {
           </Card>
         </View>
 
-        {/* Developer Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Développement & Tests</Text>
-          <Card style={styles.sectionCard}>
-            <TouchableOpacity
-              style={styles.testButton}
-              onPress={handleRunTests}
-              disabled={isRunningTests}
-            >
-              {isRunningTests ? (
-                <ActivityIndicator color={colors.primary.main} />
-              ) : (
-                <Text style={styles.testButtonIcon}>🧪</Text>
-              )}
-              <View style={styles.testButtonContent}>
-                <Text style={styles.testButtonLabel}>
-                  {isRunningTests ? 'Tests en cours...' : 'Lancer les tests API'}
-                </Text>
-                <Text style={styles.testButtonDescription}>
-                  Teste toutes les fonctionnalités (comptes, transactions, budgets, objectifs)
-                </Text>
-              </View>
-            </TouchableOpacity>
-          </Card>
-        </View>
+        {/* Developer Section - visible uniquement en dev */}
+        {__DEV__ && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Développement & Tests</Text>
+            <Card style={styles.sectionCard}>
+              <TouchableOpacity
+                style={styles.testButton}
+                onPress={handleRunTests}
+                disabled={isRunningTests}
+              >
+                {isRunningTests ? (
+                  <ActivityIndicator color={colors.primary.main} />
+                ) : (
+                  <Text style={styles.testButtonIcon}>🧪</Text>
+                )}
+                <View style={styles.testButtonContent}>
+                  <Text style={styles.testButtonLabel}>
+                    {isRunningTests ? 'Tests en cours...' : 'Lancer les tests API'}
+                  </Text>
+                  <Text style={styles.testButtonDescription}>
+                    Teste toutes les fonctionnalités (comptes, transactions, budgets, objectifs)
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </Card>
+          </View>
+        )}
 
         {/* Danger Zone */}
         <View style={styles.section}>

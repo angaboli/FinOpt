@@ -130,20 +130,22 @@ export default function SignInScreen() {
           />
         </View>
 
-        {/* Mode développement */}
-        <View style={styles.devMode}>
-          <Text style={styles.devModeTitle}>Mode Développement</Text>
-          <Button
-            title="🚀 Accès Rapide (Skip Auth)"
-            onPress={handleDevMode}
-            variant="secondary"
-            size="small"
-            fullWidth
-          />
-          <Text style={styles.devModeNote}>
-            Cliquez pour accéder directement à l'app sans authentification
-          </Text>
-        </View>
+        {/* Mode développement - visible uniquement en dev */}
+        {__DEV__ && (
+          <View style={styles.devMode}>
+            <Text style={styles.devModeTitle}>Mode Développement</Text>
+            <Button
+              title="Accès Rapide (Skip Auth)"
+              onPress={handleDevMode}
+              variant="secondary"
+              size="small"
+              fullWidth
+            />
+            <Text style={styles.devModeNote}>
+              Accéder directement à l'app sans authentification
+            </Text>
+          </View>
+        )}
       </View>
     </KeyboardAvoidingView>
   );

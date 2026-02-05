@@ -28,12 +28,21 @@ interface AuthState {
   signOut: () => Promise<void>;
 }
 
+interface CategoryItem {
+  id: string;
+  name: string;
+  icon: string | null;
+  color: string | null;
+  is_system: boolean;
+}
+
 interface DataState {
   accounts: Account[];
   transactions: Transaction[];
   budgets: Budget[];
   notifications: Notification[];
   goals: Goal[];
+  categories: CategoryItem[];
   isLoading: boolean;
   error: string | null;
   fetchAccounts: () => Promise<void>;
@@ -41,6 +50,7 @@ interface DataState {
   fetchBudgets: () => Promise<void>;
   fetchNotifications: () => Promise<void>;
   fetchGoals: () => Promise<void>;
+  fetchCategories: () => Promise<void>;
   refreshAll: () => Promise<void>;
 }
 
@@ -111,6 +121,7 @@ export const useDataStore = create<DataState>((set, get) => ({
   budgets: [],
   notifications: [],
   goals: [],
+  categories: [],
   isLoading: false,
   error: null,
 
@@ -164,8 +175,17 @@ export const useDataStore = create<DataState>((set, get) => ({
     }
   },
 
+  fetchCategories: async () => {
+    try {
+      const categories = await apiClient.getCategories();
+      set({ categories });
+    } catch (error: any) {
+      set({ error: error.message });
+    }
+  },
+
   refreshAll: async () => {
-    const { fetchAccounts, fetchTransactions, fetchBudgets, fetchNotifications, fetchGoals } =
+    const { fetchAccounts, fetchTransactions, fetchBudgets, fetchNotifications, fetchGoals, fetchCategories } =
       get();
     await Promise.all([
       fetchAccounts(),
@@ -173,6 +193,7 @@ export const useDataStore = create<DataState>((set, get) => ({
       fetchBudgets(),
       fetchNotifications(),
       fetchGoals(),
+      fetchCategories(),
     ]);
   },
 }));

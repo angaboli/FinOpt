@@ -21,7 +21,7 @@ import { formatCurrency } from '@shared/utils/formatters';
 import type { Budget } from '@finopt/shared';
 
 export default function BudgetsScreen({ navigation }: any) {
-  const { budgets, transactions, fetchBudgets, fetchTransactions, isLoading } = useDataStore();
+  const { budgets, transactions, categories, fetchBudgets, fetchTransactions, fetchCategories, isLoading } = useDataStore();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -31,11 +31,21 @@ export default function BudgetsScreen({ navigation }: any) {
   const loadData = async () => {
     try {
       setError(null);
-      await Promise.all([fetchBudgets(), fetchTransactions({ limit: 100 })]);
+      await Promise.all([fetchBudgets(), fetchTransactions({ limit: 100 }), fetchCategories()]);
     } catch (err) {
       setError('Impossible de charger les budgets');
       console.error('Failed to load budgets:', err);
     }
+  };
+
+  const getCategoryName = (categoryId: string): string => {
+    const cat = categories.find((c) => c.id === categoryId);
+    return cat?.name || `Cat. ${categoryId}`;
+  };
+
+  const getCategoryIcon = (categoryId: string): string => {
+    const cat = categories.find((c) => c.id === categoryId);
+    return cat?.icon || '📊';
   };
 
   // Calculer les dépenses par catégorie pour le mois en cours
@@ -187,29 +197,6 @@ export default function BudgetsScreen({ navigation }: any) {
       </ScrollView>
     </View>
   );
-}
-
-// Helper functions (à remplacer par des appels API plus tard)
-function getCategoryName(categoryId: string): string {
-  const categories: Record<string, string> = {
-    '1': 'Alimentation',
-    '2': 'Transport',
-    '3': 'Loisirs',
-    '4': 'Santé',
-    '5': 'Logement',
-  };
-  return categories[categoryId] || `Catégorie ${categoryId}`;
-}
-
-function getCategoryIcon(categoryId: string): string {
-  const icons: Record<string, string> = {
-    '1': '🍔',
-    '2': '🚗',
-    '3': '🎬',
-    '4': '💊',
-    '5': '🏠',
-  };
-  return icons[categoryId] || '📊';
 }
 
 const styles = StyleSheet.create({

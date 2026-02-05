@@ -2,7 +2,7 @@
  * Add Budget Screen - Modal for creating a new budget
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -20,23 +20,20 @@ import { typography } from '@shared/constants/typography';
 import { apiClient } from '../lib/api';
 import { useDataStore } from '../store';
 
-// Catégories prédéfinies (à remplacer par un appel API plus tard)
-const CATEGORIES = [
-  { id: '1', name: 'Alimentation', icon: '🍔' },
-  { id: '2', name: 'Transport', icon: '🚗' },
-  { id: '3', name: 'Loisirs', icon: '🎬' },
-  { id: '4', name: 'Santé', icon: '💊' },
-  { id: '5', name: 'Logement', icon: '🏠' },
-];
-
 export default function AddBudgetScreen({ navigation }: any) {
-  const { fetchBudgets } = useDataStore();
-  const [selectedCategory, setSelectedCategory] = useState<string>('1');
+  const { fetchBudgets, categories, fetchCategories } = useDataStore();
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [amount, setAmount] = useState('');
   const [period, setPeriod] = useState<'MONTHLY' | 'WEEKLY'>('MONTHLY');
   const [alertThreshold, setAlertThreshold] = useState('80');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (categories.length === 0) {
+      fetchCategories();
+    }
+  }, []);
 
   const handleSubmit = async () => {
     // Validation
@@ -81,19 +78,15 @@ export default function AddBudgetScreen({ navigation }: any) {
       }
 
       const budgetData = {
-        categoryId: selectedCategory,
+        category_id: selectedCategory,
         amount: parseFloat(amount),
-        periodStart,
-        periodEnd,
-        warningThreshold: thresholdValue,
-        criticalThreshold: 100, // 100% = dépassé
+        period_start: periodStart,
+        period_end: periodEnd,
+        warning_threshold: thresholdValue / 100,
+        critical_threshold: 1.0,
       };
 
-      console.log('💰 Création du budget:', budgetData);
-
       await apiClient.createBudget(budgetData);
-
-      console.log('✅ Budget créé avec succès!');
 
       // Rafraîchir les budgets
       await fetchBudgets();
@@ -105,9 +98,9 @@ export default function AddBudgetScreen({ navigation }: any) {
         [{ text: 'OK', onPress: () => navigation.goBack() }]
       );
     } catch (err: any) {
-      console.error('❌ Erreur création budget:', err);
-      setError(err.response?.data?.message || err.message || 'Erreur lors de la création du budget');
-      Alert.alert('Erreur', err.response?.data?.message || err.message || 'Erreur lors de la création du budget');
+      const msg = err.response?.data?.detail || err.message || 'Erreur lors de la création du budget';
+      setError(msg);
+      Alert.alert('Erreur', msg);
     } finally {
       setIsLoading(false);
     }
@@ -121,7 +114,7 @@ export default function AddBudgetScreen({ navigation }: any) {
     return <LoadingSpinner fullScreen message="Création du budget..." />;
   }
 
-  const selectedCat = CATEGORIES.find((c) => c.id === selectedCategory);
+  const selectedCat = categories.find((c) => c.id === selectedCategory);
 
   return (
     <KeyboardAvoidingView
@@ -145,10 +138,10 @@ export default function AddBudgetScreen({ navigation }: any) {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Catégorie *</Text>
           <View style={styles.categoriesContainer}>
-            {CATEGORIES.map((category) => (
+            {categories.map((category) => (
               <FilterChip
                 key={category.id}
-                label={`${category.icon} ${category.name}`}
+                label={`${category.icon || '📊'} ${category.name}`}
                 selected={selectedCategory === category.id}
                 onPress={() => setSelectedCategory(category.id)}
               />
@@ -202,7 +195,7 @@ export default function AddBudgetScreen({ navigation }: any) {
         <View style={styles.previewCard}>
           <Text style={styles.previewTitle}>Aperçu</Text>
           <View style={styles.previewContent}>
-            <Text style={styles.previewIcon}>{selectedCat?.icon || '📊'}</Text>
+            <Text style={styles.previewIcon}>{(selectedCat?.icon) || '📊'}</Text>
             <View style={styles.previewInfo}>
               <Text style={styles.previewCategory}>{selectedCat?.name || 'Catégorie'}</Text>
               <Text style={styles.previewAmount}>

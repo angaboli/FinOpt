@@ -10,6 +10,7 @@ from src.presentation.api.routers import (
     accounts,
     transactions,
     budgets,
+    categories,
     insights,
     notifications,
     goals,
@@ -69,6 +70,7 @@ app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"])
 app.include_router(accounts.router, prefix="/api/v1/accounts", tags=["Accounts"])
 app.include_router(transactions.router, prefix="/api/v1/transactions", tags=["Transactions"])
 app.include_router(budgets.router, prefix="/api/v1/budgets", tags=["Budgets"])
+app.include_router(categories.router, prefix="/api/v1/categories", tags=["Categories"])
 app.include_router(insights.router, prefix="/api/v1/insights", tags=["Insights"])
 app.include_router(notifications.router, prefix="/api/v1/notifications", tags=["Notifications"])
 app.include_router(goals.router, prefix="/api/v1/goals", tags=["Goals"])
