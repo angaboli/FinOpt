@@ -50,6 +50,7 @@ async def get_current_user_id(authorization: Optional[str] = Header(None)) -> st
 # Dependency injection helpers for repositories and services
 
 from src.infrastructure.repositories.transaction_repository_impl import TransactionRepositoryImpl
+from src.infrastructure.repositories.account_repository_impl import AccountRepositoryImpl
 from src.infrastructure.services.llm_client_impl import AnthropicLLMClient
 from src.infrastructure.services.push_notification_impl import ExpoPushNotificationService
 
@@ -57,6 +58,11 @@ from src.infrastructure.services.push_notification_impl import ExpoPushNotificat
 def get_transaction_repository(db: AsyncSession = Depends(get_db)) -> TransactionRepositoryImpl:
     """Get transaction repository instance."""
     return TransactionRepositoryImpl(db)
+
+
+def get_account_repository(db: AsyncSession = Depends(get_db)) -> AccountRepositoryImpl:
+    """Get account repository instance."""
+    return AccountRepositoryImpl(db)
 
 
 def get_llm_client() -> AnthropicLLMClient:

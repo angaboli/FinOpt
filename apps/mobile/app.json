@@ -32,7 +32,6 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-router",
       [
         "expo-notifications",
         {
@@ -43,10 +42,7 @@
     ],
     "scheme": "finopt",
     "extra": {
-      "apiUrl": "http://172.19.144.1:8000/api/v1",
-      "router": {
-        "origin": false
-      },
+      "apiUrl": "http://192.168.1.64:8000/api/v1",
       "eas": {
         "projectId": "your-project-id"
       }

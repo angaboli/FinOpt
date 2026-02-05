@@ -3,8 +3,20 @@
  */
 
 import { create } from 'zustand';
-import type { Account, Transaction, Budget, Notification, Goal } from '@finopt/shared';
+import type { Account, Transaction, Budget, Goal } from '@finopt/shared';
 import { apiClient } from '../lib/api';
+
+interface Notification {
+  id: string;
+  userId: string;
+  type: string;
+  title: string;
+  body: string;
+  data?: Record<string, any>;
+  isRead: boolean;
+  sentAt?: string;
+  createdAt: string;
+}
 
 interface AuthState {
   user: any | null;
@@ -49,6 +61,10 @@ export const useAuthStore = create<AuthState>((set) => ({
         isAuthenticated: true,
         isLoading: false,
       });
+
+      // Fetch user data after successful sign in
+      const dataStore = useDataStore.getState();
+      await dataStore.fetchAccounts().catch(() => {}); // Don't fail if accounts fetch fails
     } catch (error) {
       set({ isLoading: false });
       throw error;
@@ -66,6 +82,10 @@ export const useAuthStore = create<AuthState>((set) => ({
         isAuthenticated: true,
         isLoading: false,
       });
+
+      // Fetch user data after successful sign up
+      const dataStore = useDataStore.getState();
+      await dataStore.fetchAccounts().catch(() => {}); // Don't fail if accounts fetch fails
     } catch (error) {
       set({ isLoading: false });
       throw error;

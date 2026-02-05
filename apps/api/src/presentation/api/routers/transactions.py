@@ -6,7 +6,7 @@ from datetime import datetime
 from decimal import Decimal
 from pydantic import BaseModel
 
-from src.presentation.api.dependencies import get_current_user_id, get_transaction_repository
+from src.presentation.api.dependencies import get_current_user_id, get_transaction_repository, get_account_repository
 from src.application.use_cases.transaction_use_cases import (
     CreateManualTransactionUseCase,
     UpdateTransactionUseCase,
@@ -84,15 +84,9 @@ async def create_transaction(
     request: CreateTransactionRequest,
     user_id: str = Depends(get_current_user_id),
     transaction_repo = Depends(get_transaction_repository),
+    account_repo = Depends(get_account_repository),
 ):
     """Create a manual transaction."""
-    # This is simplified - in production, inject all dependencies properly
-    from src.infrastructure.database.connection import get_db
-    from src.infrastructure.repositories.transaction_repository_impl import TransactionRepositoryImpl
-
-    db = get_db()
-    account_repo = TransactionRepositoryImpl(db)  # Should be AccountRepositoryImpl
-
     use_case = CreateManualTransactionUseCase(
         transaction_repo=transaction_repo,
         account_repo=account_repo,
@@ -174,13 +168,9 @@ async def update_transaction(
     request: UpdateTransactionRequest,
     user_id: str = Depends(get_current_user_id),
     transaction_repo = Depends(get_transaction_repository),
+    account_repo = Depends(get_account_repository),
 ):
     """Update a transaction."""
-    from src.infrastructure.database.connection import get_db
-
-    db = get_db()
-    account_repo = TransactionRepositoryImpl(db)
-
     use_case = UpdateTransactionUseCase(transaction_repo, account_repo)
 
     updates = request.dict(exclude_unset=True)
@@ -201,13 +191,9 @@ async def delete_transaction(
     transaction_id: str,
     user_id: str = Depends(get_current_user_id),
     transaction_repo = Depends(get_transaction_repository),
+    account_repo = Depends(get_account_repository),
 ):
     """Delete a transaction (soft delete)."""
-    from src.infrastructure.database.connection import get_db
-
-    db = get_db()
-    account_repo = TransactionRepositoryImpl(db)
-
     use_case = DeleteTransactionUseCase(transaction_repo, account_repo)
 
     try:

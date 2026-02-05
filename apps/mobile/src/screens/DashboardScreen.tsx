@@ -1,76 +1,125 @@
 /**
- * Dashboard Screen - Overview of accounts and recent transactions
+ * Dashboard Screen - Financial Overview
+ *
+ * Displays:
+ * - Balance Card with total balance
+ * - Stats Cards (Income, Expenses, Savings)
+ * - Quick Actions
+ * - Recent Transactions
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, RefreshControl } from 'react-native';
 import { useDataStore } from '../store';
+import { BalanceCard, StatCard, QuickActions, TransactionItem } from '@presentation/components/cards';
+import { LoadingSpinner, ErrorMessage } from '@presentation/components/common';
+import { colors } from '@shared/constants/colors';
+import { spacing } from '@shared/constants/spacing';
+import { typography } from '@shared/constants/typography';
 
 export default function DashboardScreen() {
   const { accounts, transactions, fetchAccounts, fetchTransactions, isLoading } = useDataStore();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadData();
   }, []);
 
   const loadData = async () => {
-    await fetchAccounts();
-    await fetchTransactions({ limit: 10 });
+    try {
+      setError(null);
+      await Promise.all([fetchAccounts(), fetchTransactions({ limit: 10 })]);
+    } catch (err) {
+      setError('Impossible de charger les données');
+      console.error('Failed to load dashboard data:', err);
+    }
   };
+
+  // Calculate statistics
+  const totalBalance = accounts.reduce((sum, acc) => sum + Number(acc.balance), 0);
+
+  const thisMonthTransactions = transactions.filter((t) => {
+    const txDate = new Date(t.date);
+    const now = new Date();
+    return txDate.getMonth() === now.getMonth() && txDate.getFullYear() === now.getFullYear();
+  });
+
+  const income = thisMonthTransactions
+    .filter((t) => Number(t.amount) > 0)
+    .reduce((sum, t) => sum + Number(t.amount), 0);
+
+  const expenses = thisMonthTransactions
+    .filter((t) => Number(t.amount) < 0)
+    .reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0);
+
+  const savings = income - expenses;
+
+  const recentTransactions = transactions.slice(0, 5);
+
+  if (error && !isLoading) {
+    return (
+      <View style={styles.container}>
+        <ErrorMessage
+          message={error}
+          onRetry={loadData}
+          fullScreen
+        />
+      </View>
+    );
+  }
 
   return (
     <ScrollView
       style={styles.container}
+      contentContainerStyle={styles.contentContainer}
       refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadData} />}
+      showsVerticalScrollIndicator={false}
     >
+      {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>Dashboard</Text>
+        <Text style={styles.greeting}>Bonjour 👋</Text>
+        <Text style={styles.subtitle}>Voici votre aperçu financier</Text>
       </View>
 
-      {/* Total Balance */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Solde total</Text>
-        <Text style={styles.balance}>
-          {accounts.reduce((sum, acc) => sum + Number(acc.balance), 0).toFixed(2)}€
-        </Text>
+      {/* Balance Card */}
+      <BalanceCard balance={totalBalance} currency="EUR" lastUpdated={new Date()} />
+
+      {/* Stats Row */}
+      <View style={styles.statsRow}>
+        <StatCard type="income" amount={income} currency="EUR" change={5.2} />
+        <StatCard type="expense" amount={expenses} currency="EUR" change={-3.1} />
       </View>
 
-      {/* Accounts */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Comptes ({accounts.length})</Text>
-        {accounts.map((account) => (
-          <View key={account.id} style={styles.accountItem}>
-            <View>
-              <Text style={styles.accountName}>{account.name}</Text>
-              <Text style={styles.accountType}>{account.type}</Text>
-            </View>
-            <Text style={styles.accountBalance}>{Number(account.balance).toFixed(2)}€</Text>
-          </View>
-        ))}
+      <View style={styles.statsRow}>
+        <StatCard type="savings" amount={savings} currency="EUR" change={12.5} />
       </View>
+
+      {/* Quick Actions */}
+      <QuickActions />
 
       {/* Recent Transactions */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Transactions récentes</Text>
-        {transactions.slice(0, 5).map((transaction) => (
-          <View key={transaction.id} style={styles.transactionItem}>
-            <View>
-              <Text style={styles.transactionDesc}>{transaction.description}</Text>
-              <Text style={styles.transactionDate}>
-                {new Date(transaction.date).toLocaleDateString('fr-FR')}
-              </Text>
-            </View>
-            <Text
-              style={[
-                styles.transactionAmount,
-                Number(transaction.amount) < 0 ? styles.expense : styles.income,
-              ]}
-            >
-              {Number(transaction.amount) > 0 ? '+' : ''}
-              {Number(transaction.amount).toFixed(2)}€
-            </Text>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Transactions Récentes</Text>
+          <Text style={styles.seeAll}>Voir tout</Text>
+        </View>
+
+        {isLoading && recentTransactions.length === 0 ? (
+          <LoadingSpinner message="Chargement des transactions..." />
+        ) : recentTransactions.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyStateIcon}>📭</Text>
+            <Text style={styles.emptyStateText}>Aucune transaction récente</Text>
           </View>
-        ))}
+        ) : (
+          recentTransactions.map((transaction) => (
+            <TransactionItem
+              key={transaction.id}
+              transaction={transaction}
+              onPress={(t) => console.log('Transaction pressed:', t.id)}
+            />
+          ))
+        )}
       </View>
     </ScrollView>
   );
@@ -79,91 +128,61 @@ export default function DashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
+  },
+  contentContainer: {
+    paddingBottom: spacing.xl,
   },
   header: {
-    padding: 20,
-    paddingTop: 60,
-    backgroundColor: '#fff',
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.xl * 2,
+    paddingBottom: spacing.md,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
+  greeting: {
+    fontSize: typography.heading.h1.fontSize,
+    fontWeight: typography.heading.h1.fontWeight,
+    color: colors.neutral[800],
+    marginBottom: spacing.xs,
   },
-  card: {
-    backgroundColor: '#3b82f6',
-    margin: 16,
-    padding: 24,
-    borderRadius: 16,
+  subtitle: {
+    fontSize: typography.body.regular.fontSize,
+    color: colors.neutral[600],
   },
-  cardTitle: {
-    color: '#fff',
-    fontSize: 14,
-    opacity: 0.9,
-    marginBottom: 8,
-  },
-  balance: {
-    color: '#fff',
-    fontSize: 36,
-    fontWeight: 'bold',
+  statsRow: {
+    flexDirection: 'row',
+    paddingHorizontal: spacing.sm,
+    marginBottom: spacing.xs,
   },
   section: {
-    backgroundColor: '#fff',
-    margin: 16,
-    padding: 16,
-    borderRadius: 12,
+    paddingHorizontal: spacing.md,
+    marginTop: spacing.md,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.md,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 16,
+    fontSize: typography.heading.h3.fontSize,
+    fontWeight: typography.heading.h3.fontWeight,
+    color: colors.neutral[800],
   },
-  accountItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  seeAll: {
+    fontSize: typography.body.regular.fontSize,
+    color: colors.primary.main,
+    fontWeight: '600',
+  },
+  emptyState: {
     alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    paddingVertical: spacing.xl,
   },
-  accountName: {
-    fontSize: 16,
-    fontWeight: '500',
+  emptyStateIcon: {
+    fontSize: 48,
+    marginBottom: spacing.sm,
   },
-  accountType: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 4,
-  },
-  accountBalance: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  transactionItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  transactionDesc: {
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  transactionDate: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 4,
-  },
-  transactionAmount: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  expense: {
-    color: '#ef4444',
-  },
-  income: {
-    color: '#10b981',
+  emptyStateText: {
+    fontSize: typography.body.regular.fontSize,
+    color: colors.neutral[500],
   },
 });

@@ -16,17 +16,23 @@ class TransactionRepositoryImpl(TransactionRepository):
     def __init__(self, db: AsyncSession):
         self.db = db
 
+    def _ensure_datetime(self, value):
+        """Convert value to datetime if it's a string, otherwise return as-is."""
+        if isinstance(value, str):
+            return datetime.fromisoformat(value)
+        return value
+
     def _to_entity(self, data: Dict[str, Any]) -> Transaction:
         """Convert database row to entity."""
         return Transaction(
-            id=data["id"],
-            user_id=data["user_id"],
-            account_id=data["account_id"],
+            id=str(data["id"]),
+            user_id=str(data["user_id"]),
+            account_id=str(data["account_id"]),
             amount=Decimal(str(data["amount"])),
             currency=data["currency"],
-            date=datetime.fromisoformat(data["date"]),
+            date=self._ensure_datetime(data["date"]),
             description=data["description"],
-            category_id=data.get("category_id"),
+            category_id=str(data["category_id"]) if data.get("category_id") else None,
             merchant_name=data.get("merchant_name"),
             is_recurring=data.get("is_recurring", False),
             is_manual=data.get("is_manual", False),
@@ -34,9 +40,9 @@ class TransactionRepositoryImpl(TransactionRepository):
             notes=data.get("notes"),
             tags=data.get("tags", []),
             metadata=data.get("metadata", {}),
-            created_at=datetime.fromisoformat(data["created_at"]),
-            updated_at=datetime.fromisoformat(data["updated_at"]),
-            deleted_at=datetime.fromisoformat(data["deleted_at"]) if data.get("deleted_at") else None,
+            created_at=self._ensure_datetime(data["created_at"]),
+            updated_at=self._ensure_datetime(data["updated_at"]),
+            deleted_at=self._ensure_datetime(data["deleted_at"]) if data.get("deleted_at") else None,
         )
 
     def _to_dict(self, transaction: Transaction) -> Dict[str, Any]:
@@ -47,7 +53,7 @@ class TransactionRepositoryImpl(TransactionRepository):
             "account_id": transaction.account_id,
             "amount": float(transaction.amount),
             "currency": transaction.currency,
-            "date": transaction.date.isoformat(),
+            "date": transaction.date,
             "description": transaction.description,
             "category_id": transaction.category_id,
             "merchant_name": transaction.merchant_name,
@@ -57,9 +63,9 @@ class TransactionRepositoryImpl(TransactionRepository):
             "notes": transaction.notes,
             "tags": transaction.tags,
             "metadata": transaction.metadata,
-            "created_at": transaction.created_at.isoformat(),
-            "updated_at": transaction.updated_at.isoformat(),
-            "deleted_at": transaction.deleted_at.isoformat() if transaction.deleted_at else None,
+            "created_at": transaction.created_at,
+            "updated_at": transaction.updated_at,
+            "deleted_at": transaction.deleted_at if transaction.deleted_at else None,
         }
 
     async def create(self, transaction: Transaction) -> Transaction:

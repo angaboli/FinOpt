@@ -6,6 +6,18 @@
       "@/*": [
         "./src/*"
       ],
+      "@core/*": [
+        "./src/core/*"
+      ],
+      "@infrastructure/*": [
+        "./src/infrastructure/*"
+      ],
+      "@presentation/*": [
+        "./src/presentation/*"
+      ],
+      "@shared/*": [
+        "./src/shared/*"
+      ],
       "@finopt/shared": [
         "../../packages/shared/src/index.ts"
       ]
