@@ -3,8 +3,11 @@
  */
 
 import { create } from 'zustand';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Account, Transaction, Budget, Goal } from '@finopt/shared';
 import { apiClient } from '../lib/api';
+
+const AUTH_STORAGE_KEY = 'finopt_auth';
 
 interface Notification {
   id: string;
@@ -26,6 +29,7 @@ interface AuthState {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, fullName: string) => Promise<void>;
   signOut: () => Promise<void>;
+  restoreSession: () => Promise<void>;
 }
 
 interface CategoryItem {
@@ -65,6 +69,10 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const response = await apiClient.signIn(email, password);
       apiClient.setToken(response.access_token);
+      await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({
+        user: response.user,
+        token: response.access_token,
+      }));
       set({
         user: response.user,
         token: response.access_token,
@@ -72,9 +80,8 @@ export const useAuthStore = create<AuthState>((set) => ({
         isLoading: false,
       });
 
-      // Fetch user data after successful sign in
       const dataStore = useDataStore.getState();
-      await dataStore.fetchAccounts().catch(() => {}); // Don't fail if accounts fetch fails
+      await dataStore.fetchAccounts().catch(() => {});
     } catch (error) {
       set({ isLoading: false });
       throw error;
@@ -86,6 +93,10 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const response = await apiClient.signUp(email, password, fullName);
       apiClient.setToken(response.access_token);
+      await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({
+        user: response.user,
+        token: response.access_token,
+      }));
       set({
         user: response.user,
         token: response.access_token,
@@ -93,9 +104,8 @@ export const useAuthStore = create<AuthState>((set) => ({
         isLoading: false,
       });
 
-      // Fetch user data after successful sign up
       const dataStore = useDataStore.getState();
-      await dataStore.fetchAccounts().catch(() => {}); // Don't fail if accounts fetch fails
+      await dataStore.fetchAccounts().catch(() => {});
     } catch (error) {
       set({ isLoading: false });
       throw error;
@@ -106,11 +116,31 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       await apiClient.signOut();
     } finally {
+      await AsyncStorage.removeItem(AUTH_STORAGE_KEY);
       set({
         user: null,
         token: null,
         isAuthenticated: false,
       });
+    }
+  },
+
+  restoreSession: async () => {
+    set({ isLoading: true });
+    try {
+      const stored = await AsyncStorage.getItem(AUTH_STORAGE_KEY);
+      if (stored) {
+        const { user, token } = JSON.parse(stored);
+        apiClient.setToken(token);
+        set({ user, token, isAuthenticated: true, isLoading: false });
+        const dataStore = useDataStore.getState();
+        dataStore.refreshAll().catch(() => {});
+      } else {
+        set({ isLoading: false });
+      }
+    } catch {
+      await AsyncStorage.removeItem(AUTH_STORAGE_KEY);
+      set({ isLoading: false });
     }
   },
 }));

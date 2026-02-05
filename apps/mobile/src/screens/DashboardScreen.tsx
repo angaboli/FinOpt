@@ -18,7 +18,7 @@ import { spacing } from '@shared/constants/spacing';
 import { typography } from '@shared/constants/typography';
 
 export default function DashboardScreen() {
-  const { accounts, transactions, fetchAccounts, fetchTransactions, isLoading } = useDataStore();
+  const { accounts, transactions, budgets, categories, fetchAccounts, fetchTransactions, fetchBudgets, fetchCategories, isLoading } = useDataStore();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -28,10 +28,9 @@ export default function DashboardScreen() {
   const loadData = async () => {
     try {
       setError(null);
-      await Promise.all([fetchAccounts(), fetchTransactions({ limit: 10 })]);
+      await Promise.all([fetchAccounts(), fetchTransactions({ limit: 10 }), fetchBudgets(), fetchCategories()]);
     } catch (err) {
       setError('Impossible de charger les données');
-      console.error('Failed to load dashboard data:', err);
     }
   };
 
@@ -96,6 +95,43 @@ export default function DashboardScreen() {
 
       {/* Quick Actions */}
       <QuickActions />
+
+      {/* Budget Alerts */}
+      {budgets.length > 0 && (() => {
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+        const alerts = budgets.map((b) => {
+          const spent = transactions
+            .filter((t) => {
+              const txDate = new Date(t.date);
+              return (
+                t.categoryId === b.categoryId &&
+                Number(t.amount) < 0 &&
+                txDate.getMonth() === currentMonth &&
+                txDate.getFullYear() === currentYear
+              );
+            })
+            .reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0);
+          const pct = b.amount > 0 ? spent / b.amount : 0;
+          const catName = categories.find((c) => c.id === b.categoryId)?.name || 'Budget';
+          return { id: b.id, catName, spent, amount: b.amount, pct };
+        }).filter((a) => a.pct >= 0.8);
+
+        if (alerts.length === 0) return null;
+        return (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Alertes Budget</Text>
+            {alerts.map((a) => (
+              <View key={a.id} style={[styles.alertCard, a.pct >= 1 ? styles.alertDanger : styles.alertWarning]}>
+                <Text style={styles.alertText}>
+                  {a.pct >= 1 ? '🔴' : '🟡'} {a.catName}: {a.spent.toFixed(0)}€ / {a.amount.toFixed(0)}€ ({(a.pct * 100).toFixed(0)}%)
+                </Text>
+              </View>
+            ))}
+          </View>
+        );
+      })()}
 
       {/* Recent Transactions */}
       <View style={styles.section}>
@@ -184,5 +220,25 @@ const styles = StyleSheet.create({
   emptyStateText: {
     fontSize: typography.body.regular.fontSize,
     color: colors.neutral[500],
+  },
+  alertCard: {
+    padding: spacing.md,
+    borderRadius: 8,
+    marginBottom: spacing.sm,
+  },
+  alertWarning: {
+    backgroundColor: '#FFF3CD',
+    borderWidth: 1,
+    borderColor: '#FFEAA7',
+  },
+  alertDanger: {
+    backgroundColor: '#F8D7DA',
+    borderWidth: 1,
+    borderColor: '#F5C6CB',
+  },
+  alertText: {
+    fontSize: typography.body.regular.fontSize,
+    color: colors.neutral[800],
+    fontWeight: '500',
   },
 });

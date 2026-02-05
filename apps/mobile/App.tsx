@@ -82,10 +82,10 @@ function MainTabs() {
 }
 
 export default function App() {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { isAuthenticated, isLoading, restoreSession } = useAuthStore();
 
   useEffect(() => {
-    // Request notification permissions
+    restoreSession();
     (async () => {
       const { status } = await Notifications.requestPermissionsAsync();
       if (status !== 'granted') {

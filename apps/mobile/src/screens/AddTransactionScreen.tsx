@@ -2,7 +2,7 @@
  * Add Transaction Screen - Modal for adding a new transaction
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -24,7 +24,7 @@ import { AccountType, OwnerScope } from '@finopt/shared';
 type TransactionType = 'expense' | 'income';
 
 export default function AddTransactionScreen({ navigation }: any) {
-  const { accounts, fetchTransactions, fetchAccounts } = useDataStore();
+  const { accounts, categories, fetchTransactions, fetchAccounts, fetchCategories } = useDataStore();
   const [type, setType] = useState<TransactionType>('expense');
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
@@ -34,11 +34,18 @@ export default function AddTransactionScreen({ navigation }: any) {
   const [selectedAccountId, setSelectedAccountId] = useState<string | null>(
     accounts.length > 0 ? accounts[0].id : null
   );
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (categories.length === 0) {
+      fetchCategories();
+    }
+  }, []);
+
   // Mettre à jour le compte sélectionné quand les comptes changent
-  React.useEffect(() => {
+  useEffect(() => {
     if (accounts.length > 0 && !selectedAccountId) {
       setSelectedAccountId(accounts[0].id);
     }
@@ -67,7 +74,6 @@ export default function AddTransactionScreen({ navigation }: any) {
 
       // Si pas de compte, en créer un par défaut
       if (!accountId) {
-        console.log('📝 Création d\'un compte par défaut...');
         const newAccount = await apiClient.createAccount({
           name: 'Compte Principal',
           type: AccountType.CHECKING,
@@ -80,26 +86,15 @@ export default function AddTransactionScreen({ navigation }: any) {
         await fetchAccounts();
       }
 
-      console.log('💰 Création de la transaction:', {
-        accountId,
-        amount: amountValue,
-        description,
-        merchantName,
-        date,
-        notes,
-      });
-
-      // Créer la transaction via l'API
       await apiClient.createTransaction({
         account_id: accountId!,
         amount: amountValue,
         description,
+        category_id: selectedCategoryId || undefined,
         merchant_name: merchantName || undefined,
         date,
         notes: notes || undefined,
       });
-
-      console.log('✅ Transaction créée avec succès!');
 
       // Rafraîchir les transactions
       await fetchTransactions({ limit: 100 });
@@ -111,9 +106,9 @@ export default function AddTransactionScreen({ navigation }: any) {
         [{ text: 'OK', onPress: () => navigation.goBack() }]
       );
     } catch (err: any) {
-      console.error('❌ Erreur création transaction:', err);
-      setError(err.response?.data?.message || err.message || 'Erreur lors de la création de la transaction');
-      Alert.alert('Erreur', err.response?.data?.message || err.message || 'Erreur lors de la création de la transaction');
+      const msg = err.response?.data?.detail || err.message || 'Erreur lors de la création';
+      setError(msg);
+      Alert.alert('Erreur', msg);
     } finally {
       setIsLoading(false);
     }
@@ -227,6 +222,23 @@ export default function AddTransactionScreen({ navigation }: any) {
             autoCapitalize="sentences"
           />
         </View>
+
+        {/* Catégorie */}
+        {categories.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Catégorie</Text>
+            <View style={styles.typeContainer}>
+              {categories.map((cat) => (
+                <FilterChip
+                  key={cat.id}
+                  label={`${cat.icon || '📊'} ${cat.name}`}
+                  selected={selectedCategoryId === cat.id}
+                  onPress={() => setSelectedCategoryId(selectedCategoryId === cat.id ? null : cat.id)}
+                />
+              ))}
+            </View>
+          </View>
+        )}
 
         {/* Marchand */}
         <View style={styles.section}>
