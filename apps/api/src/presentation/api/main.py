@@ -1,7 +1,9 @@
 """FastAPI application entry point."""
 
-from fastapi import FastAPI
+import logging
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 
 from src.config import settings
@@ -16,15 +18,15 @@ from src.presentation.api.routers import (
     goals,
 )
 
+logger = logging.getLogger(__name__)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan manager."""
-    # Startup
-    print(f"🚀 {settings.app_name} v{settings.app_version} starting...")
+    logger.info(f"{settings.app_name} v{settings.app_version} starting ({settings.environment})")
     yield
-    # Shutdown
-    print(f"👋 {settings.app_name} shutting down...")
+    logger.info(f"{settings.app_name} shutting down")
 
 
 # Create FastAPI app
@@ -33,12 +35,24 @@ app = FastAPI(
     version=settings.app_version,
     description="AI-powered personal finance management API",
     lifespan=lifespan,
+    docs_url=None if settings.is_production else "/docs",
+    redoc_url=None if settings.is_production else "/redoc",
+    openapi_url=None if settings.is_production else "/openapi.json",
 )
+
+# Global exception handler
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Unhandled error: {exc}", exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal server error"},
+    )
 
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Configure properly in production
+    allow_origins=settings.cors_origin_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

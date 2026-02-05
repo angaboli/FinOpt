@@ -1,6 +1,7 @@
 from pydantic_settings import BaseSettings
+from pydantic import model_validator
 from functools import lru_cache
-from typing import Optional
+from typing import Optional, List
 
 
 class Settings(BaseSettings):
@@ -16,6 +17,9 @@ class Settings(BaseSettings):
     api_host: str = "0.0.0.0"
     api_port: int = 8000
     api_reload: bool = True
+
+    # CORS
+    cors_origins: str = "*"
 
     # Database (Neon)
     database_url: str
@@ -46,6 +50,23 @@ class Settings(BaseSettings):
     # Logging
     log_level: str = "INFO"
     log_format: str = "json"
+
+    @property
+    def is_production(self) -> bool:
+        return self.environment == "production"
+
+    @property
+    def cors_origin_list(self) -> List[str]:
+        if self.cors_origins == "*":
+            return ["*"]
+        return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+
+    @model_validator(mode="after")
+    def enforce_production_safety(self):
+        if self.environment == "production":
+            object.__setattr__(self, "debug", False)
+            object.__setattr__(self, "api_reload", False)
+        return self
 
     class Config:
         env_file = ".env"

@@ -9,7 +9,8 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, RefreshControl } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, RefreshControl, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { useDataStore } from '../store';
 import { BalanceCard, StatCard, QuickActions, TransactionItem } from '@presentation/components/cards';
 import { LoadingSpinner, ErrorMessage } from '@presentation/components/common';
@@ -18,6 +19,7 @@ import { spacing } from '@shared/constants/spacing';
 import { typography } from '@shared/constants/typography';
 
 export default function DashboardScreen() {
+  const navigation = useNavigation<any>();
   const { accounts, transactions, budgets, categories, fetchAccounts, fetchTransactions, fetchBudgets, fetchCategories, isLoading } = useDataStore();
   const [error, setError] = useState<string | null>(null);
 
@@ -95,6 +97,18 @@ export default function DashboardScreen() {
 
       {/* Quick Actions */}
       <QuickActions />
+
+      {/* Shortcuts */}
+      <View style={styles.shortcutsRow}>
+        <TouchableOpacity style={styles.shortcutButton} onPress={() => navigation.navigate('Insights')}>
+          <Text style={styles.shortcutIcon}>💡</Text>
+          <Text style={styles.shortcutLabel}>Insights IA</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.shortcutButton} onPress={() => navigation.navigate('Accounts')}>
+          <Text style={styles.shortcutIcon}>🏦</Text>
+          <Text style={styles.shortcutLabel}>Comptes</Text>
+        </TouchableOpacity>
+      </View>
 
       {/* Budget Alerts */}
       {budgets.length > 0 && (() => {
@@ -220,6 +234,30 @@ const styles = StyleSheet.create({
   emptyStateText: {
     fontSize: typography.body.regular.fontSize,
     color: colors.neutral[500],
+  },
+  shortcutsRow: {
+    flexDirection: 'row',
+    paddingHorizontal: spacing.md,
+    marginTop: spacing.md,
+    gap: spacing.md,
+  },
+  shortcutButton: {
+    flex: 1,
+    backgroundColor: colors.neutral.white,
+    borderRadius: 12,
+    padding: spacing.md,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.neutral[200],
+  },
+  shortcutIcon: {
+    fontSize: 28,
+    marginBottom: spacing.xs,
+  },
+  shortcutLabel: {
+    fontSize: typography.body.small.fontSize,
+    fontWeight: '600',
+    color: colors.neutral[800],
   },
   alertCard: {
     padding: spacing.md,

@@ -3,6 +3,7 @@
  */
 
 import React, { useEffect } from 'react';
+import { Text } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -39,6 +40,10 @@ Notifications.setNotificationHandler({
   }),
 });
 
+const TabIcon = ({ label, focused }: { label: string; focused: boolean }) => (
+  <Text style={{ fontSize: 20, opacity: focused ? 1 : 0.5 }}>{label}</Text>
+);
+
 function MainTabs() {
   return (
     <Tab.Navigator
@@ -50,32 +55,42 @@ function MainTabs() {
       <Tab.Screen
         name="Dashboard"
         component={DashboardScreen}
-        options={{ tabBarLabel: 'Tableau de bord' }}
-      />
-      <Tab.Screen
-        name="Accounts"
-        component={AccountsScreen}
-        options={{ tabBarLabel: 'Comptes' }}
+        options={{
+          tabBarLabel: 'Accueil',
+          tabBarIcon: ({ focused }) => <TabIcon label="🏠" focused={focused} />,
+        }}
       />
       <Tab.Screen
         name="Transactions"
         component={TransactionsScreen}
-        options={{ tabBarLabel: 'Transactions' }}
+        options={{
+          tabBarLabel: 'Transactions',
+          tabBarIcon: ({ focused }) => <TabIcon label="💳" focused={focused} />,
+        }}
       />
       <Tab.Screen
         name="Budgets"
         component={BudgetsScreen}
-        options={{ tabBarLabel: 'Budgets' }}
+        options={{
+          tabBarLabel: 'Budgets',
+          tabBarIcon: ({ focused }) => <TabIcon label="📊" focused={focused} />,
+        }}
       />
       <Tab.Screen
         name="Goals"
         component={GoalsScreen}
-        options={{ tabBarLabel: 'Objectifs' }}
+        options={{
+          tabBarLabel: 'Objectifs',
+          tabBarIcon: ({ focused }) => <TabIcon label="🎯" focused={focused} />,
+        }}
       />
       <Tab.Screen
         name="Settings"
         component={SettingsScreen}
-        options={{ tabBarLabel: 'Paramètres' }}
+        options={{
+          tabBarLabel: 'Plus',
+          tabBarIcon: ({ focused }) => <TabIcon label="⚙️" focused={focused} />,
+        }}
       />
     </Tab.Navigator>
   );
@@ -122,6 +137,16 @@ export default function App() {
               <Stack.Screen
                 name="AddGoal"
                 component={AddGoalScreen}
+                options={{ presentation: 'modal' }}
+              />
+              <Stack.Screen
+                name="Insights"
+                component={InsightsScreen}
+                options={{ presentation: 'modal' }}
+              />
+              <Stack.Screen
+                name="Accounts"
+                component={AccountsScreen}
                 options={{ presentation: 'modal' }}
               />
             </>

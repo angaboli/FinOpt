@@ -44,9 +44,14 @@ async_session_maker = async_sessionmaker(
 
 
 async def get_db() -> AsyncSession:
-    """Dependency for getting database session."""
+    """Dependency for getting database session (FastAPI)."""
     async with async_session_maker() as session:
         try:
             yield session
         finally:
             await session.close()
+
+
+def get_standalone_session() -> AsyncSession:
+    """Get a standalone async session for use outside FastAPI (e.g. Celery tasks)."""
+    return async_session_maker()
