@@ -7,7 +7,7 @@ import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Home, CreditCard, PieChart, Target, Settings } from 'lucide-react-native';
+import { Home, CreditCard, PieChart, Lightbulb, Settings } from 'lucide-react-native';
 import { colors } from './src/shared/constants/colors';
 
 import { useAuthStore } from './src/store';
@@ -71,11 +71,11 @@ function MainTabs() {
         }}
       />
       <Tab.Screen
-        name="Goals"
-        component={GoalsScreen}
+        name="Insights"
+        component={InsightsScreen}
         options={{
-          tabBarLabel: 'Objectifs',
-          tabBarIcon: ({ color, size }) => <Target size={size} color={color} />,
+          tabBarLabel: 'Insights',
+          tabBarIcon: ({ color, size }) => <Lightbulb size={size} color={color} />,
         }}
       />
       <Tab.Screen
@@ -133,8 +133,8 @@ export default function App() {
                 options={{ presentation: 'modal' }}
               />
               <Stack.Screen
-                name="Insights"
-                component={InsightsScreen}
+                name="Goals"
+                component={GoalsScreen}
                 options={{ presentation: 'modal' }}
               />
               <Stack.Screen

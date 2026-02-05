@@ -11,7 +11,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, RefreshControl, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Lightbulb, Building2, Inbox, AlertTriangle, AlertCircle } from 'lucide-react-native';
+import { Building2, Target, Inbox, AlertTriangle, AlertCircle } from 'lucide-react-native';
 import { useDataStore } from '../store';
 import { BalanceCard, StatCard, QuickActions, TransactionItem } from '@presentation/components/cards';
 import { LoadingSpinner, ErrorMessage } from '@presentation/components/common';
@@ -101,9 +101,9 @@ export default function DashboardScreen() {
 
       {/* Shortcuts */}
       <View style={styles.shortcutsRow}>
-        <TouchableOpacity style={styles.shortcutButton} onPress={() => navigation.navigate('Insights')}>
-          <Lightbulb size={28} color={colors.primary.main} />
-          <Text style={styles.shortcutLabel}>Insights IA</Text>
+        <TouchableOpacity style={styles.shortcutButton} onPress={() => navigation.navigate('Goals')}>
+          <Target size={28} color={colors.primary.main} />
+          <Text style={styles.shortcutLabel}>Objectifs</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.shortcutButton} onPress={() => navigation.navigate('Accounts')}>
           <Building2 size={28} color={colors.primary.main} />
@@ -158,7 +158,9 @@ export default function DashboardScreen() {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Transactions Récentes</Text>
-          <Text style={styles.seeAll}>Voir tout</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Transactions')}>
+            <Text style={styles.seeAll}>Voir tout</Text>
+          </TouchableOpacity>
         </View>
 
         {isLoading && recentTransactions.length === 0 ? (

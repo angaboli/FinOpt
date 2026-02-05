@@ -12,6 +12,8 @@ import {
   Switch,
   Alert,
   ActivityIndicator,
+  Modal,
+  TextInput,
 } from 'react-native';
 import {
   Pencil, Lock, CreditCard, Wallet, Target, Lightbulb, Bell,
@@ -99,6 +101,9 @@ export default function SettingsScreen({ navigation }: any) {
     transactionAlerts: false,
   });
   const [isRunningTests, setIsRunningTests] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     loadNotificationPrefs();
@@ -205,39 +210,33 @@ export default function SettingsScreen({ navigation }: any) {
   const handleDeleteAccount = () => {
     Alert.alert(
       'Supprimer le compte',
-      'Cette action est irréversible. Toutes vos données seront définitivement supprimées.\n\nEntrez votre mot de passe pour confirmer.',
+      'Cette action est irréversible. Toutes vos données seront définitivement supprimées.',
       [
         { text: 'Annuler', style: 'cancel' },
         {
           text: 'Supprimer',
           style: 'destructive',
           onPress: () => {
-            Alert.prompt?.(
-              'Confirmation',
-              'Entrez votre mot de passe',
-              async (password: string) => {
-                if (!password) return;
-                try {
-                  await apiClient.deleteUserAccount(password);
-                  await signOut();
-                } catch (err: any) {
-                  Alert.alert('Erreur', err.response?.data?.detail || 'Impossible de supprimer le compte');
-                }
-              },
-              'secure-text'
-            ) || (async () => {
-              // Fallback for Android (no Alert.prompt)
-              try {
-                await apiClient.deleteUserAccount('confirm');
-                await signOut();
-              } catch (err: any) {
-                Alert.alert('Erreur', err.response?.data?.detail || 'Impossible de supprimer le compte');
-              }
-            })();
+            setDeletePassword('');
+            setDeleteModalVisible(true);
           },
         },
       ]
     );
+  };
+
+  const confirmDeleteAccount = async () => {
+    if (!deletePassword) return;
+    setIsDeleting(true);
+    try {
+      await apiClient.deleteUserAccount(deletePassword);
+      setDeleteModalVisible(false);
+      await signOut();
+    } catch (err: any) {
+      Alert.alert('Erreur', err.response?.data?.detail || 'Impossible de supprimer le compte');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const handleHelp = () => {
@@ -403,6 +402,49 @@ export default function SettingsScreen({ navigation }: any) {
           <Text style={styles.footerText}>Made with ❤️</Text>
         </View>
       </ScrollView>
+
+      {/* Delete Account Password Modal */}
+      <Modal
+        visible={deleteModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setDeleteModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Confirmation</Text>
+            <Text style={styles.modalMessage}>Entrez votre mot de passe pour confirmer la suppression</Text>
+            <TextInput
+              style={styles.modalInput}
+              secureTextEntry
+              placeholder="Mot de passe"
+              value={deletePassword}
+              onChangeText={setDeletePassword}
+              autoFocus
+            />
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={styles.modalButtonCancel}
+                onPress={() => setDeleteModalVisible(false)}
+                disabled={isDeleting}
+              >
+                <Text style={styles.modalButtonCancelText}>Annuler</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButtonDelete, !deletePassword && styles.modalButtonDisabled]}
+                onPress={confirmDeleteAccount}
+                disabled={!deletePassword || isDeleting}
+              >
+                {isDeleting ? (
+                  <ActivityIndicator color={colors.neutral.white} size="small" />
+                ) : (
+                  <Text style={styles.modalButtonDeleteText}>Supprimer</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -602,5 +644,71 @@ const styles = StyleSheet.create({
     fontSize: typography.body.small.fontSize,
     color: colors.neutral[500],
     marginBottom: spacing.xs,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.lg,
+  },
+  modalContent: {
+    backgroundColor: colors.neutral.white,
+    borderRadius: 12,
+    padding: spacing.lg,
+    width: '100%',
+    maxWidth: 400,
+  },
+  modalTitle: {
+    fontSize: typography.heading.h3.fontSize,
+    fontWeight: typography.heading.h3.fontWeight,
+    color: colors.neutral[800],
+    marginBottom: spacing.sm,
+  },
+  modalMessage: {
+    fontSize: typography.body.regular.fontSize,
+    color: colors.neutral[600],
+    marginBottom: spacing.md,
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderColor: colors.neutral[300],
+    borderRadius: 8,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    fontSize: typography.body.regular.fontSize,
+    marginBottom: spacing.lg,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  modalButtonCancel: {
+    flex: 1,
+    paddingVertical: spacing.sm,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.neutral[300],
+    alignItems: 'center',
+  },
+  modalButtonCancelText: {
+    fontSize: typography.body.regular.fontSize,
+    color: colors.neutral[600],
+    fontWeight: '600',
+  },
+  modalButtonDelete: {
+    flex: 1,
+    paddingVertical: spacing.sm,
+    borderRadius: 8,
+    backgroundColor: colors.status.error,
+    alignItems: 'center',
+  },
+  modalButtonDisabled: {
+    opacity: 0.5,
+  },
+  modalButtonDeleteText: {
+    fontSize: typography.body.regular.fontSize,
+    color: colors.neutral.white,
+    fontWeight: '600',
   },
 });

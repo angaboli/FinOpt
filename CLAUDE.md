@@ -30,7 +30,7 @@ Presentation → Application → Domain ← Infrastructure
 - **Presentation** (`src/presentation/api/`): FastAPI routers (auth, accounts, transactions, budgets, insights, notifications, goals), dependency injection
 
 ## Architecture - Mobile
-- **Screens**: Dashboard, Accounts, Transactions, Budgets, Goals, Settings, SignIn + Add modals
+- **Screens**: Dashboard, Accounts, Transactions, Budgets, Goals, Insights, Settings, SignIn, EditProfile, ChangePassword, TransactionDetail, BudgetDetail, Help, Privacy, Terms + Add modals
 - **State**: Zustand stores (useAuthStore, useDataStore)
 - **Navigation**: React Navigation (bottom tabs + stack for modals)
 - **API Client**: Axios with JWT interceptors (`src/lib/api.ts`)
@@ -70,14 +70,16 @@ npm run lint                              # TypeScript/ESLint
 - **RLS**: Row-Level Security policies for user data isolation
 - **Migrations**: Alembic (apps/api/alembic/)
 
-## API Endpoints (30+)
+## API Endpoints (35+)
 - `POST /api/v1/auth/{signup,signin,signout}` - Authentication (JWT)
+- `GET|PUT|DELETE /api/v1/auth/me` + `POST /api/v1/auth/change-password` - User management
 - `GET|POST|PUT|DELETE /api/v1/accounts/` - Account CRUD
 - `GET|POST|PUT|DELETE /api/v1/transactions/` - Transaction CRUD + filters
-- `GET|POST|PUT|DELETE /api/v1/budgets/` - Budget management
-- `POST /api/v1/insights/generate` | `GET /api/v1/insights/` - AI insights
-- `GET|PUT /api/v1/notifications/` - Notification management
-- `GET|POST|PUT|DELETE /api/v1/goals/` - Goal tracking + AI plan generation
+- `GET|POST|PUT|DELETE /api/v1/budgets/` + consumption - Budget management
+- `GET /api/v1/categories/` - Category listing
+- `POST /api/v1/insights/generate` | `GET /api/v1/insights/{id}` | `GET /api/v1/insights/` - AI insights
+- `GET|PUT /api/v1/notifications/` + preferences - Notification management
+- `GET|POST|PUT|DELETE /api/v1/goals/` + `POST generate-plan` - Goal tracking + AI plan
 - **Docs**: http://localhost:8000/docs (Swagger) | http://localhost:8000/redoc
 
 ## Background Workers (Celery)
@@ -92,10 +94,12 @@ npm run lint                              # TypeScript/ESLint
 - `REDIS_URL` / `CELERY_BROKER_URL` - Redis connection
 
 ## Current Status & Known Issues
-- **Implemented**: Full architecture scaffold, auth, transaction CRUD, Docker setup, CI/CD
-- **Partial**: AccountRepository (new file), BudgetRepository (scaffolded), some endpoints return 501
-- **Missing**: Statement parser implementations, auto-categorization service, comprehensive tests, rate limiting, monitoring
-- **Tech debt**: Many redundant documentation files, old app directory, unused batch scripts
+- **Implemented**: All 30+ API endpoints functional (0 stubs), full mobile app with 15+ screens, Docker Compose setup, CI/CD, JWT auth with token persistence, AI insights generation, budget alerts, goal tracking with AI plan generation
+- **Mobile screens**: Dashboard, Accounts, Transactions, Budgets, Goals, Insights, Settings, SignIn, EditProfile, ChangePassword, TransactionDetail, BudgetDetail, Help, Privacy, Terms + Add modals
+- **Navigation**: 5 bottom tabs (Accueil, Transactions, Budgets, Insights, Plus) + stack modals for Goals, Accounts, and all detail/add screens
+- **Partial**: Celery worker tasks (insight_tasks.py, budget_tasks.py) are stubbed - need real implementation
+- **Missing**: Statement parser implementations, auto-categorization service, comprehensive tests, rate limiting, monitoring, production deployment config
+- **UX placeholders**: Currency/Language/Export settings show "Fonctionnalité à venir" alerts
 
 ## Coding Conventions
 - **Python**: Black formatting, Ruff linting, mypy type checking, pytest for tests
