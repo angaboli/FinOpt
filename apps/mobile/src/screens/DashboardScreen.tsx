@@ -175,7 +175,7 @@ export default function DashboardScreen() {
             <TransactionItem
               key={transaction.id}
               transaction={transaction}
-              onPress={(t) => console.log('Transaction pressed:', t.id)}
+              onPress={(t) => navigation.navigate('TransactionDetail', { transaction: t })}
             />
           ))
         )}

@@ -118,13 +118,78 @@ async def get_current_user(
         {"id": user_id}
     )
     user_row = result.fetchone()
-    
+
     if not user_row:
         raise HTTPException(status_code=404, detail="User not found")
-    
+
     return {
         "id": str(user_row.id),
         "email": user_row.email,
         "full_name": user_row.full_name,
         "created_at": user_row.created_at.isoformat() if user_row.created_at else None
     }
+
+
+class UpdateProfileRequest(BaseModel):
+    full_name: str | None = None
+    email: EmailStr | None = None
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+
+class DeleteAccountRequest(BaseModel):
+    password: str
+
+
+@router.put("/me")
+async def update_profile(
+    request: UpdateProfileRequest,
+    user_id: str = Depends(get_current_user_id),
+    db: AsyncSession = Depends(get_db),
+):
+    """Update current user profile."""
+    from src.application.use_cases.user_use_cases import UpdateUserUseCase
+
+    use_case = UpdateUserUseCase(db=db)
+    try:
+        updated = await use_case.execute(user_id, full_name=request.full_name, email=request.email)
+        return updated
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/change-password")
+async def change_password(
+    request: ChangePasswordRequest,
+    user_id: str = Depends(get_current_user_id),
+    db: AsyncSession = Depends(get_db),
+):
+    """Change current user password."""
+    from src.application.use_cases.user_use_cases import ChangePasswordUseCase
+
+    use_case = ChangePasswordUseCase(db=db)
+    try:
+        await use_case.execute(user_id, request.current_password, request.new_password)
+        return {"message": "Password changed successfully"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.delete("/me")
+async def delete_account(
+    request: DeleteAccountRequest,
+    user_id: str = Depends(get_current_user_id),
+    db: AsyncSession = Depends(get_db),
+):
+    """Delete current user account and all data."""
+    from src.application.use_cases.user_use_cases import DeleteUserUseCase
+
+    use_case = DeleteUserUseCase(db=db)
+    try:
+        await use_case.execute(user_id, request.password)
+        return {"message": "Account deleted successfully"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))

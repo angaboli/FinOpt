@@ -64,8 +64,7 @@ export default function TransactionsScreen({ navigation }: any) {
   });
 
   const handleTransactionPress = (transaction: Transaction) => {
-    // TODO: Naviguer vers les détails de la transaction
-    console.log('Transaction pressed:', transaction.id);
+    navigation.navigate('TransactionDetail', { transaction });
   };
 
   const handleAddTransaction = () => {

@@ -300,6 +300,22 @@ class ApiClient {
     const response = await this.client.post(`/goals/${goalId}/generate-plan`);
     return response.data;
   }
+
+  // User Profile
+  async updateProfile(data: { full_name?: string; email?: string }) {
+    const response = await this.client.put('/auth/me', data);
+    return response.data;
+  }
+
+  async changePassword(data: { current_password: string; new_password: string }) {
+    const response = await this.client.post('/auth/change-password', data);
+    return response.data;
+  }
+
+  async deleteUserAccount(password: string) {
+    const response = await this.client.delete('/auth/me', { data: { password } });
+    return response.data;
+  }
 }
 
 export const apiClient = new ApiClient();

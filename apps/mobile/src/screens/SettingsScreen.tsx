@@ -90,7 +90,7 @@ const SettingsToggle: React.FC<SettingsToggleProps> = ({
   </View>
 );
 
-export default function SettingsScreen() {
+export default function SettingsScreen({ navigation }: any) {
   const { user, signOut } = useAuthStore();
   const [notificationPrefs, setNotificationPrefs] = useState({
     budgetAlerts: true,
@@ -156,32 +156,26 @@ export default function SettingsScreen() {
   };
 
   const handleEditProfile = () => {
-    // TODO: Navigate to Edit Profile screen
-    console.log('Edit profile');
+    navigation.navigate('EditProfile');
   };
 
   const handleChangePassword = () => {
-    // TODO: Navigate to Change Password screen
-    console.log('Change password');
+    navigation.navigate('ChangePassword');
   };
 
   const handleManageAccounts = () => {
-    // TODO: Navigate to Manage Accounts screen
-    console.log('Manage accounts');
+    navigation.navigate('Accounts');
   };
 
   const handleCurrency = () => {
-    // TODO: Show currency picker
-    console.log('Change currency');
+    Alert.alert('Devise', 'Fonctionnalité à venir...');
   };
 
   const handleLanguage = () => {
-    // TODO: Show language picker
-    console.log('Change language');
+    Alert.alert('Langue', 'Fonctionnalité à venir...');
   };
 
   const handleExportData = () => {
-    // TODO: Export user data
     Alert.alert('Export de données', 'Fonctionnalité à venir...');
   };
 
@@ -211,15 +205,35 @@ export default function SettingsScreen() {
   const handleDeleteAccount = () => {
     Alert.alert(
       'Supprimer le compte',
-      'Cette action est irréversible. Toutes vos données seront définitivement supprimées.',
+      'Cette action est irréversible. Toutes vos données seront définitivement supprimées.\n\nEntrez votre mot de passe pour confirmer.',
       [
         { text: 'Annuler', style: 'cancel' },
         {
           text: 'Supprimer',
           style: 'destructive',
           onPress: () => {
-            // TODO: Implement account deletion
-            console.log('Delete account');
+            Alert.prompt?.(
+              'Confirmation',
+              'Entrez votre mot de passe',
+              async (password: string) => {
+                if (!password) return;
+                try {
+                  await apiClient.deleteUserAccount(password);
+                  await signOut();
+                } catch (err: any) {
+                  Alert.alert('Erreur', err.response?.data?.detail || 'Impossible de supprimer le compte');
+                }
+              },
+              'secure-text'
+            ) || (async () => {
+              // Fallback for Android (no Alert.prompt)
+              try {
+                await apiClient.deleteUserAccount('confirm');
+                await signOut();
+              } catch (err: any) {
+                Alert.alert('Erreur', err.response?.data?.detail || 'Impossible de supprimer le compte');
+              }
+            })();
           },
         },
       ]
@@ -227,18 +241,15 @@ export default function SettingsScreen() {
   };
 
   const handleHelp = () => {
-    // TODO: Navigate to Help screen
-    console.log('Help');
+    navigation.navigate('Help');
   };
 
   const handlePrivacy = () => {
-    // TODO: Navigate to Privacy Policy
-    console.log('Privacy policy');
+    navigation.navigate('Privacy');
   };
 
   const handleTerms = () => {
-    // TODO: Navigate to Terms of Service
-    console.log('Terms of service');
+    navigation.navigate('Terms');
   };
 
   return (

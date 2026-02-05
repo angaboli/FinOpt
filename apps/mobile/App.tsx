@@ -26,6 +26,13 @@ import EditGoalScreen from './src/screens/EditGoalScreen';
 import InsightsScreen from './src/screens/InsightsScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import SignInScreen from './src/screens/SignInScreen';
+import EditProfileScreen from './src/screens/EditProfileScreen';
+import ChangePasswordScreen from './src/screens/ChangePasswordScreen';
+import TransactionDetailScreen from './src/screens/TransactionDetailScreen';
+import BudgetDetailScreen from './src/screens/BudgetDetailScreen';
+import HelpScreen from './src/screens/HelpScreen';
+import PrivacyScreen from './src/screens/PrivacyScreen';
+import TermsScreen from './src/screens/TermsScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -133,6 +140,41 @@ export default function App() {
               <Stack.Screen
                 name="Accounts"
                 component={AccountsScreen}
+                options={{ presentation: 'modal' }}
+              />
+              <Stack.Screen
+                name="EditProfile"
+                component={EditProfileScreen}
+                options={{ presentation: 'modal' }}
+              />
+              <Stack.Screen
+                name="ChangePassword"
+                component={ChangePasswordScreen}
+                options={{ presentation: 'modal' }}
+              />
+              <Stack.Screen
+                name="TransactionDetail"
+                component={TransactionDetailScreen}
+                options={{ presentation: 'modal' }}
+              />
+              <Stack.Screen
+                name="BudgetDetail"
+                component={BudgetDetailScreen}
+                options={{ presentation: 'modal' }}
+              />
+              <Stack.Screen
+                name="Help"
+                component={HelpScreen}
+                options={{ presentation: 'modal' }}
+              />
+              <Stack.Screen
+                name="Privacy"
+                component={PrivacyScreen}
+                options={{ presentation: 'modal' }}
+              />
+              <Stack.Screen
+                name="Terms"
+                component={TermsScreen}
                 options={{ presentation: 'modal' }}
               />
             </>

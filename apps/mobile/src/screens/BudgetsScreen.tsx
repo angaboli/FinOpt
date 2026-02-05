@@ -85,8 +85,7 @@ export default function BudgetsScreen({ navigation }: any) {
   };
 
   const handleBudgetPress = (budget: Budget & { spent: number }) => {
-    // TODO: Navigate to Budget Details
-    console.log('Budget pressed:', budget);
+    navigation.navigate('BudgetDetail', { budget });
   };
 
   if (error && !isLoading && budgets.length === 0) {

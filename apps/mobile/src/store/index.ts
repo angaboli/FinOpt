@@ -30,6 +30,7 @@ interface AuthState {
   signUp: (email: string, password: string, fullName: string) => Promise<void>;
   signOut: () => Promise<void>;
   restoreSession: () => Promise<void>;
+  updateProfile: (updatedUser: any) => void;
 }
 
 interface CategoryItem {
@@ -141,6 +142,19 @@ export const useAuthStore = create<AuthState>((set) => ({
     } catch {
       await AsyncStorage.removeItem(AUTH_STORAGE_KEY);
       set({ isLoading: false });
+    }
+  },
+
+  updateProfile: (updatedUser: any) => {
+    const state = useAuthStore.getState();
+    const newUser = { ...state.user, ...updatedUser };
+    set({ user: newUser });
+    // Persist updated user to AsyncStorage
+    if (state.token) {
+      AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({
+        user: newUser,
+        token: state.token,
+      })).catch(() => {});
     }
   },
 }));
