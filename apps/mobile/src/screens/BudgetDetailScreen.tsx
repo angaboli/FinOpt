@@ -27,7 +27,6 @@ export default function BudgetDetailScreen({ navigation, route }: any) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const categoryName = categories.find((c) => c.id === budget.categoryId)?.name || 'Budget';
-  const categoryIcon = categories.find((c) => c.id === budget.categoryId)?.icon || '';
 
   // Calculate spent for this budget
   const now = new Date();
@@ -161,7 +160,7 @@ export default function BudgetDetailScreen({ navigation, route }: any) {
           <View style={styles.divider} />
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Catégorie</Text>
-            <Text style={styles.detailValue}>{categoryIcon} {categoryName}</Text>
+            <Text style={styles.detailValue}>{categoryName}</Text>
           </View>
           <View style={styles.divider} />
           <View style={styles.detailRow}>

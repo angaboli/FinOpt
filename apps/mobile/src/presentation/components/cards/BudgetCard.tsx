@@ -1,15 +1,15 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { BarChart3, AlertTriangle } from 'lucide-react-native';
+import { AlertTriangle } from 'lucide-react-native';
 import { Card } from '@presentation/components/common';
 import { colors } from '@shared/constants/colors';
 import { spacing } from '@shared/constants/spacing';
 import { typography } from '@shared/constants/typography';
-import { formatCurrency, formatPercentage } from '@shared/utils/formatters';
+import { formatCurrency } from '@shared/utils/formatters';
+import { renderCategoryIcon } from '@shared/utils/categoryIcons';
 
 interface BudgetCardProps {
   categoryName: string;
-  categoryIcon?: string;
   budgetAmount: number;
   spent: number;
   currency?: string;
@@ -18,7 +18,6 @@ interface BudgetCardProps {
 
 export const BudgetCard: React.FC<BudgetCardProps> = ({
   categoryName,
-  categoryIcon = '',
   budgetAmount,
   spent,
   currency = 'EUR',
@@ -48,7 +47,7 @@ export const BudgetCard: React.FC<BudgetCardProps> = ({
       <View style={styles.header}>
         <View style={styles.categoryInfo}>
           <View style={styles.iconWrapper}>
-            {categoryIcon ? <Text style={styles.icon}>{categoryIcon}</Text> : <BarChart3 size={28} color={colors.primary.main} />}
+            {renderCategoryIcon(categoryName, 24, colors.primary.main)}
           </View>
           <View>
             <Text style={styles.categoryName}>{categoryName}</Text>
@@ -71,7 +70,7 @@ export const BudgetCard: React.FC<BudgetCardProps> = ({
               },
             ]}
           >
-            {formatPercentage(percentage, 0)}
+            {percentage.toFixed(0)}%
           </Text>
         </View>
       </View>
@@ -125,9 +124,6 @@ const styles = StyleSheet.create({
   },
   iconWrapper: {
     marginRight: spacing.sm,
-  },
-  icon: {
-    fontSize: 32,
   },
   overBudgetRow: {
     flexDirection: 'row' as const,

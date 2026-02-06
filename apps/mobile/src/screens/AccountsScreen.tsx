@@ -132,7 +132,7 @@ export default function AccountsScreen({ navigation }: any) {
       </View>
 
       {/* Total Balance Card */}
-      <Card style={styles.totalCard}>
+      <Card style={[styles.totalCard, calculateTotalBalance() < 0 && styles.totalCardNegative]}>
         <Text style={styles.totalLabel}>Solde Total</Text>
         <Text style={styles.totalAmount}>
           {calculateTotalBalance().toFixed(2)} EUR
@@ -258,6 +258,9 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     backgroundColor: colors.primary.main,
     alignItems: 'center',
+  },
+  totalCardNegative: {
+    backgroundColor: colors.status.error,
   },
   totalLabel: {
     fontSize: typography.body.regular.fontSize,

@@ -101,9 +101,6 @@ class UpdateTransactionUseCase:
         if not transaction:
             raise ValueError(f"Transaction {transaction_id} not found")
 
-        if not transaction.is_manual:
-            raise ValueError("Only manual transactions can be updated")
-
         # Store old amount for balance adjustment
         old_amount = transaction.amount
 
@@ -146,9 +143,6 @@ class DeleteTransactionUseCase:
         transaction = await self.transaction_repo.get_by_id(transaction_id, user_id)
         if not transaction:
             raise ValueError(f"Transaction {transaction_id} not found")
-
-        if not transaction.is_manual:
-            raise ValueError("Only manual transactions can be deleted")
 
         # Soft delete
         success = await self.transaction_repo.soft_delete(transaction_id, user_id)

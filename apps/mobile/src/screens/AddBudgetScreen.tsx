@@ -141,7 +141,7 @@ export default function AddBudgetScreen({ navigation }: any) {
             {categories.map((category) => (
               <FilterChip
                 key={category.id}
-                label={`${category.icon || ''} ${category.name}`}
+                label={category.name}
                 selected={selectedCategory === category.id}
                 onPress={() => setSelectedCategory(category.id)}
               />

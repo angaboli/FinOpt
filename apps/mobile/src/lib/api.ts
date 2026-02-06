@@ -207,7 +207,9 @@ class ApiClient {
     file_data: string;
     file_name: string;
   }): Promise<{ transactionsImported: number; errors: string[] }> {
-    const response = await this.client.post('/transactions/import', data);
+    const response = await this.client.post('/transactions/import', data, {
+      timeout: 120000, // 2 min for large file imports
+    });
     return response.data;
   }
 

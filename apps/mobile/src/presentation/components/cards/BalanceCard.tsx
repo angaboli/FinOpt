@@ -20,13 +20,13 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
   const isPositive = balance >= 0;
 
   return (
-    <Card style={styles.card} elevated>
+    <Card style={[styles.card, !isPositive && styles.cardNegative]} elevated>
       <View style={styles.container}>
         <Text style={styles.label}>Solde Total</Text>
         <Text
           style={[
             styles.amount,
-            { color: isPositive ? colors.neutral.white : colors.status.error },
+            { color: colors.neutral.white },
           ]}
         >
           {formatCurrency(balance, currency)}
@@ -59,6 +59,9 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.primary.main,
     margin: spacing.md,
+  },
+  cardNegative: {
+    backgroundColor: colors.status.error,
   },
   container: {
     alignItems: 'center',

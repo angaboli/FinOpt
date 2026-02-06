@@ -44,10 +44,6 @@ export default function BudgetsScreen({ navigation }: any) {
     return cat?.name || `Cat. ${categoryId}`;
   };
 
-  const getCategoryIcon = (categoryId: string): string => {
-    const cat = categories.find((c) => c.id === categoryId);
-    return cat?.icon || '';
-  };
 
   // Calculer les dépenses par catégorie pour le mois en cours
   const calculateSpentByCategory = (categoryId: string): number => {
@@ -185,7 +181,6 @@ export default function BudgetsScreen({ navigation }: any) {
               <BudgetCard
                 key={budget.id}
                 categoryName={getCategoryName(budget.categoryId)}
-                categoryIcon={getCategoryIcon(budget.categoryId)}
                 budgetAmount={budget.amount}
                 spent={budget.spent}
                 currency="EUR"

@@ -25,15 +25,30 @@ import { AccountType, OwnerScope } from '@finopt/shared';
 
 type TransactionType = 'expense' | 'income';
 
-export default function AddTransactionScreen({ navigation }: any) {
+export default function AddTransactionScreen({ navigation, route }: any) {
+  const editTransaction = route?.params?.transaction;
+  const isEdit = route?.params?.isEdit === true;
+
   const { accounts, categories, fetchTransactions, fetchAccounts, fetchCategories } = useDataStore();
-  const [type, setType] = useState<TransactionType>('expense');
-  const [amount, setAmount] = useState('');
-  const [description, setDescription] = useState('');
-  const [merchantName, setMerchantName] = useState('');
-  const [dateObj, setDateObj] = useState(new Date());
+  const [type, setType] = useState<TransactionType>(
+    isEdit && editTransaction ? (Number(editTransaction.amount) >= 0 ? 'income' : 'expense') : 'expense'
+  );
+  const [amount, setAmount] = useState(
+    isEdit && editTransaction ? String(Math.abs(Number(editTransaction.amount))) : ''
+  );
+  const [description, setDescription] = useState(
+    isEdit && editTransaction ? editTransaction.description || '' : ''
+  );
+  const [merchantName, setMerchantName] = useState(
+    isEdit && editTransaction ? editTransaction.merchantName || '' : ''
+  );
+  const [dateObj, setDateObj] = useState(
+    isEdit && editTransaction ? new Date(editTransaction.date) : new Date()
+  );
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [notes, setNotes] = useState('');
+  const [notes, setNotes] = useState(
+    isEdit && editTransaction ? editTransaction.notes || '' : ''
+  );
 
   const formatDisplayDate = (d: Date) =>
     `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
@@ -45,9 +60,11 @@ export default function AddTransactionScreen({ navigation }: any) {
     setShowDatePicker(false);
   };
   const [selectedAccountId, setSelectedAccountId] = useState<string | null>(
-    accounts.length > 0 ? accounts[0].id : null
+    isEdit && editTransaction ? editTransaction.accountId : (accounts.length > 0 ? accounts[0].id : null)
   );
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
+    isEdit && editTransaction ? editTransaction.categoryId || null : null
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -99,15 +116,27 @@ export default function AddTransactionScreen({ navigation }: any) {
         await fetchAccounts();
       }
 
-      await apiClient.createTransaction({
-        account_id: accountId!,
-        amount: amountValue,
-        description,
-        category_id: selectedCategoryId || undefined,
-        merchant_name: merchantName || undefined,
-        date: formatApiDate(dateObj),
-        notes: notes || undefined,
-      });
+      if (isEdit && editTransaction) {
+        await apiClient.updateTransaction(editTransaction.id, {
+          account_id: accountId!,
+          amount: amountValue,
+          description,
+          category_id: selectedCategoryId || undefined,
+          merchant_name: merchantName || undefined,
+          date: formatApiDate(dateObj),
+          notes: notes || undefined,
+        });
+      } else {
+        await apiClient.createTransaction({
+          account_id: accountId!,
+          amount: amountValue,
+          description,
+          category_id: selectedCategoryId || undefined,
+          merchant_name: merchantName || undefined,
+          date: formatApiDate(dateObj),
+          notes: notes || undefined,
+        });
+      }
 
       // Rafraîchir les transactions
       await fetchTransactions({ limit: 100 });
@@ -115,7 +144,7 @@ export default function AddTransactionScreen({ navigation }: any) {
       // Afficher un message de succès
       Alert.alert(
         'Succès',
-        'Transaction créée avec succès!',
+        isEdit ? 'Transaction modifiée avec succès!' : 'Transaction créée avec succès!',
         [{ text: 'OK', onPress: () => navigation.goBack() }]
       );
     } catch (err: any) {
@@ -132,7 +161,7 @@ export default function AddTransactionScreen({ navigation }: any) {
   };
 
   if (isLoading) {
-    return <LoadingSpinner fullScreen message="Création de la transaction..." />;
+    return <LoadingSpinner fullScreen message={isEdit ? "Modification en cours..." : "Création de la transaction..."} />;
   }
 
   return (
@@ -144,7 +173,7 @@ export default function AddTransactionScreen({ navigation }: any) {
         <TouchableOpacity onPress={handleCancel}>
           <Text style={styles.cancelButton}>Annuler</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Nouvelle Transaction</Text>
+        <Text style={styles.title}>{isEdit ? 'Modifier' : 'Nouvelle Transaction'}</Text>
         <View style={styles.placeholder} />
       </View>
 
@@ -244,7 +273,7 @@ export default function AddTransactionScreen({ navigation }: any) {
               {categories.map((cat) => (
                 <FilterChip
                   key={cat.id}
-                  label={`${cat.icon || ''} ${cat.name}`}
+                  label={cat.name}
                   selected={selectedCategoryId === cat.id}
                   onPress={() => setSelectedCategoryId(selectedCategoryId === cat.id ? null : cat.id)}
                 />
@@ -315,7 +344,7 @@ export default function AddTransactionScreen({ navigation }: any) {
             style={styles.actionButton}
           />
           <Button
-            title="Ajouter"
+            title={isEdit ? "Enregistrer" : "Ajouter"}
             variant="primary"
             onPress={handleSubmit}
             loading={isLoading}

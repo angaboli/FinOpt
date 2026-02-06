@@ -62,7 +62,7 @@ class TransactionRepositoryImpl(TransactionRepository):
             "is_manual": transaction.is_manual,
             "status": transaction.status.value,
             "notes": transaction.notes,
-            "tags": "{" + ",".join(transaction.tags) + "}" if transaction.tags else "{}",
+            "tags": list(transaction.tags) if transaction.tags else [],
             "metadata": json.dumps(transaction.metadata) if transaction.metadata else "{}",
             "created_at": transaction.created_at,
             "updated_at": transaction.updated_at,

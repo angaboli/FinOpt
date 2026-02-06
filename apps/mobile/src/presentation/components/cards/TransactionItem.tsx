@@ -1,9 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import {
-  Utensils, Car, ShoppingCart, Film, Heart, Zap, DollarSign,
-  Briefcase, TrendingUp, Gift, MapPin,
-} from 'lucide-react-native';
+import { ArrowDownLeft, ArrowUpRight } from 'lucide-react-native';
 import { colors } from '@shared/constants/colors';
 import { spacing, borderRadius } from '@shared/constants/spacing';
 import { typography } from '@shared/constants/typography';
@@ -19,7 +16,9 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, o
   const isExpense = transaction.amount < 0;
   const isIncome = transaction.amount > 0;
 
-  const CategoryIcon = getCategoryIcon('other'); // We'll fetch category later
+  const Icon = isIncome ? ArrowUpRight : ArrowDownLeft;
+  const iconColor = isIncome ? colors.status.success : colors.status.error;
+  const iconBg = isIncome ? '#ECFDF5' : '#FEF2F2';
   const amountColor = isExpense
     ? colors.status.error
     : isIncome
@@ -33,8 +32,8 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, o
       activeOpacity={0.7}
       disabled={!onPress}
     >
-      <View style={styles.iconContainer}>
-        <CategoryIcon size={22} color={colors.neutral[600]} />
+      <View style={[styles.iconContainer, { backgroundColor: iconBg }]}>
+        <Icon size={22} color={iconColor} />
       </View>
 
       <View style={styles.content}>
@@ -58,23 +57,6 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, o
   );
 };
 
-function getCategoryIcon(categoryName: string): React.FC<{ size: number; color: string }> {
-  const icons: Record<string, React.FC<{ size: number; color: string }>> = {
-    food: Utensils,
-    transport: Car,
-    shopping: ShoppingCart,
-    entertainment: Film,
-    health: Heart,
-    utilities: Zap,
-    salary: DollarSign,
-    freelance: Briefcase,
-    investment: TrendingUp,
-    gift: Gift,
-    other: MapPin,
-  };
-
-  return icons[categoryName.toLowerCase()] || icons.other;
-}
 
 const styles = StyleSheet.create({
   container: {
