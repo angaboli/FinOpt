@@ -94,7 +94,7 @@ export const UpdateGoalSchema = z.object({
 // Import schemas
 export const ImportStatementSchema = z.object({
   accountId: z.string().uuid(),
-  fileType: z.enum(['CSV', 'OFX', 'PDF']),
+  fileType: z.enum(['CSV', 'EXCEL', 'JSON', 'PDF']),
   fileData: z.string(),
   fileName: z.string().min(1).max(255),
 });

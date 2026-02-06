@@ -11,7 +11,7 @@ import {
   RefreshControl,
   TouchableOpacity,
 } from 'react-native';
-import { Inbox } from 'lucide-react-native';
+import { Inbox, Upload } from 'lucide-react-native';
 import { useDataStore } from '../store';
 import { TransactionItem } from '@presentation/components/cards';
 import { Input, LoadingSpinner, ErrorMessage, FilterChip } from '@presentation/components/common';
@@ -71,6 +71,10 @@ export default function TransactionsScreen({ navigation }: any) {
     navigation.navigate('AddTransaction');
   };
 
+  const handleImportTransactions = () => {
+    navigation.navigate('ImportTransactions');
+  };
+
   if (error && !isLoading && transactions.length === 0) {
     return (
       <View style={styles.container}>
@@ -84,9 +88,14 @@ export default function TransactionsScreen({ navigation }: any) {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Transactions</Text>
-        <TouchableOpacity style={styles.addButton} onPress={handleAddTransaction}>
-          <Text style={styles.addButtonText}>+ Ajouter</Text>
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          <TouchableOpacity style={styles.importButton} onPress={handleImportTransactions}>
+            <Upload size={18} color={colors.primary.main} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.addButton} onPress={handleAddTransaction}>
+            <Text style={styles.addButtonText}>+ Ajouter</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Search Bar */}
@@ -179,6 +188,17 @@ const styles = StyleSheet.create({
     fontSize: typography.heading.h2.fontSize,
     fontWeight: typography.heading.h2.fontWeight,
     color: colors.neutral[800],
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  importButton: {
+    padding: spacing.sm,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.primary.main,
   },
   addButton: {
     backgroundColor: colors.primary.main,

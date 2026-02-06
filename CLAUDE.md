@@ -30,7 +30,7 @@ Presentation → Application → Domain ← Infrastructure
 - **Presentation** (`src/presentation/api/`): FastAPI routers (auth, accounts, transactions, budgets, insights, notifications, goals), dependency injection
 
 ## Architecture - Mobile
-- **Screens**: Dashboard, Accounts, Transactions, Budgets, Goals, Insights, Settings, SignIn, EditProfile, ChangePassword, TransactionDetail, BudgetDetail, Help, Privacy, Terms + Add modals
+- **Screens**: Dashboard, Accounts, Transactions, Budgets, Goals, Insights, Settings, SignIn, EditProfile, ChangePassword, TransactionDetail, BudgetDetail, Help, Privacy, Terms, ImportTransactions + Add modals
 - **State**: Zustand stores (useAuthStore, useDataStore)
 - **Navigation**: React Navigation (bottom tabs + stack for modals)
 - **API Client**: Axios with JWT interceptors (`src/lib/api.ts`)
@@ -74,7 +74,7 @@ npm run lint                              # TypeScript/ESLint
 - `POST /api/v1/auth/{signup,signin,signout}` - Authentication (JWT)
 - `GET|PUT|DELETE /api/v1/auth/me` + `POST /api/v1/auth/change-password` - User management
 - `GET|POST|PUT|DELETE /api/v1/accounts/` - Account CRUD
-- `GET|POST|PUT|DELETE /api/v1/transactions/` - Transaction CRUD + filters
+- `GET|POST|PUT|DELETE /api/v1/transactions/` + `POST /import` - Transaction CRUD + filters + file import
 - `GET|POST|PUT|DELETE /api/v1/budgets/` + consumption - Budget management
 - `GET /api/v1/categories/` - Category listing
 - `POST /api/v1/insights/generate` | `GET /api/v1/insights/{id}` | `GET /api/v1/insights/` - AI insights
@@ -94,11 +94,11 @@ npm run lint                              # TypeScript/ESLint
 - `REDIS_URL` / `CELERY_BROKER_URL` - Redis connection
 
 ## Current Status & Known Issues
-- **Implemented**: All 30+ API endpoints functional (0 stubs), full mobile app with 15+ screens, Docker Compose setup, CI/CD, JWT auth with token persistence, AI insights generation, budget alerts, goal tracking with AI plan generation
-- **Mobile screens**: Dashboard, Accounts, Transactions, Budgets, Goals, Insights, Settings, SignIn, EditProfile, ChangePassword, TransactionDetail, BudgetDetail, Help, Privacy, Terms + Add modals
-- **Navigation**: 5 bottom tabs (Accueil, Transactions, Budgets, Insights, Plus) + stack modals for Goals, Accounts, and all detail/add screens
+- **Implemented**: All 35+ API endpoints functional (0 stubs), full mobile app with 16+ screens, Docker Compose setup, CI/CD, JWT auth with token persistence, AI insights generation, budget alerts, goal tracking with AI plan generation, transaction import from files (CSV/Excel/JSON/PDF)
+- **Mobile screens**: Dashboard, Accounts, Transactions, Budgets, Goals, Insights, Settings, SignIn, EditProfile, ChangePassword, TransactionDetail, BudgetDetail, Help, Privacy, Terms, ImportTransactions + Add modals
+- **Navigation**: 5 bottom tabs (Accueil, Transactions, Budgets, Insights, Plus) + stack modals for Goals, Accounts, ImportTransactions, and all detail/add screens
 - **Partial**: Celery worker tasks (insight_tasks.py, budget_tasks.py) are stubbed - need real implementation
-- **Missing**: Statement parser implementations, auto-categorization service, comprehensive tests, rate limiting, monitoring, production deployment config
+- **Missing**: Auto-categorization service, comprehensive tests, rate limiting, monitoring, production deployment config
 - **UX placeholders**: Currency/Language/Export settings show "Fonctionnalité à venir" alerts
 
 ## Coding Conventions

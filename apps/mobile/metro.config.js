@@ -46,9 +46,9 @@ config.resolver = {
     /.*\/venv\/.*/,
     /.*\/\.venv\/.*/,
     /.*\/__pycache__\/.*/,
-    // Build outputs
-    /.*\/dist\/.*/,
-    /.*\/build\/.*/,
+    // Build outputs (exclude node_modules build dirs which packages need)
+    /apps\/mobile\/dist\/.*/,
+    /packages\/shared\/dist\/.*/,
     // API directory (Python backend)
     /.*\/apps\/api\/.*/,
   ],

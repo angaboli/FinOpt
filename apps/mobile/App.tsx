@@ -33,6 +33,7 @@ import BudgetDetailScreen from './src/screens/BudgetDetailScreen';
 import HelpScreen from './src/screens/HelpScreen';
 import PrivacyScreen from './src/screens/PrivacyScreen';
 import TermsScreen from './src/screens/TermsScreen';
+import ImportTransactionsScreen from './src/screens/ImportTransactionsScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -175,6 +176,11 @@ export default function App() {
               <Stack.Screen
                 name="Terms"
                 component={TermsScreen}
+                options={{ presentation: 'modal' }}
+              />
+              <Stack.Screen
+                name="ImportTransactions"
+                component={ImportTransactionsScreen}
                 options={{ presentation: 'modal' }}
               />
             </>

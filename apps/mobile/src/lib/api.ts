@@ -201,6 +201,16 @@ class ApiClient {
     await this.client.delete(`/transactions/${transactionId}`);
   }
 
+  async importTransactions(data: {
+    account_id: string;
+    file_type: string;
+    file_data: string;
+    file_name: string;
+  }): Promise<{ transactionsImported: number; errors: string[] }> {
+    const response = await this.client.post('/transactions/import', data);
+    return response.data;
+  }
+
   // Budgets
   async getBudgets(): Promise<Budget[]> {
     const response = await this.client.get('/budgets/');
