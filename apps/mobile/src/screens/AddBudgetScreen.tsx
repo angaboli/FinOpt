@@ -19,6 +19,7 @@ import { spacing } from '@shared/constants/spacing';
 import { typography } from '@shared/constants/typography';
 import { apiClient } from '../lib/api';
 import { useDataStore } from '../store';
+import { renderCategoryIcon } from '@shared/utils/categoryIcons';
 
 export default function AddBudgetScreen({ navigation }: any) {
   const { fetchBudgets, categories, fetchCategories } = useDataStore();
@@ -142,6 +143,7 @@ export default function AddBudgetScreen({ navigation }: any) {
               <FilterChip
                 key={category.id}
                 label={category.name}
+                icon={renderCategoryIcon(category.name, 14, selectedCategory === category.id ? '#fff' : colors.neutral[700])}
                 selected={selectedCategory === category.id}
                 onPress={() => setSelectedCategory(category.id)}
               />

@@ -91,32 +91,46 @@ def _row_to_transaction(
     account_id: str,
     currency: str,
 ) -> Transaction:
-    """Convert a row dict to a Transaction entity."""
+    """Convert a row dict to a Transaction entity.
+
+    Amount and description are required. Other fields (category, merchant,
+    notes) can be missing - the user can edit them later.
+    """
     date_col = _find_column(headers, DATE_COLUMNS)
     desc_col = _find_column(headers, DESCRIPTION_COLUMNS)
     amount_col = _find_column(headers, AMOUNT_COLUMNS)
     debit_col = _find_column(headers, DEBIT_COLUMNS)
     credit_col = _find_column(headers, CREDIT_COLUMNS)
 
-    if not date_col:
-        raise ValueError(f"Colonne date introuvable. Colonnes disponibles: {headers}")
-    if not desc_col:
-        raise ValueError(f"Colonne description introuvable. Colonnes disponibles: {headers}")
     if not amount_col and not (debit_col or credit_col):
         raise ValueError(f"Colonne montant introuvable. Colonnes disponibles: {headers}")
 
-    date_val = _parse_date(row[date_col])
-    description = row[desc_col].strip()
+    # Date: default to today if column missing or unparseable
+    date_val = datetime.utcnow()
+    if date_col and row.get(date_col, "").strip():
+        try:
+            date_val = _parse_date(row[date_col])
+        except ValueError:
+            pass  # keep default
 
-    if amount_col:
+    # Description: use column value or fallback
+    description = ""
+    if desc_col and row.get(desc_col, "").strip():
+        description = row[desc_col].strip()
+    if not description:
+        raise ValueError("Description manquante")
+
+    # Amount: required
+    if amount_col and row.get(amount_col, "").strip():
         amount = _parse_amount(row[amount_col])
     else:
-        # Separate debit/credit columns
         amount = Decimal("0")
         if debit_col and row.get(debit_col, "").strip():
             amount = -abs(_parse_amount(row[debit_col]))
         if credit_col and row.get(credit_col, "").strip():
             amount = abs(_parse_amount(row[credit_col]))
+        if amount == Decimal("0"):
+            raise ValueError("Montant manquant")
 
     return Transaction(
         id=str(uuid.uuid4()),

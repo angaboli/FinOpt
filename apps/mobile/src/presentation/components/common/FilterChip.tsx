@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity, Text, View, StyleSheet } from 'react-native';
 import { colors } from '@shared/constants/colors';
 import { spacing, borderRadius } from '@shared/constants/spacing';
 import { typography } from '@shared/constants/typography';
@@ -8,16 +8,24 @@ interface FilterChipProps {
   label: string;
   selected?: boolean;
   onPress: () => void;
+  icon?: React.ReactNode;
 }
 
-export const FilterChip: React.FC<FilterChipProps> = ({ label, selected = false, onPress }) => {
+export const FilterChip: React.FC<FilterChipProps> = ({ label, selected = false, onPress, icon }) => {
   return (
     <TouchableOpacity
       style={[styles.chip, selected && styles.chipSelected]}
       onPress={onPress}
       activeOpacity={0.7}
     >
-      <Text style={[styles.label, selected && styles.labelSelected]}>{label}</Text>
+      {icon ? (
+        <View style={styles.chipContent}>
+          {icon}
+          <Text style={[styles.label, selected && styles.labelSelected]}>{label}</Text>
+        </View>
+      ) : (
+        <Text style={[styles.label, selected && styles.labelSelected]}>{label}</Text>
+      )}
     </TouchableOpacity>
   );
 };
@@ -44,5 +52,10 @@ const styles = StyleSheet.create({
   },
   labelSelected: {
     color: colors.neutral.white,
+  },
+  chipContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
 });

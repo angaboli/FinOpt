@@ -22,6 +22,7 @@ import { typography } from '@shared/constants/typography';
 import { apiClient } from '../lib/api';
 import { useDataStore } from '../store';
 import { AccountType, OwnerScope } from '@finopt/shared';
+import { renderCategoryIcon } from '@shared/utils/categoryIcons';
 
 type TransactionType = 'expense' | 'income';
 
@@ -274,6 +275,7 @@ export default function AddTransactionScreen({ navigation, route }: any) {
                 <FilterChip
                   key={cat.id}
                   label={cat.name}
+                  icon={renderCategoryIcon(cat.name, 14, selectedCategoryId === cat.id ? '#fff' : colors.neutral[700])}
                   selected={selectedCategoryId === cat.id}
                   onPress={() => setSelectedCategoryId(selectedCategoryId === cat.id ? null : cat.id)}
                 />

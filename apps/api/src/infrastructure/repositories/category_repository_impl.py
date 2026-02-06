@@ -64,15 +64,15 @@ class CategoryRepositoryImpl(CategoryRepository):
         if user_id:
             result = await self.db.execute(
                 text("""
-                    SELECT * FROM categories
+                    SELECT DISTINCT ON (name) * FROM categories
                     WHERE is_system = true OR user_id = :user_id
-                    ORDER BY is_system DESC, name ASC
+                    ORDER BY name ASC, is_system DESC
                 """),
                 {"user_id": user_id}
             )
         else:
             result = await self.db.execute(
-                text("SELECT * FROM categories WHERE is_system = true ORDER BY name ASC")
+                text("SELECT DISTINCT ON (name) * FROM categories WHERE is_system = true ORDER BY name ASC")
             )
         return [self._to_entity(row._asdict()) for row in result.fetchall()]
 
