@@ -245,9 +245,9 @@ class TransactionRepositoryImpl(TransactionRepository):
         result = await self.db.execute(
             text("""
                 UPDATE transactions SET deleted_at = :deleted_at
-                WHERE id = :id AND user_id = :user_id
+                WHERE id = :id AND user_id = :user_id AND deleted_at IS NULL
             """),
-            {"deleted_at": datetime.utcnow().isoformat(), "id": transaction_id, "user_id": user_id}
+            {"deleted_at": datetime.utcnow(), "id": transaction_id, "user_id": user_id}
         )
         await self.db.commit()
         return result.rowcount > 0
