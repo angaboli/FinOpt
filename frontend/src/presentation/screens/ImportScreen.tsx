@@ -12,8 +12,21 @@ import {
 } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import * as DocumentPicker from "expo-document-picker";
-import * as FileSystem from "expo-file-system";
 import * as XLSX from "xlsx";
+
+async function readUriAsBase64(uri: string): Promise<string> {
+  const response = await fetch(uri);
+  const blob = await response.blob();
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(blob);
+    reader.onload = () => {
+      const result = reader.result as string;
+      resolve(result.includes(",") ? result.split(",")[1] : result);
+    };
+    reader.onerror = () => reject(reader.error);
+  });
+}
 
 import { useAccountsStore } from "@/application/accounts/accountsStore";
 import { useBankImportsStore } from "@/application/bankImports/bankImportsStore";
@@ -89,17 +102,22 @@ export function ImportScreen({ navigation }: Props) {
       });
       if (result.canceled) return;
       const file = result.assets[0];
-      const content = await FileSystem.readAsStringAsync(file.uri, {
-        encoding: "base64",
-      });
-      const workbook = XLSX.read(content, { type: "base64" });
-      const sheetName = workbook.SheetNames[0];
-      const csv = XLSX.utils.sheet_to_csv(workbook.Sheets[sheetName]);
+      const name = file.name?.toLowerCase() ?? "";
+      const isExcel = name.endsWith(".xlsx") || name.endsWith(".xls");
+      let csv: string;
+      if (isExcel) {
+        const ab = await (await fetch(file.uri)).arrayBuffer();
+        const workbook = XLSX.read(new Uint8Array(ab), { type: "array" });
+        const sheetName = workbook.SheetNames[0];
+        csv = XLSX.utils.sheet_to_csv(workbook.Sheets[sheetName]);
+      } else {
+        csv = await (await fetch(file.uri)).text();
+      }
       setCsvText(csv);
       if (file.name) setSourceName(file.name);
       detectAndGoToMap(csv);
-    } catch {
-      Alert.alert("Erreur", "Impossible de lire ce fichier.");
+    } catch (e) {
+      Alert.alert("Erreur", `Impossible de lire ce fichier.\n${e instanceof Error ? e.message : String(e)}`);
     }
   }
 
@@ -112,9 +130,7 @@ export function ImportScreen({ navigation }: Props) {
       if (result.canceled) return;
       const file = result.assets[0];
       setIsPdfLoading(true);
-      const base64 = await FileSystem.readAsStringAsync(file.uri, {
-        encoding: "base64",
-      });
+      const base64 = await readUriAsBase64(file.uri);
       const parsed = await bankImportsApi.parsePdf(base64, file.name ?? "PDF");
       if (parsed.length === 0) {
         Alert.alert("Aucune transaction", "Aucune transaction n'a pu être extraite de ce PDF.");
@@ -123,8 +139,8 @@ export function ImportScreen({ navigation }: Props) {
       setRows(parsed.map((r) => ({ ...r, categoryId: defaultCategoryId, included: true })));
       if (file.name) setSourceName(file.name);
       setStep("preview");
-    } catch {
-      Alert.alert("Erreur", "Impossible d'analyser ce PDF. Vérifiez votre connexion.");
+    } catch (e) {
+      Alert.alert("Erreur", `Impossible d'analyser ce PDF.\n${e instanceof Error ? e.message : String(e)}`);
     } finally {
       setIsPdfLoading(false);
     }
