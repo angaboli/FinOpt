@@ -11,7 +11,7 @@ const RECEIPT = {
   merchant: "Carrefour",
   total: 42.5,
   date: "2026-05-01",
-  items: [{ name: "Pain", amount: 1.5 }],
+  items: [{ name: "Pain", amount: 1.5, categoryId: "" }],
   transactionId: null,
   createdAt: "2026-05-01T10:00:00Z",
 };
@@ -20,7 +20,7 @@ const SCAN_RESULT = {
   merchant: "Lidl",
   total: 15.0,
   date: "2026-05-06",
-  items: [{ name: "Lait", amount: 1.0 }],
+  items: [{ name: "Lait", amount: 1.0, categoryId: "" }],
 };
 
 beforeEach(() => {

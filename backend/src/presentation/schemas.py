@@ -180,6 +180,7 @@ class BudgetResponse(BaseModel):
 class ReceiptItemRequest(BaseModel):
     name: str = Field(min_length=1, max_length=200)
     amount: Decimal = Field(ge=0)
+    category_id: str | None = None
 
 
 class ScanReceiptRequest(BaseModel):
@@ -205,6 +206,7 @@ class SaveReceiptRequest(BaseModel):
 class ReceiptItemResponse(BaseModel):
     name: str
     amount: Decimal
+    category_id: str | None = None
 
 
 class ReceiptResponse(BaseModel):

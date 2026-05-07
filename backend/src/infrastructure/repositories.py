@@ -570,6 +570,7 @@ class SqlAlchemyReceiptRepository(ReceiptRepository):
                 receipt_id=receipt.id.value,
                 name=item.name,
                 amount=item.amount,
+                category_id=item.category_id,
             )
             for item in receipt.items
         ]
@@ -604,7 +605,7 @@ class SqlAlchemyReceiptRepository(ReceiptRepository):
             date=model.date,
             transaction_id=model.transaction_id,
             created_at=ensure_aware(model.created_at),
-            items=[ReceiptItem(name=i.name, amount=i.amount) for i in model.items],
+            items=[ReceiptItem(name=i.name, amount=i.amount, category_id=i.category_id) for i in model.items],
         )
 
 

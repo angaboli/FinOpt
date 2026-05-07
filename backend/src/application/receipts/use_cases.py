@@ -73,7 +73,7 @@ def _to_result(receipt: Receipt) -> ReceiptResult:
         merchant=receipt.merchant,
         total=receipt.total,
         date=receipt.date,
-        items=[ReceiptItemResult(name=i.name, amount=i.amount) for i in receipt.items],
+        items=[ReceiptItemResult(name=i.name, amount=i.amount, category_id=i.category_id) for i in receipt.items],
         transaction_id=receipt.transaction_id,
         created_at=receipt.created_at,
     )
@@ -121,7 +121,7 @@ class SaveReceipt:
             merchant=cmd.merchant,
             total=cmd.total,
             date=cmd.date,
-            items=[ReceiptItem(name=item.name, amount=item.amount) for item in cmd.items],
+            items=[ReceiptItem(name=item.name, amount=item.amount, category_id=item.category_id) for item in cmd.items],
             transaction_id=cmd.transaction_id,
         )
         await self._receipts.save(receipt)

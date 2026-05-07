@@ -137,6 +137,7 @@ class ReceiptItemModel(Base):
     )
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     amount: Mapped[Decimal] = mapped_column(Numeric(14, 2), nullable=False)
+    category_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
 
 
 class SavingsGoalModel(Base):

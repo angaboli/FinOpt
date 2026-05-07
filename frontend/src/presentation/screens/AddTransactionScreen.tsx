@@ -7,6 +7,7 @@ import { useAccountsStore } from "@/application/accounts/accountsStore";
 import { useCategoriesStore } from "@/application/categories/categoriesStore";
 import { useTransactionsStore } from "@/application/transactions/transactionsStore";
 import type { TransactionType } from "@/domain/transactions/types";
+import { DatePickerButton } from "@/presentation/components/DatePickerButton";
 import { finoptTheme } from "@/presentation/theme/theme";
 
 type Props = NativeStackScreenProps<RootStackParamList, "AddTransaction">;
@@ -151,14 +152,7 @@ export function AddTransactionScreen({ navigation }: Props) {
         </View>
 
         <Text style={styles.label}>Date</Text>
-        <TextInput
-          accessibilityLabel="Date"
-          onChangeText={setDate}
-          placeholder="AAAA-MM-JJ"
-          placeholderTextColor={finoptTheme.colors.gray500}
-          style={styles.input}
-          value={date}
-        />
+        <DatePickerButton value={date} onChange={setDate} />
       </View>
 
       <Pressable

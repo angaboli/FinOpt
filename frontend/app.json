@@ -6,7 +6,9 @@
     "orientation": "portrait",
     "icon": "./assets/finoptIcon.png",
     "userInterfaceStyle": "light",
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
@@ -15,6 +17,9 @@
         "foregroundImage": "./assets/finoptIcon.png",
         "backgroundColor": "#ffffff"
       }
-    }
+    },
+    "plugins": [
+      "@react-native-community/datetimepicker"
+    ]
   }
 }

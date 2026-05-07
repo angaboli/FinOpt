@@ -12,6 +12,7 @@ from src.domain.value_objects import ReceiptId, UserId
 class ReceiptItem:
     name: str
     amount: Decimal
+    category_id: str | None = None
 
 
 @dataclass

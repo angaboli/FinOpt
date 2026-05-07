@@ -4,6 +4,7 @@ import { httpClient } from "@/infrastructure/api/httpClient";
 interface ReceiptItemApi {
   name: string;
   amount: number;
+  category_id: string | null;
 }
 
 interface ReceiptApi {
@@ -31,7 +32,7 @@ function toReceipt(r: ReceiptApi): Receipt {
     merchant: r.merchant,
     total: r.total,
     date: r.date,
-    items: r.items,
+    items: r.items.map((i) => ({ name: i.name, amount: i.amount, categoryId: i.category_id ?? "" })),
     transactionId: r.transaction_id,
     createdAt: r.created_at,
   };
@@ -43,21 +44,27 @@ export const receiptsApi = {
       image_base64: imageBase64,
       media_type: mediaType,
     });
-    return response.data;
+    const d = response.data;
+    return {
+      merchant: d.merchant,
+      total: d.total,
+      date: d.date,
+      items: d.items.map((i) => ({ name: i.name, amount: i.amount, categoryId: i.category_id ?? "" })),
+    };
   },
 
   async save(
     merchant: string | null,
     total: number | null,
     date: string | null,
-    items: ReceiptItemApi[],
+    items: Array<{ name: string; amount: number; categoryId: string }>,
     transactionId?: string | null,
   ): Promise<Receipt> {
     const response = await httpClient.post<ReceiptApi>("/receipts", {
       merchant,
       total,
       date,
-      items,
+      items: items.map((i) => ({ name: i.name, amount: i.amount, category_id: i.categoryId || null })),
       transaction_id: transactionId ?? null,
     });
     return toReceipt(response.data);

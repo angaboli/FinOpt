@@ -586,7 +586,7 @@ def _receipt_response(result: object) -> ReceiptResponse:
         merchant=result.merchant,  # type: ignore[attr-defined]
         total=result.total,  # type: ignore[attr-defined]
         date=result.date,  # type: ignore[attr-defined]
-        items=[ReceiptItemResponse(name=i.name, amount=i.amount) for i in result.items],  # type: ignore[attr-defined]
+        items=[ReceiptItemResponse(name=i.name, amount=i.amount, category_id=i.category_id) for i in result.items],  # type: ignore[attr-defined]
         transaction_id=result.transaction_id,  # type: ignore[attr-defined]
         created_at=result.created_at,  # type: ignore[attr-defined]
     )
@@ -625,7 +625,7 @@ async def save_receipt(
             merchant=request.merchant,
             total=request.total,
             date=request.date,
-            items=[ReceiptItemDto(name=i.name, amount=i.amount) for i in request.items],
+            items=[ReceiptItemDto(name=i.name, amount=i.amount, category_id=i.category_id) for i in request.items],
             transaction_id=request.transaction_id,
         )
     )

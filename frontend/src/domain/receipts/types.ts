@@ -1,6 +1,7 @@
 export interface ReceiptItem {
   name: string;
   amount: number;
+  categoryId: string;
 }
 
 export interface Receipt {

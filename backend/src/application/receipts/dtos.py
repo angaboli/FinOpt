@@ -10,6 +10,7 @@ from decimal import Decimal
 class ReceiptItemDto:
     name: str
     amount: Decimal
+    category_id: str | None = None
 
 
 @dataclass(frozen=True)
@@ -46,6 +47,7 @@ class ListReceiptsQuery:
 class ReceiptItemResult:
     name: str
     amount: Decimal
+    category_id: str | None = None
 
 
 @dataclass(frozen=True)
