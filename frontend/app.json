@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "Finopt",
+    "slug": "finopt",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/finoptIcon.png",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/finoptIcon.png",
+        "backgroundColor": "#ffffff"
+      }
+    }
+  }
+}

@@ -1,0 +1,57 @@
+export const finoptTheme = {
+  colors: {
+    background: "#F8F9FA",
+    foreground: "#191C1D",
+    card: "#FFFFFF",
+    primary: "#006D36",
+    primaryDark: "#005025",
+    primaryLight: "#D4F1E3",
+    secondary: "#76F2F8",
+    secondaryDark: "#006E72",
+    muted: "#F3F4F5",
+    accent: "#EDEEEF",
+    border: "#E1E3E4",
+    gray400: "#BDCABC",
+    gray500: "#94A3B8",
+    gray600: "#6E7A6E",
+    gray700: "#3E4A3F",
+    danger: "#EF4444",
+    orange: "#FF9587",
+    warning: "#F59E0B",
+    purple: "#8B5CF6",
+    white: "#FFFFFF",
+  },
+  radius: {
+    sm: 8,
+    md: 10,
+    lg: 12,
+    xl: 16,
+    xxl: 24,
+  },
+  spacing: {
+    xs: 4,
+    sm: 8,
+    md: 12,
+    lg: 16,
+    xl: 24,
+    xxl: 32,
+  },
+  shadow: {
+    card: {
+      shadowColor: "#000000",
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.08,
+      shadowRadius: 14,
+      elevation: 4,
+    },
+    action: {
+      shadowColor: "#006D36",
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+  },
+} as const;
+
+export type FinoptTheme = typeof finoptTheme;
