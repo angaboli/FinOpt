@@ -70,6 +70,7 @@ export function HomeScreen({ navigation }: Props) {
           title: tx.title,
           amount: tx.amount,
           category: category?.name ?? "—",
+          categoryColor: category?.color ?? finoptTheme.colors.gray400,
           date: dateFormatter.format(new Date(y, m - 1, d)),
           accountName: account?.name ?? "—",
           accountColor: account?.color ?? finoptTheme.colors.gray400,

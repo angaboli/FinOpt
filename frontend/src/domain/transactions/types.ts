@@ -4,6 +4,7 @@ export interface TransactionSummary {
   id: string;
   title: string;
   category: string;
+  categoryColor: string;
   date: string;
   accountName: string;
   accountColor: string;

@@ -1,5 +1,7 @@
+import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, Text, View } from "react-native";
 
+import { categoryIcon } from "@/domain/categories/categoryIcons";
 import type { TransactionSummary } from "@/domain/transactions/types";
 import { finoptTheme } from "@/presentation/theme/theme";
 
@@ -24,7 +26,13 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
 
   return (
     <View style={styles.container}>
-      <View style={[styles.icon, { backgroundColor: transaction.accountColor }]} />
+      <View style={[styles.icon, { backgroundColor: transaction.categoryColor }]}>
+        <Ionicons
+          name={categoryIcon(transaction.category) as any}
+          size={18}
+          color={finoptTheme.colors.white}
+        />
+      </View>
       <View style={styles.content}>
         <Text style={styles.title}>{transaction.title}</Text>
         <Text style={styles.meta}>
@@ -47,10 +55,10 @@ const styles = StyleSheet.create({
     minHeight: 58,
   },
   icon: {
-    borderColor: finoptTheme.colors.white,
+    alignItems: "center",
     borderRadius: finoptTheme.radius.md,
-    borderWidth: 2,
     height: 40,
+    justifyContent: "center",
     width: 40,
   },
   content: {

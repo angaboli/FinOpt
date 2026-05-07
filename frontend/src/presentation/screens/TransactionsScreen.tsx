@@ -68,6 +68,7 @@ export function TransactionsScreen({ navigation }: Props) {
           title: tx.title,
           amount: tx.amount,
           category: category?.name ?? "—",
+          categoryColor: category?.color ?? finoptTheme.colors.gray400,
           date: tx.date,
           accountName: account?.name ?? "—",
           accountColor: account?.color ?? finoptTheme.colors.gray400,
