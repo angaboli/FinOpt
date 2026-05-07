@@ -23,7 +23,7 @@ export function AccountsScreen({ navigation }: Props) {
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.hero}>
           <View style={styles.heroTop}>
-            <View>
+            <View style={styles.heroTextBlock}>
               <Text style={styles.title}>Comptes</Text>
               <Text style={styles.subtitle}>Gérez vos comptes courants, épargnes et partagés.</Text>
             </View>
@@ -102,6 +102,7 @@ const styles = StyleSheet.create({
   },
   hero: { gap: finoptTheme.spacing.sm },
   heroTop: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between" },
+  heroTextBlock: { flex: 1, paddingRight: finoptTheme.spacing.md },
   addBtn: {
     alignItems: "center",
     backgroundColor: finoptTheme.colors.primary,
