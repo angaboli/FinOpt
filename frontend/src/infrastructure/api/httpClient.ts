@@ -21,16 +21,26 @@ httpClient.interceptors.response.use(
     if (error.response?.status !== 401 || !error.config) {
       throw error;
     }
+    // Don't retry if the refresh endpoint itself failed — avoids infinite loop
+    if (error.config.url?.includes("/auth/refresh")) {
+      await tokenStorage.clear();
+      throw error;
+    }
     const refreshToken = await tokenStorage.getRefreshToken();
     if (!refreshToken) {
       throw error;
     }
-    const refreshed = await httpClient.post<AuthTokensApiResponse>("/auth/refresh", {
-      refresh_token: refreshToken,
-    });
-    await tokenStorage.save(refreshed.data.access_token, refreshed.data.refresh_token);
-    error.config.headers.Authorization = `Bearer ${refreshed.data.access_token}`;
-    return httpClient.request(error.config);
+    try {
+      const refreshed = await httpClient.post<AuthTokensApiResponse>("/auth/refresh", {
+        refresh_token: refreshToken,
+      });
+      await tokenStorage.save(refreshed.data.access_token, refreshed.data.refresh_token);
+      error.config.headers.Authorization = `Bearer ${refreshed.data.access_token}`;
+      return httpClient.request(error.config);
+    } catch {
+      await tokenStorage.clear();
+      throw error;
+    }
   },
 );
 
