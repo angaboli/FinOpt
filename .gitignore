@@ -1,0 +1,28 @@
+# env & secrets
+.env
+.env.local
+
+# Python
+.venv/
+__pycache__/
+.pytest_cache/
+.coverage
+htmlcov/
+*.pyc
+*.db
+
+# JS / Expo
+node_modules/
+.expo/
+dist/
+coverage/
+
+# IDE & tools
+.claude/
+.mypy_cache/
+.ruff_cache/
+
+# Generated
+*.egg-info/
+pytest-cache-files-*
+finopt_dev.db
