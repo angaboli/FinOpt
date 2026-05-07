@@ -33,7 +33,7 @@ beforeEach(() => {
 
 test("login stores tokens and user", async () => {
   jest.mocked(authApi.login).mockResolvedValue({
-    user: { id: "user-id", email: "user@example.com" },
+    user: { id: "user-id", email: "user@example.com", name: "" },
     accessToken: "access",
     refreshToken: "refresh",
     tokenType: "bearer",
@@ -47,7 +47,7 @@ test("login stores tokens and user", async () => {
 
 test("logout revokes session and clears local state", async () => {
   useAuthStore.setState({
-    user: { id: "user-id", email: "user@example.com" },
+    user: { id: "user-id", email: "user@example.com", name: "" },
     accessToken: "access",
     refreshToken: "refresh",
   });

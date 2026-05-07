@@ -10,13 +10,16 @@ interface AuthFormProps {
   submitLabel: string;
   error: string | null;
   isLoading: boolean;
+  showName?: boolean;
   onSubmit: (credentials: Credentials) => Promise<void>;
 }
 
-export function AuthForm({ title, submitLabel, error, isLoading, onSubmit }: AuthFormProps) {
+export function AuthForm({ title, submitLabel, error, isLoading, showName, onSubmit }: AuthFormProps) {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const canSubmit = email.includes("@") && password.length >= 8 && !isLoading;
+  const nameOk = !showName || name.trim().length >= 2;
+  const canSubmit = nameOk && email.includes("@") && password.length >= 8 && !isLoading;
 
   return (
     <KeyboardAvoidingView
@@ -36,6 +39,20 @@ export function AuthForm({ title, submitLabel, error, isLoading, onSubmit }: Aut
 
       <View style={styles.card}>
         <Text style={styles.title}>{title}</Text>
+        {showName && (
+          <View style={styles.field}>
+            <Text style={styles.label}>Prénom</Text>
+            <TextInput
+              accessibilityLabel="Prénom"
+              autoCapitalize="words"
+              onChangeText={setName}
+              placeholder="Votre prénom"
+              placeholderTextColor={finoptTheme.colors.gray500}
+              style={styles.input}
+              value={name}
+            />
+          </View>
+        )}
         <View style={styles.field}>
           <Text style={styles.label}>Email</Text>
           <TextInput
@@ -66,7 +83,7 @@ export function AuthForm({ title, submitLabel, error, isLoading, onSubmit }: Aut
           accessibilityLabel={submitLabel}
           accessibilityRole="button"
           disabled={!canSubmit}
-          onPress={() => onSubmit({ email, password })}
+          onPress={() => onSubmit({ email, password, name: showName ? name.trim() : undefined })}
           style={({ pressed }) => [
             styles.button,
             !canSubmit && styles.buttonDisabled,

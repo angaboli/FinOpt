@@ -24,7 +24,7 @@ from src.domain.value_objects import Email, UserId
 
 
 def to_user_result(user: User) -> UserResult:
-    return UserResult(id=str(user.id.value), email=user.email.value)
+    return UserResult(id=str(user.id.value), email=user.email.value, name=user.name)
 
 
 def refresh_token_hash(raw_token: str) -> str:
@@ -40,7 +40,7 @@ class SignUpUser:
         email = Email(command.email)
         if await self._users.get_by_email(email):
             raise DuplicateEmailError(email.value)
-        user = User.create(email=email, password_hash=self._password_hasher.hash(command.password))
+        user = User.create(email=email, password_hash=self._password_hasher.hash(command.password), name=command.name)
         await self._users.save(user)
         return to_user_result(user)
 

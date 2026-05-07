@@ -29,7 +29,10 @@ export function ProfileScreen({ navigation: _navigation }: Props) {
     );
   }
 
-  const initials = user?.email?.slice(0, 2).toUpperCase() ?? "??";
+  const displayName = user?.name?.trim() || null;
+  const initials = displayName
+    ? displayName.slice(0, 2).toUpperCase()
+    : (user?.email?.slice(0, 2).toUpperCase() ?? "??");
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -37,12 +40,25 @@ export function ProfileScreen({ navigation: _navigation }: Props) {
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>{initials}</Text>
         </View>
+        {displayName ? <Text style={styles.displayName}>{displayName}</Text> : null}
         <Text style={styles.email}>{user?.email ?? "—"}</Text>
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionLabel}>COMPTE</Text>
         <View style={styles.card}>
+          {displayName ? (
+            <>
+              <View style={styles.row}>
+                <Ionicons name="person-outline" size={20} color={t.colors.gray600} />
+                <View style={styles.rowContent}>
+                  <Text style={styles.rowLabel}>Prénom</Text>
+                  <Text style={styles.rowValue}>{displayName}</Text>
+                </View>
+              </View>
+              <View style={styles.divider} />
+            </>
+          ) : null}
           <View style={styles.row}>
             <Ionicons name="mail-outline" size={20} color={t.colors.gray600} />
             <View style={styles.rowContent}>
@@ -52,10 +68,10 @@ export function ProfileScreen({ navigation: _navigation }: Props) {
           </View>
           <View style={styles.divider} />
           <View style={styles.row}>
-            <Ionicons name="finger-print-outline" size={20} color={t.colors.gray600} />
+            <Ionicons name="shield-checkmark-outline" size={20} color={t.colors.gray600} />
             <View style={styles.rowContent}>
-              <Text style={styles.rowLabel}>Identifiant</Text>
-              <Text style={styles.rowValue} numberOfLines={1}>{user?.id ?? "—"}</Text>
+              <Text style={styles.rowLabel}>Compte vérifié</Text>
+              <Text style={[styles.rowValue, { color: t.colors.primary }]}>Actif</Text>
             </View>
           </View>
         </View>
@@ -69,14 +85,6 @@ export function ProfileScreen({ navigation: _navigation }: Props) {
             <View style={styles.rowContent}>
               <Text style={styles.rowLabel}>Version</Text>
               <Text style={styles.rowValue}>1.0.0</Text>
-            </View>
-          </View>
-          <View style={styles.divider} />
-          <View style={styles.row}>
-            <Ionicons name="shield-checkmark-outline" size={20} color={t.colors.gray600} />
-            <View style={styles.rowContent}>
-              <Text style={styles.rowLabel}>Sécurité</Text>
-              <Text style={styles.rowValue}>JWT + SecureStore</Text>
             </View>
           </View>
         </View>
@@ -104,7 +112,8 @@ const styles = StyleSheet.create({
     ...t.shadow.action,
   },
   avatarText: { color: t.colors.white, fontSize: 28, fontWeight: "800" },
-  email: { color: t.colors.foreground, fontSize: 16, fontWeight: "700" },
+  displayName: { color: t.colors.foreground, fontSize: 22, fontWeight: "800" },
+  email: { color: t.colors.gray600, fontSize: 14 },
   section: { gap: t.spacing.sm },
   sectionLabel: {
     color: t.colors.gray600,

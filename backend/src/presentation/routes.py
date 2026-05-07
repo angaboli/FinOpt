@@ -163,8 +163,8 @@ async def signup(
     request: SignUpRequest,
     use_case: SignUpUser = Depends(sign_up_use_case),
 ) -> UserResponse:
-    result = await use_case.execute(SignUpCommand(email=request.email, password=request.password))
-    return UserResponse(id=result.id, email=result.email)
+    result = await use_case.execute(SignUpCommand(email=request.email, password=request.password, name=request.name))
+    return UserResponse(id=result.id, email=result.email, name=result.name)
 
 
 @router.post("/auth/login", response_model=AuthTokensResponse)
@@ -200,7 +200,7 @@ async def me(
     use_case: GetCurrentUser = Depends(get_current_user_use_case),
 ) -> UserResponse:
     result = await use_case.execute(user_id)
-    return UserResponse(id=result.id, email=result.email)
+    return UserResponse(id=result.id, email=result.email, name=result.name)
 
 
 @router.post("/accounts", response_model=AccountResponse, status_code=status.HTTP_201_CREATED)

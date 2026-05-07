@@ -9,9 +9,10 @@ export function SignUpScreen() {
   return (
     <AuthForm
       title="Inscription"
-      submitLabel="Creer mon compte"
+      submitLabel="Créer mon compte"
       error={error}
       isLoading={isLoading}
+      showName
       onSubmit={signup}
     />
   );

@@ -4,6 +4,7 @@ import { httpClient } from "@/infrastructure/api/httpClient";
 interface UserApiResponse {
   id: string;
   email: string;
+  name: string;
 }
 
 interface AuthTokensApiResponse {
@@ -24,7 +25,11 @@ function toAuthTokens(response: AuthTokensApiResponse): AuthTokens {
 
 export const authApi = {
   async signup(credentials: Credentials): Promise<User> {
-    const response = await httpClient.post<UserApiResponse>("/auth/signup", credentials);
+    const response = await httpClient.post<UserApiResponse>("/auth/signup", {
+      email: credentials.email,
+      password: credentials.password,
+      name: credentials.name ?? "",
+    });
     return response.data;
   },
 

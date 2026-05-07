@@ -13,14 +13,16 @@ class User:
     email: Email
     password_hash: str
     created_at: datetime
+    name: str = ""
 
     @classmethod
-    def create(cls, email: Email, password_hash: str) -> User:
+    def create(cls, email: Email, password_hash: str, name: str = "") -> User:
         return cls(
             id=UserId.new(),
             email=email,
             password_hash=password_hash,
             created_at=datetime.now(UTC),
+            name=name.strip(),
         )
 
     def __post_init__(self) -> None:

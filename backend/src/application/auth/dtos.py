@@ -5,6 +5,7 @@ from dataclasses import dataclass
 class SignUpCommand:
     email: str
     password: str
+    name: str = ""
 
 
 @dataclass(frozen=True)
@@ -27,6 +28,7 @@ class LogoutCommand:
 class UserResult:
     id: str
     email: str
+    name: str = ""
 
 
 @dataclass(frozen=True)

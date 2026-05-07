@@ -86,6 +86,7 @@ class SqlAlchemyUserRepository(UserRepository):
                 email=user.email.value,
                 password_hash=user.password_hash,
                 created_at=user.created_at,
+                name=user.name,
             )
         )
         try:
@@ -100,6 +101,7 @@ class SqlAlchemyUserRepository(UserRepository):
             email=Email(model.email),
             password_hash=model.password_hash,
             created_at=ensure_aware(model.created_at),
+            name=model.name or "",
         )
 
 
