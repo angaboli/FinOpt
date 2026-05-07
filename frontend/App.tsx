@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -20,6 +21,7 @@ import { SetBudgetScreen } from "@/presentation/screens/SetBudgetScreen";
 import { TransactionsScreen } from "@/presentation/screens/TransactionsScreen";
 import { LoginScreen } from "@/presentation/screens/LoginScreen";
 import { OnboardingScreen } from "@/presentation/screens/OnboardingScreen";
+import { ProfileScreen } from "@/presentation/screens/ProfileScreen";
 import { SignUpScreen } from "@/presentation/screens/SignUpScreen";
 import { finoptTheme } from "@/presentation/theme/theme";
 
@@ -28,6 +30,7 @@ export type RootStackParamList = {
   SignUp: undefined;
   Home: undefined;
   Onboarding: undefined;
+  Profile: undefined;
   Accounts: undefined;
   AddAccount: undefined;
   Incomes: undefined;
@@ -47,7 +50,21 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
   const user = useAuthStore((state) => state.user);
+  const isInitializing = useAuthStore((state) => state.isInitializing);
+  const restoreSession = useAuthStore((state) => state.restoreSession);
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
+
+  useEffect(() => {
+    void restoreSession();
+  }, [restoreSession]);
+
+  if (isInitializing) {
+    return (
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: finoptTheme.colors.background }}>
+        <ActivityIndicator size="large" color={finoptTheme.colors.primary} />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaProvider>
@@ -61,13 +78,14 @@ export default function App() {
           headerTitleStyle: { fontWeight: "800" },
         }}
       >
-        {!hasCompletedOnboarding ? (
+        {!hasCompletedOnboarding && !user ? (
           <Stack.Screen name="Onboarding" options={{ headerShown: false }}>
             {() => <OnboardingScreen onComplete={() => setHasCompletedOnboarding(true)} />}
           </Stack.Screen>
         ) : user ? (
           <>
             <Stack.Screen name="Home" component={HomeScreen} options={{ title: "Finopt" }} />
+            <Stack.Screen name="Profile" component={ProfileScreen} options={{ title: "Profil" }} />
             <Stack.Screen name="Accounts" component={AccountsScreen} options={{ title: "Comptes" }} />
             <Stack.Screen
               name="AddAccount"

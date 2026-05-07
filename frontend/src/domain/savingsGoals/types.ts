@@ -10,9 +10,12 @@ export interface SavingsGoal {
   createdAt: string;
 }
 
+export type BudgetSentiment = "positive" | "neutral" | "negative";
+
 export interface BudgetAdvice {
   summary: string;
   tips: string[];
   savingsAdvice: string | null;
   periodLabel: string;
+  sentiment: BudgetSentiment;
 }

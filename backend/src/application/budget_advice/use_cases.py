@@ -46,11 +46,12 @@ Analyse les données financières ci-dessous et génère des conseils personnali
 
 ---
 Réponds UNIQUEMENT avec un JSON valide (sans markdown) selon ce schéma exact :
-{{"summary": "1-2 phrases de résumé", "tips": ["conseil 1", "conseil 2", "conseil 3"], "savings_advice": "conseil épargne ou null"}}
+{{"summary": "1-2 phrases de résumé", "tips": ["conseil 1", "conseil 2", "conseil 3"], "savings_advice": "conseil épargne ou null", "sentiment": "positive"}}
 
 - summary : analyse concise de la situation financière du mois
 - tips : 3 conseils concrets et actionnables adaptés aux données
 - savings_advice : conseil sur les objectifs d'épargne, ou null si aucun objectif
+- sentiment : "positive" si la situation est globalement bonne, "negative" si elle est préoccupante, "neutral" sinon
 """
 
 
@@ -128,18 +129,21 @@ def _build_prompt(
     )
 
 
-def _parse_advice_response(text: str) -> tuple[str, list[str], str | None]:
+def _parse_advice_response(text: str) -> tuple[str, list[str], str | None, str]:
     match = re.search(r"\{.*\}", text, re.DOTALL)
     raw = match.group(0) if match else text
     try:
         data = json.loads(raw)
     except json.JSONDecodeError:
-        return (text.strip(), [], None)
+        return (text.strip(), [], None, "neutral")
 
     summary = str(data.get("summary", ""))
     tips = [str(t) for t in data.get("tips", [])]
     savings_advice = data.get("savings_advice") or None
-    return summary, tips, savings_advice
+    sentiment = str(data.get("sentiment", "neutral"))
+    if sentiment not in ("positive", "negative", "neutral"):
+        sentiment = "neutral"
+    return summary, tips, savings_advice, sentiment
 
 
 class GenerateBudgetAdvice:
@@ -182,7 +186,7 @@ class GenerateBudgetAdvice:
             messages=[{"role": "user", "content": prompt}],
         )
         response_text = response.choices[0].message.content or ""
-        summary, tips, savings_advice = _parse_advice_response(response_text)
+        summary, tips, savings_advice, sentiment = _parse_advice_response(response_text)
 
         period_label = f"{_MONTHS_FR[cmd.month].capitalize()} {cmd.year}"
         return BudgetAdviceResult(
@@ -190,6 +194,7 @@ class GenerateBudgetAdvice:
             tips=tips,
             savings_advice=savings_advice,
             period_label=period_label,
+            sentiment=sentiment,
         )
 
 

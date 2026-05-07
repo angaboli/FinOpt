@@ -16,3 +16,4 @@ class BudgetAdviceResult:
     tips: list[str]
     savings_advice: str | None
     period_label: str
+    sentiment: str  # "positive" | "neutral" | "negative"

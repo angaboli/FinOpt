@@ -726,4 +726,5 @@ async def generate_budget_advice(
         tips=result.tips,
         savings_advice=result.savings_advice,
         period_label=result.period_label,
+        sentiment=result.sentiment,
     )

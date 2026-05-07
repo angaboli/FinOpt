@@ -1,0 +1,147 @@
+import { Ionicons } from "@expo/vector-icons";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+
+import type { RootStackParamList } from "../../../App";
+import { useAuthStore } from "@/application/auth/authStore";
+import { finoptTheme } from "@/presentation/theme/theme";
+
+type Props = NativeStackScreenProps<RootStackParamList, "Profile">;
+
+const t = finoptTheme;
+
+export function ProfileScreen({ navigation: _navigation }: Props) {
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
+
+  function handleLogout() {
+    Alert.alert(
+      "Déconnexion",
+      "Êtes-vous sûr de vouloir vous déconnecter ?",
+      [
+        { text: "Annuler", style: "cancel" },
+        {
+          text: "Déconnexion",
+          style: "destructive",
+          onPress: () => void logout(),
+        },
+      ],
+    );
+  }
+
+  const initials = user?.email?.slice(0, 2).toUpperCase() ?? "??";
+
+  return (
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <View style={styles.avatarSection}>
+        <View style={styles.avatar}>
+          <Text style={styles.avatarText}>{initials}</Text>
+        </View>
+        <Text style={styles.email}>{user?.email ?? "—"}</Text>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionLabel}>COMPTE</Text>
+        <View style={styles.card}>
+          <View style={styles.row}>
+            <Ionicons name="mail-outline" size={20} color={t.colors.gray600} />
+            <View style={styles.rowContent}>
+              <Text style={styles.rowLabel}>Email</Text>
+              <Text style={styles.rowValue}>{user?.email ?? "—"}</Text>
+            </View>
+          </View>
+          <View style={styles.divider} />
+          <View style={styles.row}>
+            <Ionicons name="finger-print-outline" size={20} color={t.colors.gray600} />
+            <View style={styles.rowContent}>
+              <Text style={styles.rowLabel}>Identifiant</Text>
+              <Text style={styles.rowValue} numberOfLines={1}>{user?.id ?? "—"}</Text>
+            </View>
+          </View>
+        </View>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionLabel}>APPLICATION</Text>
+        <View style={styles.card}>
+          <View style={styles.row}>
+            <Ionicons name="information-circle-outline" size={20} color={t.colors.gray600} />
+            <View style={styles.rowContent}>
+              <Text style={styles.rowLabel}>Version</Text>
+              <Text style={styles.rowValue}>1.0.0</Text>
+            </View>
+          </View>
+          <View style={styles.divider} />
+          <View style={styles.row}>
+            <Ionicons name="shield-checkmark-outline" size={20} color={t.colors.gray600} />
+            <View style={styles.rowContent}>
+              <Text style={styles.rowLabel}>Sécurité</Text>
+              <Text style={styles.rowValue}>JWT + SecureStore</Text>
+            </View>
+          </View>
+        </View>
+      </View>
+
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        <Ionicons name="log-out-outline" size={20} color={t.colors.danger} />
+        <Text style={styles.logoutText}>Déconnexion</Text>
+      </TouchableOpacity>
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: t.colors.background },
+  content: { padding: t.spacing.xl, gap: t.spacing.lg, paddingBottom: 40 },
+  avatarSection: { alignItems: "center", gap: t.spacing.md, paddingVertical: t.spacing.xl },
+  avatar: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: t.colors.primary,
+    alignItems: "center",
+    justifyContent: "center",
+    ...t.shadow.action,
+  },
+  avatarText: { color: t.colors.white, fontSize: 28, fontWeight: "800" },
+  email: { color: t.colors.foreground, fontSize: 16, fontWeight: "700" },
+  section: { gap: t.spacing.sm },
+  sectionLabel: {
+    color: t.colors.gray600,
+    fontSize: 11,
+    fontWeight: "800",
+    letterSpacing: 0.8,
+    paddingHorizontal: t.spacing.xs,
+  },
+  card: {
+    backgroundColor: t.colors.card,
+    borderRadius: t.radius.xl,
+    borderWidth: 1,
+    borderColor: t.colors.border,
+    overflow: "hidden",
+    ...t.shadow.card,
+  },
+  row: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: t.spacing.md,
+    padding: t.spacing.lg,
+  },
+  rowContent: { flex: 1 },
+  rowLabel: { color: t.colors.gray600, fontSize: 12, marginBottom: 2 },
+  rowValue: { color: t.colors.foreground, fontWeight: "600", fontSize: 14 },
+  divider: { height: 1, backgroundColor: t.colors.border, marginHorizontal: t.spacing.lg },
+  logoutButton: {
+    alignItems: "center",
+    backgroundColor: t.colors.card,
+    borderRadius: t.radius.xl,
+    borderWidth: 1.5,
+    borderColor: t.colors.danger,
+    flexDirection: "row",
+    gap: t.spacing.md,
+    justifyContent: "center",
+    marginTop: t.spacing.md,
+    paddingVertical: t.spacing.lg,
+  },
+  logoutText: { color: t.colors.danger, fontWeight: "800", fontSize: 16 },
+});

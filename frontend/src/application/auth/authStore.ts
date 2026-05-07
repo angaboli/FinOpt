@@ -28,9 +28,11 @@ interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
   isLoading: boolean;
+  isInitializing: boolean;
   error: string | null;
   login: (credentials: Credentials) => Promise<void>;
   signup: (credentials: Credentials) => Promise<void>;
+  restoreSession: () => Promise<void>;
   refreshSession: () => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -44,7 +46,29 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   accessToken: null,
   refreshToken: null,
   isLoading: false,
+  isInitializing: true,
   error: null,
+
+  async restoreSession() {
+    const refreshToken = await tokenStorage.getRefreshToken();
+    if (!refreshToken) {
+      set({ isInitializing: false });
+      return;
+    }
+    try {
+      const tokens = await authApi.refresh(refreshToken);
+      await persistSession(tokens);
+      set({
+        user: tokens.user,
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        isInitializing: false,
+      });
+    } catch {
+      await tokenStorage.clear();
+      set({ isInitializing: false });
+    }
+  },
 
   async login(credentials) {
     set({ isLoading: true, error: null });

@@ -245,3 +245,4 @@ class BudgetAdviceResponse(BaseModel):
     tips: list[str]
     savings_advice: str | None
     period_label: str
+    sentiment: str

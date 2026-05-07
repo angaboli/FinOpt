@@ -1,11 +1,42 @@
+import { Ionicons } from "@expo/vector-icons";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import type { RootStackParamList } from "../../../App";
+import type { BudgetSentiment } from "@/domain/savingsGoals/types";
 import { useSavingsGoalsStore } from "@/application/savingsGoals/savingsGoalsStore";
 import { finoptTheme } from "@/presentation/theme/theme";
 
 type Props = NativeStackScreenProps<RootStackParamList, "BudgetAdvice">;
+
+const t = finoptTheme;
+
+const SENTIMENT_CONFIG: Record<
+  BudgetSentiment,
+  { bg: string; border: string; text: string; icon: keyof typeof Ionicons.glyphMap; iconColor: string }
+> = {
+  positive: {
+    bg: t.colors.primaryLight,
+    border: t.colors.primary,
+    text: t.colors.primary,
+    icon: "trending-up",
+    iconColor: t.colors.primary,
+  },
+  neutral: {
+    bg: t.colors.accent,
+    border: t.colors.border,
+    text: t.colors.gray700,
+    icon: "remove",
+    iconColor: t.colors.gray600,
+  },
+  negative: {
+    bg: "#FEE2E2",
+    border: t.colors.danger,
+    text: t.colors.danger,
+    icon: "trending-down",
+    iconColor: t.colors.danger,
+  },
+};
 
 export function BudgetAdviceScreen({ navigation: _navigation }: Props) {
   const advice = useSavingsGoalsStore((s) => s.advice);
@@ -14,6 +45,8 @@ export function BudgetAdviceScreen({ navigation: _navigation }: Props) {
   const generateAdvice = useSavingsGoalsStore((s) => s.generateAdvice);
 
   const now = new Date();
+  const sentiment = advice?.sentiment ?? "neutral";
+  const cfg = SENTIMENT_CONFIG[sentiment];
 
   async function handleGenerate() {
     await generateAdvice(now.getFullYear(), now.getMonth() + 1);
@@ -33,34 +66,46 @@ export function BudgetAdviceScreen({ navigation: _navigation }: Props) {
 
         {advice ? (
           <>
-            <View style={styles.periodBadge}>
-              <Text style={styles.periodText}>{advice.periodLabel}</Text>
+            <View style={[styles.sentimentBanner, { backgroundColor: cfg.bg, borderColor: cfg.border }]}>
+              <Ionicons name={cfg.icon} size={22} color={cfg.iconColor} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.periodText}>{advice.periodLabel}</Text>
+                <Text style={[styles.sentimentLabel, { color: cfg.text }]}>
+                  {sentiment === "positive" ? "Situation favorable" : sentiment === "negative" ? "Points de vigilance" : "Situation équilibrée"}
+                </Text>
+              </View>
             </View>
 
-            <View style={styles.summaryCard}>
-              <Text style={styles.sectionLabel}>Résumé</Text>
-              <Text style={styles.summaryText}>{advice.summary}</Text>
+            <View style={[styles.summaryCard, { backgroundColor: cfg.bg, borderColor: cfg.border }]}>
+              <Text style={styles.sectionLabel}>RÉSUMÉ</Text>
+              <Text style={[styles.summaryText, { color: sentiment === "negative" ? "#991B1B" : t.colors.foreground }]}>
+                {advice.summary}
+              </Text>
             </View>
 
             <View style={styles.card}>
-              <Text style={styles.sectionLabel}>Conseils pratiques</Text>
+              <Text style={styles.sectionLabel}>CONSEILS PRATIQUES</Text>
               {advice.tips.map((tip, i) => (
                 <View key={i} style={styles.tipRow}>
-                  <Text style={styles.tipBullet}>•</Text>
+                  <Ionicons name="checkmark-circle-outline" size={18} color={cfg.iconColor} />
                   <Text style={styles.tipText}>{tip}</Text>
                 </View>
               ))}
             </View>
 
             {advice.savingsAdvice ? (
-              <View style={styles.savingsCard}>
-                <Text style={styles.sectionLabel}>Épargne</Text>
+              <View style={[styles.savingsCard, { borderColor: cfg.border }]}>
+                <View style={styles.savingsHeader}>
+                  <Ionicons name="flag-outline" size={18} color={cfg.iconColor} />
+                  <Text style={styles.sectionLabel}>ÉPARGNE</Text>
+                </View>
                 <Text style={styles.savingsText}>{advice.savingsAdvice}</Text>
               </View>
             ) : null}
           </>
         ) : (
           <View style={styles.emptyCard}>
+            <Ionicons name="bulb-outline" size={40} color={t.colors.gray400} />
             <Text style={styles.emptyTitle}>Aucune analyse disponible</Text>
             <Text style={styles.emptyText}>
               Appuyez sur le bouton ci-dessous pour générer vos conseils personnalisés du mois.
@@ -75,6 +120,7 @@ export function BudgetAdviceScreen({ navigation: _navigation }: Props) {
           onPress={handleGenerate}
           style={({ pressed }) => [styles.button, (isGenerating || pressed) && styles.buttonPressed]}
         >
+          <Ionicons name={isGenerating ? "hourglass-outline" : "sparkles-outline"} size={18} color={t.colors.white} />
           <Text style={styles.buttonText}>
             {isGenerating ? "Analyse en cours..." : advice ? "Actualiser les conseils" : "Générer les conseils"}
           </Text>
@@ -85,66 +131,70 @@ export function BudgetAdviceScreen({ navigation: _navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { backgroundColor: finoptTheme.colors.background, flex: 1 },
-  content: { gap: finoptTheme.spacing.lg, padding: finoptTheme.spacing.xl, paddingBottom: finoptTheme.spacing.xxl },
-  hero: { gap: finoptTheme.spacing.xs },
-  title: { color: finoptTheme.colors.foreground, fontSize: 30, fontWeight: "800" },
-  subtitle: { color: finoptTheme.colors.gray600, lineHeight: 21 },
-  error: { color: finoptTheme.colors.danger, fontWeight: "700" },
-  periodBadge: {
-    alignSelf: "flex-start",
-    backgroundColor: finoptTheme.colors.primaryLight,
-    borderRadius: finoptTheme.radius.sm,
-    paddingHorizontal: finoptTheme.spacing.md,
-    paddingVertical: finoptTheme.spacing.xs,
-  },
-  periodText: { color: finoptTheme.colors.primary, fontWeight: "700", fontSize: 12 },
-  summaryCard: {
-    backgroundColor: finoptTheme.colors.primaryLight,
-    borderRadius: finoptTheme.radius.xl,
-    gap: finoptTheme.spacing.sm,
-    padding: finoptTheme.spacing.lg,
-  },
-  sectionLabel: { color: finoptTheme.colors.gray700, fontSize: 11, fontWeight: "800", letterSpacing: 0.5 },
-  summaryText: { color: finoptTheme.colors.foreground, lineHeight: 22 },
-  card: {
-    backgroundColor: finoptTheme.colors.card,
-    borderColor: finoptTheme.colors.border,
-    borderRadius: finoptTheme.radius.xl,
-    borderWidth: 1,
-    gap: finoptTheme.spacing.md,
-    padding: finoptTheme.spacing.lg,
-  },
-  tipRow: { flexDirection: "row", gap: finoptTheme.spacing.sm },
-  tipBullet: { color: finoptTheme.colors.primary, fontWeight: "800", fontSize: 16 },
-  tipText: { color: finoptTheme.colors.foreground, flex: 1, lineHeight: 22 },
-  savingsCard: {
-    backgroundColor: finoptTheme.colors.card,
-    borderColor: finoptTheme.colors.primary,
-    borderRadius: finoptTheme.radius.xl,
+  container: { backgroundColor: t.colors.background, flex: 1 },
+  content: { gap: t.spacing.lg, padding: t.spacing.xl, paddingBottom: t.spacing.xxl },
+  hero: { gap: t.spacing.xs },
+  title: { color: t.colors.foreground, fontSize: 30, fontWeight: "800" },
+  subtitle: { color: t.colors.gray600, lineHeight: 21 },
+  error: { color: t.colors.danger, fontWeight: "700" },
+  sentimentBanner: {
+    alignItems: "center",
+    borderRadius: t.radius.xl,
     borderWidth: 1.5,
-    gap: finoptTheme.spacing.sm,
-    padding: finoptTheme.spacing.lg,
+    flexDirection: "row",
+    gap: t.spacing.md,
+    padding: t.spacing.lg,
   },
-  savingsText: { color: finoptTheme.colors.foreground, lineHeight: 22 },
-  emptyCard: {
-    backgroundColor: finoptTheme.colors.card,
-    borderColor: finoptTheme.colors.border,
-    borderRadius: finoptTheme.radius.xl,
+  periodText: { color: t.colors.gray600, fontSize: 11, fontWeight: "700" },
+  sentimentLabel: { fontWeight: "800", fontSize: 15, marginTop: 2 },
+  summaryCard: {
+    borderRadius: t.radius.xl,
+    borderWidth: 1.5,
+    gap: t.spacing.sm,
+    padding: t.spacing.lg,
+  },
+  sectionLabel: { color: t.colors.gray700, fontSize: 11, fontWeight: "800", letterSpacing: 0.5 },
+  summaryText: { lineHeight: 22 },
+  card: {
+    backgroundColor: t.colors.card,
+    borderColor: t.colors.border,
+    borderRadius: t.radius.xl,
     borderWidth: 1,
-    gap: finoptTheme.spacing.sm,
-    padding: finoptTheme.spacing.lg,
+    gap: t.spacing.md,
+    padding: t.spacing.lg,
   },
-  emptyTitle: { color: finoptTheme.colors.foreground, fontWeight: "800" },
-  emptyText: { color: finoptTheme.colors.gray600, lineHeight: 20 },
+  tipRow: { alignItems: "flex-start", flexDirection: "row", gap: t.spacing.sm },
+  tipText: { color: t.colors.foreground, flex: 1, lineHeight: 22 },
+  savingsCard: {
+    backgroundColor: t.colors.card,
+    borderRadius: t.radius.xl,
+    borderWidth: 1.5,
+    gap: t.spacing.sm,
+    padding: t.spacing.lg,
+  },
+  savingsHeader: { alignItems: "center", flexDirection: "row", gap: t.spacing.sm },
+  savingsText: { color: t.colors.foreground, lineHeight: 22 },
+  emptyCard: {
+    alignItems: "center",
+    backgroundColor: t.colors.card,
+    borderColor: t.colors.border,
+    borderRadius: t.radius.xl,
+    borderWidth: 1,
+    gap: t.spacing.md,
+    padding: t.spacing.xl,
+  },
+  emptyTitle: { color: t.colors.foreground, fontWeight: "800", fontSize: 16 },
+  emptyText: { color: t.colors.gray600, lineHeight: 20, textAlign: "center" },
   button: {
     alignItems: "center",
-    backgroundColor: finoptTheme.colors.primary,
-    borderRadius: finoptTheme.radius.lg,
+    backgroundColor: t.colors.primary,
+    borderRadius: t.radius.lg,
+    flexDirection: "row",
+    gap: t.spacing.sm,
     justifyContent: "center",
     minHeight: 54,
-    ...finoptTheme.shadow.action,
+    ...t.shadow.action,
   },
-  buttonPressed: { backgroundColor: finoptTheme.colors.primaryDark },
-  buttonText: { color: finoptTheme.colors.white, fontWeight: "800" },
+  buttonPressed: { backgroundColor: t.colors.primaryDark },
+  buttonText: { color: t.colors.white, fontWeight: "800" },
 });

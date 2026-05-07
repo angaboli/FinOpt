@@ -1,11 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect, useMemo } from "react";
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import type { RootStackParamList } from "../../../App";
 import { useAccountsStore } from "@/application/accounts/accountsStore";
 import { useAuthStore } from "@/application/auth/authStore";
+
 import { useBudgetAlert } from "@/application/notifications/useBudgetAlert";
 import { useBudgetsStore } from "@/application/budgets/budgetsStore";
 import { useCategoriesStore } from "@/application/categories/categoriesStore";
@@ -30,7 +31,6 @@ type Props = NativeStackScreenProps<RootStackParamList, "Home">;
 
 export function HomeScreen({ navigation }: Props) {
   const user = useAuthStore((state) => state.user);
-  const logout = useAuthStore((state) => state.logout);
   const accounts = useAccountsStore((state) => state.accounts);
   const selectedAccountId = useAccountsStore((state) => state.selectedAccountId);
   const selectAccount = useAccountsStore((state) => state.selectAccount);
@@ -45,6 +45,7 @@ export function HomeScreen({ navigation }: Props) {
   function handleTabChange(tab: BottomTab) {
     if (tab === "transactions") navigation.navigate("Transactions");
     else if (tab === "conseils") navigation.navigate("BudgetAdvice");
+    else if (tab === "profil") navigation.navigate("Profile");
   }
 
   const now = new Date();
@@ -234,14 +235,14 @@ export function HomeScreen({ navigation }: Props) {
           ))}
         </View>
 
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Deconnexion"
-          onPress={logout}
-          style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
+        <TouchableOpacity
+          style={styles.profileButton}
+          onPress={() => navigation.navigate("Profile")}
         >
-          <Text style={styles.buttonText}>Déconnexion</Text>
-        </Pressable>
+          <Ionicons name="person-circle-outline" size={20} color={finoptTheme.colors.gray600} />
+          <Text style={styles.profileButtonText}>Mon profil</Text>
+          <Ionicons name="chevron-forward" size={16} color={finoptTheme.colors.gray600} />
+        </TouchableOpacity>
       </ScrollView>
       <BottomNav activeTab="home" onTabChange={handleTabChange} />
     </View>
@@ -347,14 +348,16 @@ const styles = StyleSheet.create({
   },
   quickActionPressed: { opacity: 0.7 },
   quickActionText: { color: finoptTheme.colors.foreground, fontWeight: "700", fontSize: 11, textAlign: "center" },
-  button: {
-    minHeight: 48,
-    borderRadius: finoptTheme.radius.md,
+  profileButton: {
     alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: finoptTheme.colors.primary,
-    ...finoptTheme.shadow.action,
+    backgroundColor: finoptTheme.colors.card,
+    borderColor: finoptTheme.colors.border,
+    borderRadius: finoptTheme.radius.xl,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: finoptTheme.spacing.sm,
+    padding: finoptTheme.spacing.lg,
+    ...finoptTheme.shadow.card,
   },
-  buttonPressed: { backgroundColor: finoptTheme.colors.primaryDark },
-  buttonText: { color: finoptTheme.colors.white, fontWeight: "700" },
+  profileButtonText: { color: finoptTheme.colors.foreground, flex: 1, fontWeight: "700" },
 });

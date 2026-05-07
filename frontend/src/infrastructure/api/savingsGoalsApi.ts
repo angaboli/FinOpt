@@ -18,6 +18,7 @@ interface BudgetAdviceApi {
   tips: string[];
   savings_advice: string | null;
   period_label: string;
+  sentiment: string;
 }
 
 function toSavingsGoal(g: SavingsGoalApi): SavingsGoal {
@@ -77,11 +78,13 @@ export const savingsGoalsApi = {
 
   async generateAdvice(year: number, month: number): Promise<BudgetAdvice> {
     const response = await httpClient.post<BudgetAdviceApi>("/budget-advice", { year, month });
+    const s = response.data.sentiment;
     return {
       summary: response.data.summary,
       tips: response.data.tips,
       savingsAdvice: response.data.savings_advice,
       periodLabel: response.data.period_label,
+      sentiment: (s === "positive" || s === "negative" ? s : "neutral") as import("@/domain/savingsGoals/types").BudgetSentiment,
     };
   },
 };

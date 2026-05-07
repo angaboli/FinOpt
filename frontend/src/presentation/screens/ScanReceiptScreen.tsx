@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -13,8 +14,11 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
+import { useAccountsStore } from "@/application/accounts/accountsStore";
+import { useCategoriesStore } from "@/application/categories/categoriesStore";
 import { useReceiptsStore } from "@/application/receipts/receiptsStore";
 import type { ReceiptItem, ScanResult } from "@/domain/receipts/types";
+import { transactionsApi } from "@/infrastructure/api/transactionsApi";
 import type { RootStackParamList } from "../../../App";
 import { finoptTheme } from "@/presentation/theme/theme";
 
@@ -29,6 +33,9 @@ export function ScanReceiptScreen({ navigation }: Props) {
   const save = useReceiptsStore((s) => s.save);
   const isScanning = useReceiptsStore((s) => s.isScanning);
   const isLoading = useReceiptsStore((s) => s.isLoading);
+  const accounts = useAccountsStore((s) => s.accounts);
+  const selectedAccountId = useAccountsStore((s) => s.selectedAccountId);
+  const categories = useCategoriesStore((s) => s.categories);
 
   const [step, setStep] = useState<Step>("capture");
   const [imageUri, setImageUri] = useState<string | null>(null);
@@ -37,6 +44,9 @@ export function ScanReceiptScreen({ navigation }: Props) {
   const [total, setTotal] = useState("");
   const [date, setDate] = useState("");
   const [items, setItems] = useState<ReceiptItem[]>([]);
+  const [accountId, setAccountId] = useState(selectedAccountId ?? accounts[0]?.id ?? "");
+
+  const defaultCategoryId = categories[0]?.id ?? "";
 
   async function pickImage(fromCamera: boolean) {
     const permission = fromCamera
@@ -49,16 +59,8 @@ export function ScanReceiptScreen({ navigation }: Props) {
     }
 
     const result = fromCamera
-      ? await ImagePicker.launchCameraAsync({
-          base64: true,
-          quality: 0.7,
-          mediaTypes: ["images"],
-        })
-      : await ImagePicker.launchImageLibraryAsync({
-          base64: true,
-          quality: 0.7,
-          mediaTypes: ["images"],
-        });
+      ? await ImagePicker.launchCameraAsync({ base64: true, quality: 0.7, mediaTypes: ["images"] })
+      : await ImagePicker.launchImageLibraryAsync({ base64: true, quality: 0.7, mediaTypes: ["images"] });
 
     if (result.canceled || !result.assets[0]) return;
     const asset = result.assets[0];
@@ -78,19 +80,38 @@ export function ScanReceiptScreen({ navigation }: Props) {
       setItems(parsed.items);
       setStep("review");
     } catch {
-      Alert.alert("Analyse échouée", "Impossible d'analyser le ticket. Clé API non configurée?");
+      Alert.alert("Analyse échouée", "Impossible d'analyser le ticket. Clé API non configurée ?");
     }
   }
 
   async function handleSave() {
+    const totalAmount = parseFloat(total);
+    let transactionId: string | null = null;
+
+    if (accountId && totalAmount > 0 && defaultCategoryId) {
+      try {
+        const today = date || new Date().toISOString().slice(0, 10);
+        const tx = await transactionsApi.create({
+          accountId,
+          categoryId: defaultCategoryId,
+          title: merchant || "Ticket de caisse",
+          amount: totalAmount,
+          transactionType: "EXPENSE",
+          date: today,
+          note: null,
+        });
+        transactionId = tx.id;
+      } catch {
+        Alert.alert(
+          "Attention",
+          "La transaction n'a pas pu être créée, mais le ticket sera enregistré.",
+          [{ text: "OK" }],
+        );
+      }
+    }
+
     try {
-      await save(
-        merchant || null,
-        total ? parseFloat(total) : null,
-        date || null,
-        items,
-        null,
-      );
+      await save(merchant || null, totalAmount || null, date || null, items, transactionId);
       setStep("done");
     } catch {
       Alert.alert("Erreur", "Impossible de sauvegarder le ticket.");
@@ -101,7 +122,7 @@ export function ScanReceiptScreen({ navigation }: Props) {
     return (
       <View style={styles.container}>
         <View style={styles.doneCard}>
-          <Text style={styles.doneIcon}>✓</Text>
+          <Ionicons name="checkmark-circle" size={64} color={t.colors.primary} />
           <Text style={styles.doneTitle}>Ticket enregistré !</Text>
           <TouchableOpacity style={styles.btn} onPress={() => navigation.goBack()}>
             <Text style={styles.btnText}>Retour</Text>
@@ -127,17 +148,19 @@ export function ScanReceiptScreen({ navigation }: Props) {
           </Text>
           <TouchableOpacity
             style={[styles.btn, styles.btnCamera]}
-            onPress={() => pickImage(true)}
+            onPress={() => void pickImage(true)}
             disabled={isScanning}
           >
-            <Text style={styles.btnText}>📷  Prendre une photo</Text>
+            <Ionicons name="camera-outline" size={20} color={t.colors.white} />
+            <Text style={styles.btnText}>Prendre une photo</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.btn, styles.btnSecondary]}
-            onPress={() => pickImage(false)}
+            onPress={() => void pickImage(false)}
             disabled={isScanning}
           >
-            <Text style={[styles.btnText, styles.btnTextSecondary]}>🖼  Choisir depuis la galerie</Text>
+            <Ionicons name="image-outline" size={20} color={t.colors.foreground} />
+            <Text style={[styles.btnText, styles.btnTextSecondary]}>Choisir depuis la galerie</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -150,6 +173,23 @@ export function ScanReceiptScreen({ navigation }: Props) {
         <Image source={{ uri: imageUri }} style={styles.preview} resizeMode="contain" />
       )}
       <Text style={styles.sectionTitle}>Vérifier les informations</Text>
+
+      {/* Account selector */}
+      <Text style={styles.label}>Compte à débiter</Text>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipRow}>
+        {accounts.map((a) => (
+          <TouchableOpacity
+            key={a.id}
+            style={[styles.chip, accountId === a.id && styles.chipActive]}
+            onPress={() => setAccountId(a.id)}
+          >
+            <View style={[styles.chipDot, { backgroundColor: a.color }]} />
+            <Text style={[styles.chipText, accountId === a.id && styles.chipTextActive]}>
+              {a.name}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
 
       <Text style={styles.label}>Marchand</Text>
       <TextInput
@@ -202,7 +242,7 @@ export function ScanReceiptScreen({ navigation }: Props) {
           <TouchableOpacity
             onPress={() => setItems((prev) => prev.filter((_, i) => i !== idx))}
           >
-            <Text style={styles.removeBtn}>✕</Text>
+            <Ionicons name="close-circle-outline" size={22} color={t.colors.danger} />
           </TouchableOpacity>
         </View>
       ))}
@@ -210,22 +250,27 @@ export function ScanReceiptScreen({ navigation }: Props) {
         style={styles.addItemBtn}
         onPress={() => setItems((prev) => [...prev, { name: "", amount: 0 }])}
       >
-        <Text style={styles.addItemText}>+ Ajouter un article</Text>
+        <Ionicons name="add-circle-outline" size={18} color={t.colors.primary} />
+        <Text style={styles.addItemText}>Ajouter un article</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={[styles.btn, isLoading && styles.btnDisabled]}
-        onPress={handleSave}
+        style={[styles.btn, styles.saveBtn, isLoading && styles.btnDisabled]}
+        onPress={() => void handleSave()}
         disabled={isLoading}
       >
         {isLoading ? (
           <ActivityIndicator color={t.colors.white} />
         ) : (
-          <Text style={styles.btnText}>Enregistrer</Text>
+          <>
+            <Ionicons name="save-outline" size={18} color={t.colors.white} />
+            <Text style={styles.btnText}>Enregistrer</Text>
+          </>
         )}
       </TouchableOpacity>
       <TouchableOpacity style={styles.btnGhost} onPress={() => setStep("capture")}>
-        <Text style={styles.btnGhostText}>← Reprendre une photo</Text>
+        <Ionicons name="arrow-back-outline" size={16} color={t.colors.gray500} />
+        <Text style={styles.btnGhostText}>Reprendre une photo</Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -234,7 +279,7 @@ export function ScanReceiptScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   bg: { flex: 1, backgroundColor: t.colors.background },
   container: { flex: 1, backgroundColor: t.colors.background, justifyContent: "center", alignItems: "center" },
-  scroll: { padding: t.spacing.lg, paddingBottom: 40 },
+  scroll: { padding: t.spacing.lg, paddingBottom: 40, gap: t.spacing.sm },
   captureCard: {
     backgroundColor: t.colors.card,
     borderRadius: t.radius.xl,
@@ -245,20 +290,17 @@ const styles = StyleSheet.create({
   },
   overlay: {
     position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    top: 0, left: 0, right: 0, bottom: 0,
     backgroundColor: "rgba(0,0,0,0.6)",
     justifyContent: "center",
     alignItems: "center",
     zIndex: 10,
   },
   overlayText: { color: t.colors.white, marginTop: t.spacing.md, fontSize: 16 },
-  preview: { width: "100%", height: 200, borderRadius: t.radius.lg, marginBottom: t.spacing.lg },
+  preview: { width: "100%", height: 200, borderRadius: t.radius.lg, marginBottom: t.spacing.sm },
   sectionTitle: { fontSize: 18, fontWeight: "700", color: t.colors.foreground, marginBottom: t.spacing.sm },
-  hint: { fontSize: 14, color: t.colors.gray500, marginBottom: t.spacing.sm },
-  label: { fontSize: 13, fontWeight: "600", color: t.colors.gray600, marginBottom: 4, marginTop: t.spacing.sm },
+  hint: { fontSize: 14, color: t.colors.gray500 },
+  label: { fontSize: 13, fontWeight: "600", color: t.colors.gray600, marginTop: t.spacing.sm },
   input: {
     backgroundColor: t.colors.card,
     borderRadius: t.radius.md,
@@ -269,27 +311,44 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: t.colors.foreground,
   },
-  itemRow: { flexDirection: "row", alignItems: "center", gap: t.spacing.sm, marginBottom: t.spacing.sm },
+  chipRow: { flexDirection: "row" as any },
+  chip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: t.spacing.md,
+    paddingVertical: t.spacing.xs,
+    borderRadius: t.radius.xl,
+    backgroundColor: t.colors.muted,
+    marginRight: t.spacing.xs,
+    borderWidth: 1,
+    borderColor: "transparent",
+  },
+  chipActive: { backgroundColor: t.colors.primaryLight, borderColor: t.colors.primary },
+  chipDot: { width: 8, height: 8, borderRadius: 4 },
+  chipText: { fontSize: 13, color: t.colors.foreground },
+  chipTextActive: { color: t.colors.primary, fontWeight: "700" },
+  itemRow: { flexDirection: "row", alignItems: "center", gap: t.spacing.sm },
   itemName: { flex: 1 },
   itemAmount: { width: 80 },
-  removeBtn: { fontSize: 18, color: t.colors.danger, paddingHorizontal: 4 },
-  addItemBtn: { marginVertical: t.spacing.sm },
+  addItemBtn: { flexDirection: "row", alignItems: "center", gap: t.spacing.xs, marginTop: t.spacing.xs },
   addItemText: { color: t.colors.primary, fontWeight: "600", fontSize: 14 },
   btn: {
+    alignItems: "center",
     backgroundColor: t.colors.primary,
     borderRadius: t.radius.lg,
+    flexDirection: "row",
+    gap: t.spacing.sm,
+    justifyContent: "center",
     paddingVertical: t.spacing.md,
-    alignItems: "center",
-    marginTop: t.spacing.md,
   },
   btnCamera: { marginTop: 0 },
-  btnSecondary: {
-    backgroundColor: t.colors.muted,
-  },
+  saveBtn: { marginTop: t.spacing.md },
+  btnSecondary: { backgroundColor: t.colors.muted },
   btnDisabled: { opacity: 0.6 },
   btnText: { color: t.colors.white, fontWeight: "700", fontSize: 16 },
   btnTextSecondary: { color: t.colors.foreground },
-  btnGhost: { alignItems: "center", marginTop: t.spacing.sm },
+  btnGhost: { alignItems: "center", flexDirection: "row", gap: t.spacing.xs, justifyContent: "center", marginTop: t.spacing.sm },
   btnGhostText: { color: t.colors.gray500, fontSize: 14 },
   doneCard: {
     backgroundColor: t.colors.card,
@@ -299,6 +358,5 @@ const styles = StyleSheet.create({
     gap: t.spacing.md,
     ...t.shadow.card,
   },
-  doneIcon: { fontSize: 48 },
   doneTitle: { fontSize: 20, fontWeight: "700", color: t.colors.primary },
 });
