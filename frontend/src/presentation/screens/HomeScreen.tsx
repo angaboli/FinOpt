@@ -1,5 +1,6 @@
+import { Ionicons } from "@expo/vector-icons";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import type { RootStackParamList } from "../../../App";
@@ -10,7 +11,8 @@ import { useBudgetsStore } from "@/application/budgets/budgetsStore";
 import { useCategoriesStore } from "@/application/categories/categoriesStore";
 import { useTransactionsStore } from "@/application/transactions/transactionsStore";
 import { AccountSwitcher } from "@/presentation/components/AccountSwitcher";
-import { BottomNav, type BottomTab } from "@/presentation/components/BottomNav";
+import { BottomNav } from "@/presentation/components/BottomNav";
+import type { BottomTab } from "@/presentation/components/BottomNav";
 import { TransactionCard } from "@/presentation/components/TransactionCard";
 import { finoptTheme } from "@/presentation/theme/theme";
 
@@ -40,7 +42,10 @@ export function HomeScreen({ navigation }: Props) {
   const loadCategories = useCategoriesStore((state) => state.loadCategories);
   const budget = useBudgetsStore((s) => s.budget);
   const loadBudget = useBudgetsStore((s) => s.loadBudget);
-  const [activeTab, setActiveTab] = useState<BottomTab>("home");
+  function handleTabChange(tab: BottomTab) {
+    if (tab === "transactions") navigation.navigate("Transactions");
+    else if (tab === "conseils") navigation.navigate("BudgetAdvice");
+  }
 
   const now = new Date();
   const thisYear = now.getFullYear();
@@ -207,62 +212,26 @@ export function HomeScreen({ navigation }: Props) {
         </View>
 
         <View style={styles.quickActions}>
-          <Pressable
-            accessibilityLabel="Gerer les comptes"
-            accessibilityRole="button"
-            onPress={() => navigation.navigate("Accounts")}
-            style={styles.secondaryButton}
-          >
-            <Text style={styles.secondaryButtonText}>Mes comptes</Text>
-          </Pressable>
-          <Pressable
-            accessibilityLabel="Mes revenus"
-            accessibilityRole="button"
-            onPress={() => navigation.navigate("Incomes")}
-            style={styles.secondaryButton}
-          >
-            <Text style={styles.secondaryButtonText}>Mes revenus</Text>
-          </Pressable>
-          <Pressable
-            accessibilityLabel="Budget mensuel"
-            accessibilityRole="button"
-            onPress={() => navigation.navigate("Budget")}
-            style={styles.secondaryButton}
-          >
-            <Text style={styles.secondaryButtonText}>Budget</Text>
-          </Pressable>
-          <Pressable
-            accessibilityLabel="Importer un relevé"
-            accessibilityRole="button"
-            onPress={() => navigation.navigate("Import")}
-            style={styles.secondaryButton}
-          >
-            <Text style={styles.secondaryButtonText}>Import</Text>
-          </Pressable>
-          <Pressable
-            accessibilityLabel="Scanner un ticket"
-            accessibilityRole="button"
-            onPress={() => navigation.navigate("ScanReceipt")}
-            style={styles.secondaryButton}
-          >
-            <Text style={styles.secondaryButtonText}>Scan</Text>
-          </Pressable>
-          <Pressable
-            accessibilityLabel="Objectifs d'épargne"
-            accessibilityRole="button"
-            onPress={() => navigation.navigate("SavingsGoals")}
-            style={styles.secondaryButton}
-          >
-            <Text style={styles.secondaryButtonText}>Épargne</Text>
-          </Pressable>
-          <Pressable
-            accessibilityLabel="Conseils IA"
-            accessibilityRole="button"
-            onPress={() => navigation.navigate("BudgetAdvice")}
-            style={styles.secondaryButton}
-          >
-            <Text style={styles.secondaryButtonText}>Conseils IA</Text>
-          </Pressable>
+          {([
+            { label: "Comptes", screen: "Accounts", icon: "wallet-outline" },
+            { label: "Revenus", screen: "Incomes", icon: "trending-up-outline" },
+            { label: "Budget", screen: "Budget", icon: "pie-chart-outline" },
+            { label: "Import", screen: "Import", icon: "download-outline" },
+            { label: "Scan", screen: "ScanReceipt", icon: "camera-outline" },
+            { label: "Épargne", screen: "SavingsGoals", icon: "flag-outline" },
+            { label: "Conseils IA", screen: "BudgetAdvice", icon: "bulb-outline" },
+          ] as const).map(({ label, screen, icon }) => (
+            <Pressable
+              key={screen}
+              accessibilityLabel={label}
+              accessibilityRole="button"
+              onPress={() => navigation.navigate(screen)}
+              style={({ pressed }) => [styles.quickAction, pressed && styles.quickActionPressed]}
+            >
+              <Ionicons name={icon} size={22} color={finoptTheme.colors.primary} />
+              <Text style={styles.quickActionText}>{label}</Text>
+            </Pressable>
+          ))}
         </View>
 
         <Pressable
@@ -274,7 +243,7 @@ export function HomeScreen({ navigation }: Props) {
           <Text style={styles.buttonText}>Déconnexion</Text>
         </Pressable>
       </ScrollView>
-      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+      <BottomNav activeTab="home" onTabChange={handleTabChange} />
     </View>
   );
 }
@@ -363,18 +332,21 @@ const styles = StyleSheet.create({
     ...finoptTheme.shadow.card,
   },
   subtitle: { color: finoptTheme.colors.gray600, marginTop: finoptTheme.spacing.xs },
-  quickActions: { flexDirection: "row", gap: finoptTheme.spacing.md },
-  secondaryButton: {
+  quickActions: { flexDirection: "row", flexWrap: "wrap", gap: finoptTheme.spacing.sm },
+  quickAction: {
     alignItems: "center",
     backgroundColor: finoptTheme.colors.card,
-    borderColor: finoptTheme.colors.gray600,
+    borderColor: finoptTheme.colors.border,
     borderRadius: finoptTheme.radius.lg,
     borderWidth: 1,
-    flex: 1,
+    gap: finoptTheme.spacing.xs,
     justifyContent: "center",
-    minHeight: 48,
+    minHeight: 72,
+    width: "30%",
+    ...finoptTheme.shadow.card,
   },
-  secondaryButtonText: { color: finoptTheme.colors.foreground, fontWeight: "800", fontSize: 12 },
+  quickActionPressed: { opacity: 0.7 },
+  quickActionText: { color: finoptTheme.colors.foreground, fontWeight: "700", fontSize: 11, textAlign: "center" },
   button: {
     minHeight: 48,
     borderRadius: finoptTheme.radius.md,

@@ -1,20 +1,32 @@
 from __future__ import annotations
 
+import base64
+import io
+import json
+import re
+from datetime import date as DateType
+from decimal import Decimal, InvalidOperation
+
+import openai
+import pypdf
+
 from src.application.bank_imports.dtos import (
     BankImportResult,
     ImportBankStatementCommand,
     ListBankImportsQuery,
+    ParsePdfCommand,
+    ParsedPdfRowResult,
 )
-from src.application.transactions.use_cases import to_transaction_result
 from src.domain.entities.bank_import import BankImport
 from src.domain.entities.transaction import Transaction, TransactionType
-from src.domain.exceptions import AccountNotFoundError
+from src.domain.exceptions import AccountNotFoundError, InvalidBankImportError
 from src.domain.ports.repositories import (
     AccountRepository,
     BankImportRepository,
     TransactionRepository,
 )
 from src.domain.value_objects import AccountId, CategoryId, UserId
+from src.infrastructure.settings import Settings
 
 
 def _to_result(bi: BankImport) -> BankImportResult:
@@ -75,6 +87,67 @@ class ImportBankStatement:
         )
         await self._bank_imports.save(bank_import)
         return _to_result(bank_import)
+
+
+_PDF_PARSE_PROMPT = """Tu reçois le texte extrait d'un relevé bancaire PDF.
+Extrais toutes les transactions et retourne uniquement un tableau JSON avec ce format exact :
+[{"date":"YYYY-MM-DD","title":"libellé","amount":12.50,"type":"EXPENSE"},...]
+Règles : type="INCOME" si crédit/revenu, "EXPENSE" sinon. amount toujours positif. date ISO YYYY-MM-DD.
+Ne retourne rien d'autre que le JSON brut, sans markdown ni explication.
+Texte du relevé :
+"""
+
+
+def _parse_pdf_response(text: str) -> list[ParsedPdfRowResult]:
+    match = re.search(r"```(?:json)?\s*([\s\S]+?)```", text)
+    raw = match.group(1) if match else text
+    try:
+        data = json.loads(raw.strip())
+    except json.JSONDecodeError as exc:
+        raise InvalidBankImportError(f"Réponse IA invalide : {exc}") from exc
+    results: list[ParsedPdfRowResult] = []
+    for item in data:
+        try:
+            parts = str(item["date"]).split("-")
+            row_date = DateType(int(parts[0]), int(parts[1]), int(parts[2]))
+            amount = Decimal(str(item["amount"]))
+            tx_type = str(item.get("type", "EXPENSE"))
+            if tx_type not in ("INCOME", "EXPENSE"):
+                tx_type = "EXPENSE"
+            results.append(ParsedPdfRowResult(
+                date=row_date,
+                title=str(item.get("title", "")).strip() or "Transaction",
+                amount=amount,
+                transaction_type=tx_type,
+            ))
+        except (KeyError, ValueError, InvalidOperation):
+            continue
+    return results
+
+
+class ParsePdfStatement:
+    def __init__(self, settings: Settings) -> None:
+        self._settings = settings
+
+    def execute(self, cmd: ParsePdfCommand) -> list[ParsedPdfRowResult]:
+        if not self._settings.openai_api_key:
+            raise InvalidBankImportError("OpenAI API key not configured")
+        try:
+            pdf_bytes = base64.b64decode(cmd.file_base64)
+            reader = pypdf.PdfReader(io.BytesIO(pdf_bytes))
+            text = "\n".join(page.extract_text() or "" for page in reader.pages)
+        except Exception as exc:
+            raise InvalidBankImportError(f"Lecture PDF impossible : {exc}") from exc
+        if not text.strip():
+            raise InvalidBankImportError("Impossible d'extraire le texte du PDF.")
+        client = openai.OpenAI(api_key=self._settings.openai_api_key)
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            max_tokens=4096,
+            messages=[{"role": "user", "content": _PDF_PARSE_PROMPT + text[:12000]}],
+        )
+        response_text = response.choices[0].message.content or ""
+        return _parse_pdf_response(response_text)
 
 
 class ListBankImports:

@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { finoptTheme } from "@/presentation/theme/theme";
@@ -9,11 +10,11 @@ interface BottomNavProps {
   onTabChange: (tab: BottomTab) => void;
 }
 
-const tabs: Array<{ id: BottomTab; label: string }> = [
-  { id: "home", label: "Accueil" },
-  { id: "transactions", label: "Flux" },
-  { id: "conseils", label: "Conseils" },
-  { id: "profil", label: "Profil" },
+const tabs: Array<{ id: BottomTab; label: string; icon: keyof typeof Ionicons.glyphMap; iconActive: keyof typeof Ionicons.glyphMap }> = [
+  { id: "home", label: "Accueil", icon: "home-outline", iconActive: "home" },
+  { id: "transactions", label: "Flux", icon: "swap-horizontal-outline", iconActive: "swap-horizontal" },
+  { id: "conseils", label: "Conseils", icon: "bulb-outline", iconActive: "bulb" },
+  { id: "profil", label: "Profil", icon: "person-outline", iconActive: "person" },
 ];
 
 export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
@@ -21,7 +22,6 @@ export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
     <View style={styles.container}>
       {tabs.map((tab) => {
         const isActive = activeTab === tab.id;
-
         return (
           <Pressable
             accessibilityLabel={tab.label}
@@ -30,7 +30,11 @@ export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
             onPress={() => onTabChange(tab.id)}
             style={styles.item}
           >
-            <View style={[styles.indicator, isActive && styles.indicatorActive]} />
+            <Ionicons
+              name={isActive ? tab.iconActive : tab.icon}
+              size={22}
+              color={isActive ? finoptTheme.colors.primary : finoptTheme.colors.gray600}
+            />
             <Text style={[styles.label, isActive && styles.labelActive]}>{tab.label}</Text>
           </Pressable>
         );
@@ -48,7 +52,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     bottom: finoptTheme.spacing.lg,
     flexDirection: "row",
-    gap: finoptTheme.spacing.sm,
     justifyContent: "space-between",
     left: finoptTheme.spacing.lg,
     padding: finoptTheme.spacing.sm,
@@ -60,18 +63,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flex: 1,
     gap: finoptTheme.spacing.xs,
-    minHeight: 48,
     justifyContent: "center",
-  },
-  indicator: {
-    backgroundColor: "transparent",
-    borderRadius: 3,
-    height: 6,
-    width: 6,
-  },
-  indicatorActive: {
-    backgroundColor: finoptTheme.colors.primary,
-    width: 20,
+    minHeight: 52,
   },
   label: {
     color: finoptTheme.colors.gray600,

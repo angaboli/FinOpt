@@ -31,7 +31,7 @@ from src.application.income_sources.use_cases import (
     ListIncomeSources,
     UpdateIncomeSource,
 )
-from src.application.bank_imports.use_cases import ImportBankStatement, ListBankImports
+from src.application.bank_imports.use_cases import ImportBankStatement, ListBankImports, ParsePdfStatement
 from src.application.budget_advice.use_cases import GenerateBudgetAdvice
 from src.application.budgets.use_cases import GetBudget, SetBudget
 from src.application.receipts.use_cases import ListReceipts, SaveReceipt, ScanReceipt
@@ -290,6 +290,12 @@ def list_bank_imports_use_case(
     bank_imports: BankImportRepository = Depends(bank_import_repository),
 ) -> ListBankImports:
     return ListBankImports(bank_imports)
+
+
+def parse_pdf_use_case(
+    settings: Settings = Depends(get_settings),
+) -> ParsePdfStatement:
+    return ParsePdfStatement(settings)
 
 
 async def budget_repository(

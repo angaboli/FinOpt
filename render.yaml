@@ -1,7 +1,7 @@
 databases:
   - name: finopt-db
-    databaseName: finopt
-    user: finopt
+    databaseName: finopt_db
+    user: finopt_db_user
     plan: free
     region: frankfurt
 
@@ -12,9 +12,8 @@ services:
     rootDir: backend
     plan: free
     region: frankfurt
-    pythonVersion: "3.12"
-    buildCommand: "pip install -e ."
-    startCommand: "alembic upgrade head && uvicorn src.presentation.main:app --host 0.0.0.0 --port $PORT"
+    buildCommand: pip install -e .
+    startCommand: alembic upgrade head && uvicorn src.presentation.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     envVars:
       - key: FINOPT_DATABASE_URL

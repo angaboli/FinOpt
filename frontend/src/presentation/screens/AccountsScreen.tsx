@@ -1,5 +1,5 @@
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import type { RootStackParamList } from "../../../App";
 import { useAccountsStore } from "@/application/accounts/accountsStore";
@@ -37,7 +37,16 @@ export function AccountsScreen({ navigation }: Props) {
               </Text>
               <Pressable
                 accessibilityRole="button"
-                onPress={() => deleteAccount(account.id)}
+                onPress={() =>
+                  Alert.alert(
+                    "Supprimer le compte",
+                    `Supprimer « ${account.name} » ? Cette action est irréversible.`,
+                    [
+                      { text: "Annuler", style: "cancel" },
+                      { text: "Supprimer", style: "destructive", onPress: () => deleteAccount(account.id) },
+                    ],
+                  )
+                }
               >
                 <Text style={styles.delete}>Supprimer</Text>
               </Pressable>

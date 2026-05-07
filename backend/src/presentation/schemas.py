@@ -138,6 +138,18 @@ class BankImportResponse(BaseModel):
     created_at: datetime
 
 
+class ParsePdfRequest(BaseModel):
+    file_base64: str
+    source_name: str = Field(default="PDF Import", max_length=200)
+
+
+class ParsedPdfRowResponse(BaseModel):
+    date: DateType
+    title: str
+    amount: Decimal
+    transaction_type: str
+
+
 class BudgetLineRequest(BaseModel):
     category_id: str
     planned_amount: Decimal = Field(ge=0)

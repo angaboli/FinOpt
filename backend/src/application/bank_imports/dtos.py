@@ -29,6 +29,21 @@ class ListBankImportsQuery:
 
 
 @dataclass(frozen=True)
+class ParsePdfCommand:
+    user_id: str
+    file_base64: str
+    source_name: str = "PDF Import"
+
+
+@dataclass(frozen=True)
+class ParsedPdfRowResult:
+    date: DateType
+    title: str
+    amount: Decimal
+    transaction_type: str  # "INCOME" | "EXPENSE"
+
+
+@dataclass(frozen=True)
 class BankImportResult:
     id: str
     user_id: str

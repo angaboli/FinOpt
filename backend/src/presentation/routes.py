@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Response, status
 
-from src.application.bank_imports.dtos import ImportBankStatementCommand, ImportRowCommand, ListBankImportsQuery
-from src.application.bank_imports.use_cases import ImportBankStatement, ListBankImports
+from src.application.bank_imports.dtos import ImportBankStatementCommand, ImportRowCommand, ListBankImportsQuery, ParsePdfCommand
+from src.application.bank_imports.use_cases import ImportBankStatement, ListBankImports, ParsePdfStatement
 from src.application.budget_advice.dtos import GenerateBudgetAdviceCommand
 from src.application.budget_advice.use_cases import GenerateBudgetAdvice
 from src.application.budgets.dtos import BudgetLineCommand, GetBudgetQuery, SetBudgetCommand
@@ -87,6 +87,7 @@ from src.application.transactions.use_cases import (
 from src.presentation.dependencies import (
     import_bank_statement_use_case,
     list_bank_imports_use_case,
+    parse_pdf_use_case,
     generate_budget_advice_use_case,
     get_budget_use_case,
     set_budget_use_case,
@@ -125,6 +126,8 @@ from src.presentation.schemas import (
     AccountResponse,
     AuthTokensResponse,
     BankImportResponse,
+    ParsePdfRequest,
+    ParsedPdfRowResponse,
     BudgetAdviceRequest,
     BudgetAdviceResponse,
     BudgetLineResponse,
@@ -504,6 +507,28 @@ async def list_bank_imports(
             created_at=r.created_at,
         )
         for r in results
+    ]
+
+
+@router.post("/bank-imports/parse-pdf", response_model=list[ParsedPdfRowResponse])
+async def parse_pdf_statement(
+    request: ParsePdfRequest,
+    user_id: str = Depends(current_user_id),
+    use_case: ParsePdfStatement = Depends(parse_pdf_use_case),
+) -> list[ParsedPdfRowResponse]:
+    rows = use_case.execute(ParsePdfCommand(
+        user_id=user_id,
+        file_base64=request.file_base64,
+        source_name=request.source_name,
+    ))
+    return [
+        ParsedPdfRowResponse(
+            date=r.date,
+            title=r.title,
+            amount=r.amount,
+            transaction_type=r.transaction_type,
+        )
+        for r in rows
     ]
 
 
