@@ -14,6 +14,7 @@ interface AccountsState {
   error: string | null;
   loadAccounts: () => Promise<void>;
   createAccount: (values: AccountFormValues) => Promise<void>;
+  updateAccount: (accountId: string, values: AccountFormValues) => Promise<void>;
   deleteAccount: (accountId: string) => Promise<void>;
   selectAccount: (accountId: string) => void;
 }
@@ -81,6 +82,19 @@ export const useAccountsStore = create<AccountsState>((set, get) => ({
       }));
     } catch {
       set({ error: "Impossible de creer le compte", isLoading: false });
+    }
+  },
+
+  async updateAccount(accountId, values) {
+    set({ isLoading: true, error: null });
+    try {
+      const updated = await accountsApi.update(accountId, values);
+      set((state) => ({
+        accounts: state.accounts.map((a) => (a.id === accountId ? updated : a)),
+        isLoading: false,
+      }));
+    } catch {
+      set({ error: "Impossible de modifier le compte", isLoading: false });
     }
   },
 

@@ -18,6 +18,7 @@ import type { RootStackParamList } from "../../../App";
 import { useAccountsStore } from "@/application/accounts/accountsStore";
 import { useCategoriesStore } from "@/application/categories/categoriesStore";
 import { useTransactionsStore } from "@/application/transactions/transactionsStore";
+import { categoryIcon } from "@/domain/categories/categoryIcons";
 import { DatePickerButton } from "@/presentation/components/DatePickerButton";
 import { finoptTheme } from "@/presentation/theme/theme";
 
@@ -168,6 +169,11 @@ export function TransferScreen({ navigation }: Props) {
                 style={[styles.chip, categoryId === c.id && { backgroundColor: c.color, borderColor: c.color }]}
                 onPress={() => setCategoryId(c.id)}
               >
+                <Ionicons
+                  name={categoryIcon(c.name) as any}
+                  size={13}
+                  color={categoryId === c.id ? t.colors.white : c.color}
+                />
                 <Text style={[styles.chipText, categoryId === c.id && styles.chipTextActive]}>
                   {c.name}
                 </Text>

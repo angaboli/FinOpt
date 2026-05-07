@@ -83,8 +83,20 @@ export function TransactionsScreen({ navigation }: Props) {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.hero}>
-          <Text style={styles.title}>Transactions</Text>
-          <Text style={styles.subtitle}>Historique complet de vos flux financiers.</Text>
+          <View style={styles.heroTop}>
+            <View>
+              <Text style={styles.title}>Transactions</Text>
+              <Text style={styles.subtitle}>Historique complet de vos flux financiers.</Text>
+            </View>
+            <Pressable
+              accessibilityLabel="Ajouter une transaction"
+              accessibilityRole="button"
+              onPress={() => navigation.navigate("AddTransaction")}
+              style={({ pressed }) => [styles.addBtn, pressed && { opacity: 0.8 }]}
+            >
+              <Text style={styles.addBtnText}>+ Ajouter</Text>
+            </Pressable>
+          </View>
         </View>
 
         {isLoading && transactions.length === 0 ? (
@@ -114,14 +126,6 @@ export function TransactionsScreen({ navigation }: Props) {
           ))
         )}
 
-        <Pressable
-          accessibilityLabel="Ajouter une transaction"
-          accessibilityRole="button"
-          onPress={() => navigation.navigate("AddTransaction")}
-          style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
-        >
-          <Text style={styles.buttonText}>Ajouter une transaction</Text>
-        </Pressable>
       </ScrollView>
     </View>
   );
@@ -131,8 +135,19 @@ const styles = StyleSheet.create({
   container: { backgroundColor: finoptTheme.colors.background, flex: 1 },
   content: { gap: finoptTheme.spacing.lg, padding: finoptTheme.spacing.xl, paddingBottom: finoptTheme.spacing.xxl },
   hero: { gap: finoptTheme.spacing.xs },
+  heroTop: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between" },
   title: { color: finoptTheme.colors.foreground, fontSize: 30, fontWeight: "800" },
   subtitle: { color: finoptTheme.colors.gray600, lineHeight: 21 },
+  addBtn: {
+    alignItems: "center",
+    backgroundColor: finoptTheme.colors.primary,
+    borderRadius: finoptTheme.radius.lg,
+    justifyContent: "center",
+    paddingHorizontal: finoptTheme.spacing.lg,
+    paddingVertical: finoptTheme.spacing.sm,
+    ...finoptTheme.shadow.action,
+  },
+  addBtnText: { color: finoptTheme.colors.white, fontWeight: "800", fontSize: 13 },
   monthLabel: {
     color: finoptTheme.colors.gray700,
     fontSize: 12,
@@ -161,14 +176,4 @@ const styles = StyleSheet.create({
   emptyTitle: { color: finoptTheme.colors.foreground, fontWeight: "800" },
   emptyText: { color: finoptTheme.colors.gray600, lineHeight: 20 },
   empty: { color: finoptTheme.colors.gray600, textAlign: "center" },
-  button: {
-    alignItems: "center",
-    backgroundColor: finoptTheme.colors.primary,
-    borderRadius: finoptTheme.radius.lg,
-    justifyContent: "center",
-    minHeight: 54,
-    ...finoptTheme.shadow.action,
-  },
-  buttonPressed: { backgroundColor: finoptTheme.colors.primaryDark },
-  buttonText: { color: finoptTheme.colors.white, fontWeight: "800" },
 });

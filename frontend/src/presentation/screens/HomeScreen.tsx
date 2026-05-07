@@ -196,22 +196,6 @@ export function HomeScreen({ navigation }: Props) {
           )}
         </View>
 
-        <View style={styles.transactionsCard}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Transactions récentes</Text>
-            <Pressable onPress={() => navigation.navigate("Transactions")}>
-              <Text style={styles.sectionAction}>Voir tout</Text>
-            </Pressable>
-          </View>
-          {recentSummaries.length > 0 ? (
-            recentSummaries.map((summary) => (
-              <TransactionCard key={summary.id} transaction={summary} />
-            ))
-          ) : (
-            <Text style={styles.subtitle}>Aucune transaction ce mois-ci</Text>
-          )}
-        </View>
-
         <View style={styles.quickActions}>
           {([
             { label: "Comptes", screen: "Accounts", icon: "wallet-outline" },
@@ -233,6 +217,22 @@ export function HomeScreen({ navigation }: Props) {
               <Text style={styles.quickActionText}>{label}</Text>
             </Pressable>
           ))}
+        </View>
+
+        <View style={styles.transactionsCard}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Transactions récentes</Text>
+            <Pressable onPress={() => navigation.navigate("Transactions")}>
+              <Text style={styles.sectionAction}>Voir tout</Text>
+            </Pressable>
+          </View>
+          {recentSummaries.length > 0 ? (
+            recentSummaries.map((summary) => (
+              <TransactionCard key={summary.id} transaction={summary} />
+            ))
+          ) : (
+            <Text style={styles.subtitle}>Aucune transaction ce mois-ci</Text>
+          )}
         </View>
 
         <TouchableOpacity

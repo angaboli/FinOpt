@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { categoryIcon } from "@/domain/categories/categoryIcons";
 import { useEffect, useState } from "react";
 import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -154,6 +155,11 @@ export function EditTransactionScreen({ route, navigation }: Props) {
                   categoryId === c.id && { backgroundColor: c.color, borderColor: c.color },
                 ]}
               >
+                <Ionicons
+                  name={categoryIcon(c.name) as any}
+                  size={13}
+                  color={categoryId === c.id ? t.colors.white : c.color}
+                />
                 <Text style={[styles.chipText, categoryId === c.id && styles.chipTextActive]}>
                   {c.name}
                 </Text>

@@ -36,21 +36,30 @@ export function AccountsScreen({ navigation }: Props) {
               <Text style={[styles.amount, account.balance < 0 && styles.amountNegative]}>
                 {formatter.format(account.balance)}
               </Text>
-              <Pressable
-                accessibilityRole="button"
-                onPress={() =>
-                  Alert.alert(
-                    "Supprimer le compte",
-                    `Supprimer « ${account.name} » ? Cette action est irréversible.`,
-                    [
-                      { text: "Annuler", style: "cancel" },
-                      { text: "Supprimer", style: "destructive", onPress: () => deleteAccount(account.id) },
-                    ],
-                  )
-                }
-              >
-                <Text style={styles.delete}>Supprimer</Text>
-              </Pressable>
+              <View style={styles.cardActions}>
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => navigation.navigate("EditAccount", { accountId: account.id })}
+                >
+                  <Text style={styles.edit}>Modifier</Text>
+                </Pressable>
+                <Text style={styles.separator}>·</Text>
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() =>
+                    Alert.alert(
+                      "Supprimer le compte",
+                      `Supprimer « ${account.name} » ? Cette action est irréversible.`,
+                      [
+                        { text: "Annuler", style: "cancel" },
+                        { text: "Supprimer", style: "destructive", onPress: () => deleteAccount(account.id) },
+                      ],
+                    )
+                  }
+                >
+                  <Text style={styles.delete}>Supprimer</Text>
+                </Pressable>
+              </View>
             </View>
           </View>
         ))}
@@ -140,12 +149,10 @@ const styles = StyleSheet.create({
   amountNegative: {
     color: finoptTheme.colors.danger,
   },
-  delete: {
-    color: finoptTheme.colors.danger,
-    fontSize: 12,
-    fontWeight: "700",
-    marginTop: finoptTheme.spacing.sm,
-  },
+  cardActions: { flexDirection: "row", alignItems: "center", gap: 4, marginTop: finoptTheme.spacing.sm },
+  edit: { color: finoptTheme.colors.primary, fontSize: 12, fontWeight: "700" },
+  separator: { color: finoptTheme.colors.gray400, fontSize: 12 },
+  delete: { color: finoptTheme.colors.danger, fontSize: 12, fontWeight: "700" },
   actions: { flexDirection: "row", gap: finoptTheme.spacing.sm },
   button: {
     alignItems: "center",

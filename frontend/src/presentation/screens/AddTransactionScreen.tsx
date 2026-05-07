@@ -1,12 +1,14 @@
+import { Ionicons } from "@expo/vector-icons";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect, useState } from "react";
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
 import type { RootStackParamList } from "../../../App";
 import { useAccountsStore } from "@/application/accounts/accountsStore";
 import { useCategoriesStore } from "@/application/categories/categoriesStore";
 import { useTransactionsStore } from "@/application/transactions/transactionsStore";
 import type { TransactionType } from "@/domain/transactions/types";
+import { categoryIcon } from "@/domain/categories/categoryIcons";
 import { DatePickerButton } from "@/presentation/components/DatePickerButton";
 import { finoptTheme } from "@/presentation/theme/theme";
 
@@ -26,6 +28,7 @@ export function AddTransactionScreen({ navigation }: Props) {
   const selectedAccountId = useAccountsStore((s) => s.selectedAccountId);
   const categories = useCategoriesStore((s) => s.categories);
   const loadCategories = useCategoriesStore((s) => s.loadCategories);
+  const transactions = useTransactionsStore((s) => s.transactions);
   const createTransaction = useTransactionsStore((s) => s.createTransaction);
   const isLoading = useTransactionsStore((s) => s.isLoading);
 
@@ -53,18 +56,28 @@ export function AddTransactionScreen({ navigation }: Props) {
     accountId.length > 0 &&
     categoryId.length > 0;
 
-  async function handleSave() {
-    if (!canSubmit) return;
-    await createTransaction({
-      accountId,
-      categoryId,
-      title,
-      amount: parsedAmount,
-      transactionType,
-      date,
-      note: null,
-    });
+  async function doSave() {
+    await createTransaction({ accountId, categoryId, title, amount: parsedAmount, transactionType, date, note: null });
     navigation.goBack();
+  }
+
+  function handleSave() {
+    if (!canSubmit) return;
+    const duplicate = transactions.find(
+      (t) => t.accountId === accountId && t.amount === parsedAmount && t.date === date && t.title.toLowerCase() === title.trim().toLowerCase(),
+    );
+    if (duplicate) {
+      Alert.alert(
+        "Doublon détecté",
+        `Une transaction « ${duplicate.title} » de ${parsedAmount} € à la même date existe déjà. Enregistrer quand même ?`,
+        [
+          { text: "Annuler", style: "cancel" },
+          { text: "Enregistrer", onPress: () => void doSave() },
+        ],
+      );
+      return;
+    }
+    void doSave();
   }
 
   return (
@@ -144,6 +157,11 @@ export function AddTransactionScreen({ navigation }: Props) {
                 categoryId === c.id && { backgroundColor: c.color, borderColor: c.color },
               ]}
             >
+              <Ionicons
+                name={categoryIcon(c.name) as any}
+                size={13}
+                color={categoryId === c.id ? finoptTheme.colors.white : c.color}
+              />
               <Text style={[styles.chipText, categoryId === c.id && styles.chipTextActive]}>
                 {c.name}
               </Text>
@@ -159,7 +177,7 @@ export function AddTransactionScreen({ navigation }: Props) {
         accessibilityLabel="Enregistrer la transaction"
         accessibilityRole="button"
         disabled={!canSubmit || isLoading}
-        onPress={handleSave}
+        onPress={() => handleSave()}
         style={[styles.button, (!canSubmit || isLoading) && styles.buttonDisabled]}
       >
         <Text style={styles.buttonText}>{isLoading ? "Enregistrement..." : "Enregistrer"}</Text>
