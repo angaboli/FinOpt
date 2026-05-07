@@ -1,0 +1,30 @@
+databases:
+  - name: finopt-db
+    databaseName: finopt
+    user: finopt
+    plan: free
+
+services:
+  - type: web
+    name: finopt-api
+    runtime: python
+    rootDir: backend
+    plan: free
+    buildCommand: pip install -e .
+    startCommand: alembic upgrade head && uvicorn src.presentation.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: FINOPT_DATABASE_URL
+        fromDatabase:
+          name: finopt-db
+          property: connectionString
+      - key: FINOPT_JWT_SECRET_KEY
+        generateValue: true
+      - key: FINOPT_ENVIRONMENT
+        value: production
+      - key: FINOPT_LOG_LEVEL
+        value: INFO
+      - key: FINOPT_ANTHROPIC_API_KEY
+        sync: false
+      - key: FINOPT_ALLOWED_ORIGINS
+        sync: false
