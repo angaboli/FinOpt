@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 
+import { useNotificationsStore } from "@/application/notifications/notificationsStore";
 import { scheduleBudgetAlert } from "@/infrastructure/notifications/notificationService";
 
 const WARN_THRESHOLD = 0.8;
@@ -23,6 +24,14 @@ export function useBudgetAlert(
     const crossedWarn = ratio >= WARN_THRESHOLD && alertedRatioRef.current === null;
     if (!crossedWarn && !crossedExceeded) return;
     alertedRatioRef.current = ratio;
+    const pct = Math.round(ratio * 100);
+    const exceeded = ratio >= EXCEEDED_THRESHOLD;
+    useNotificationsStore.getState().addNotification(
+      exceeded ? "Budget dépassé !" : "Alerte budget",
+      exceeded
+        ? `Vous avez dépassé votre budget mensuel (${pct}%).`
+        : `Vous avez utilisé ${pct}% de votre budget mensuel.`,
+    );
     void scheduleBudgetAlert(ratio);
   }, [monthlyExpenses, totalPlanned]);
 }

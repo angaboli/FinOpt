@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Image, View } from "react-native";
+import { ActivityIndicator, Image, Pressable, Text, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -23,14 +23,18 @@ import { TransactionsScreen } from "@/presentation/screens/TransactionsScreen";
 import { EditAccountScreen } from "@/presentation/screens/EditAccountScreen";
 import { TransferScreen } from "@/presentation/screens/TransferScreen";
 import { LoginScreen } from "@/presentation/screens/LoginScreen";
+import { NotificationsScreen } from "@/presentation/screens/NotificationsScreen";
 import { OnboardingScreen } from "@/presentation/screens/OnboardingScreen";
 import { ProfileScreen } from "@/presentation/screens/ProfileScreen";
 import { SignUpScreen } from "@/presentation/screens/SignUpScreen";
+import { useNotificationsStore } from "@/application/notifications/notificationsStore";
 import { finoptTheme } from "@/presentation/theme/theme";
+import { Ionicons } from "@expo/vector-icons";
 
 const logo = require("./assets/FinOptLogo.png") as number;
 
 export type RootStackParamList = {
+  Notifications: undefined;
   Login: undefined;
   SignUp: undefined;
   Home: undefined;
@@ -56,6 +60,27 @@ export type RootStackParamList = {
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+function NotificationBell({ onPress }: { onPress: () => void }) {
+  const unreadCount = useNotificationsStore((s) => s.unreadCount);
+  return (
+    <Pressable onPress={onPress} style={{ marginRight: 4, padding: 4 }}>
+      <Ionicons name="notifications-outline" size={22} color={finoptTheme.colors.foreground} />
+      {unreadCount > 0 && (
+        <View style={{
+          position: "absolute", top: 2, right: 2,
+          backgroundColor: finoptTheme.colors.danger,
+          borderRadius: 6, minWidth: 14, height: 14,
+          alignItems: "center", justifyContent: "center", paddingHorizontal: 2,
+        }}>
+          <Text style={{ color: "#fff", fontSize: 8, fontWeight: "800", lineHeight: 12 }}>
+            {unreadCount > 9 ? "9+" : String(unreadCount)}
+          </Text>
+        </View>
+      )}
+    </Pressable>
+  );
+}
+
 export default function App() {
   const user = useAuthStore((state) => state.user);
   const isInitializing = useAuthStore((state) => state.isInitializing);
@@ -78,7 +103,7 @@ export default function App() {
     <SafeAreaProvider>
     <NavigationContainer>
       <Stack.Navigator
-        screenOptions={{
+        screenOptions={({ navigation }) => ({
           contentStyle: { backgroundColor: finoptTheme.colors.background },
           headerShadowVisible: false,
           headerStyle: { backgroundColor: finoptTheme.colors.card },
@@ -87,7 +112,10 @@ export default function App() {
           headerTitle: () => (
             <Image source={logo} style={{ width: 100, height: 32 }} resizeMode="contain" />
           ),
-        }}
+          headerRight: () => (
+            <NotificationBell onPress={() => navigation.navigate("Notifications")} />
+          ),
+        })}
       >
         {!hasCompletedOnboarding && !user ? (
           <Stack.Screen name="Onboarding" options={{ headerShown: false }}>
@@ -168,6 +196,11 @@ export default function App() {
               name="EditAccount"
               component={EditAccountScreen}
               options={{ title: "Modifier le compte" }}
+            />
+            <Stack.Screen
+              name="Notifications"
+              component={NotificationsScreen}
+              options={{ title: "Notifications" }}
             />
           </>
         ) : (

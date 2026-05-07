@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
 import type { RootStackParamList } from "../../../App";
+import { useNotificationsStore } from "@/application/notifications/notificationsStore";
 import { useSavingsGoalsStore } from "@/application/savingsGoals/savingsGoalsStore";
 import { scheduleSavingsGoalAlert } from "@/infrastructure/notifications/notificationService";
 import { finoptTheme } from "@/presentation/theme/theme";
@@ -52,6 +53,12 @@ export function AddSavingsGoalScreen({ navigation, route }: Props) {
       result = await createGoal(name, parsedTarget, parsedCurrent, deadlineValue);
     }
     if (result.progressRatio >= 0.5) {
+      const pct = Math.round(result.progressRatio * 100);
+      const milestone = result.progressRatio >= 1 ? "atteint !" : `à ${pct}%`;
+      useNotificationsStore.getState().addNotification(
+        "Objectif d'épargne",
+        `"${name}" est maintenant ${milestone}`,
+      );
       void scheduleSavingsGoalAlert(name, result.progressRatio);
     }
     navigation.goBack();
