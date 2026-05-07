@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, Image, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -27,6 +27,8 @@ import { OnboardingScreen } from "@/presentation/screens/OnboardingScreen";
 import { ProfileScreen } from "@/presentation/screens/ProfileScreen";
 import { SignUpScreen } from "@/presentation/screens/SignUpScreen";
 import { finoptTheme } from "@/presentation/theme/theme";
+
+const logo = require("./assets/FinOptLogo.png") as number;
 
 export type RootStackParamList = {
   Login: undefined;
@@ -82,6 +84,9 @@ export default function App() {
           headerStyle: { backgroundColor: finoptTheme.colors.card },
           headerTintColor: finoptTheme.colors.foreground,
           headerTitleStyle: { fontWeight: "800" },
+          headerTitle: () => (
+            <Image source={logo} style={{ width: 100, height: 32 }} resizeMode="contain" />
+          ),
         }}
       >
         {!hasCompletedOnboarding && !user ? (
