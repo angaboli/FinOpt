@@ -1,4 +1,4 @@
-import type { BudgetAdvice, SavingsGoal } from "@/domain/savingsGoals/types";
+import type { BudgetAdvice, MerchantPlanItem, SavingsGoal } from "@/domain/savingsGoals/types";
 import { httpClient } from "@/infrastructure/api/httpClient";
 
 interface SavingsGoalApi {
@@ -13,12 +13,20 @@ interface SavingsGoalApi {
   created_at: string;
 }
 
+interface MerchantPlanItemApi {
+  merchant: string;
+  items: string[];
+  reason: string;
+}
+
 interface BudgetAdviceApi {
   summary: string;
   tips: string[];
   savings_advice: string | null;
   period_label: string;
   sentiment: string;
+  cut_suggestions: string[];
+  merchant_plan: MerchantPlanItemApi[];
 }
 
 function toSavingsGoal(g: SavingsGoalApi): SavingsGoal {
@@ -78,13 +86,21 @@ export const savingsGoalsApi = {
 
   async generateAdvice(year: number, month: number): Promise<BudgetAdvice> {
     const response = await httpClient.post<BudgetAdviceApi>("/budget-advice", { year, month });
-    const s = response.data.sentiment;
+    const d = response.data;
+    const s = d.sentiment;
+    const merchantPlan: MerchantPlanItem[] = (d.merchant_plan ?? []).map((m) => ({
+      merchant: m.merchant,
+      items: m.items,
+      reason: m.reason,
+    }));
     return {
-      summary: response.data.summary,
-      tips: response.data.tips,
-      savingsAdvice: response.data.savings_advice,
-      periodLabel: response.data.period_label,
+      summary: d.summary,
+      tips: d.tips,
+      savingsAdvice: d.savings_advice,
+      periodLabel: d.period_label,
       sentiment: (s === "positive" || s === "negative" ? s : "neutral") as import("@/domain/savingsGoals/types").BudgetSentiment,
+      cutSuggestions: d.cut_suggestions ?? [],
+      merchantPlan,
     };
   },
 };

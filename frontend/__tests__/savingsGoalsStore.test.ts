@@ -50,7 +50,7 @@ test("deleteGoal removes from goals", async () => {
 });
 
 test("generateAdvice sets advice", async () => {
-  const advice = { summary: "Bon mois", tips: ["tip1"], savingsAdvice: null, periodLabel: "Mai 2026", sentiment: "neutral" as const };
+  const advice = { summary: "Bon mois", tips: ["tip1"], savingsAdvice: null, periodLabel: "Mai 2026", sentiment: "neutral" as const, cutSuggestions: [], merchantPlan: [] };
   mockApi.generateAdvice.mockResolvedValue(advice);
   await useSavingsGoalsStore.getState().generateAdvice(2026, 5);
   expect(useSavingsGoalsStore.getState().advice?.summary).toBe("Bon mois");

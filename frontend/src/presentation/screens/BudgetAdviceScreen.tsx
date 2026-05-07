@@ -58,7 +58,7 @@ export function BudgetAdviceScreen({ navigation: _navigation }: Props) {
         <View style={styles.hero}>
           <Text style={styles.title}>Conseils IA</Text>
           <Text style={styles.subtitle}>
-            Analyse personnalisée de votre situation financière par l'intelligence artificielle.
+            Analyse de tout votre historique financier par l'intelligence artificielle.
           </Text>
         </View>
 
@@ -66,6 +66,7 @@ export function BudgetAdviceScreen({ navigation: _navigation }: Props) {
 
         {advice ? (
           <>
+            {/* Sentiment banner */}
             <View style={[styles.sentimentBanner, { backgroundColor: cfg.bg, borderColor: cfg.border }]}>
               <Ionicons name={cfg.icon} size={22} color={cfg.iconColor} />
               <View style={{ flex: 1 }}>
@@ -76,6 +77,7 @@ export function BudgetAdviceScreen({ navigation: _navigation }: Props) {
               </View>
             </View>
 
+            {/* Summary */}
             <View style={[styles.summaryCard, { backgroundColor: cfg.bg, borderColor: cfg.border }]}>
               <Text style={styles.sectionLabel}>RÉSUMÉ</Text>
               <Text style={[styles.summaryText, { color: sentiment === "negative" ? "#991B1B" : t.colors.foreground }]}>
@@ -83,6 +85,7 @@ export function BudgetAdviceScreen({ navigation: _navigation }: Props) {
               </Text>
             </View>
 
+            {/* Practical tips */}
             <View style={styles.card}>
               <Text style={styles.sectionLabel}>CONSEILS PRATIQUES</Text>
               {advice.tips.map((tip, i) => (
@@ -93,6 +96,55 @@ export function BudgetAdviceScreen({ navigation: _navigation }: Props) {
               ))}
             </View>
 
+            {/* Cut suggestions — only shown when present */}
+            {advice.cutSuggestions.length > 0 && (
+              <View style={[styles.card, styles.cutCard]}>
+                <View style={styles.cardHeader}>
+                  <Ionicons name="cut-outline" size={16} color={t.colors.danger} />
+                  <Text style={[styles.sectionLabel, { color: t.colors.danger }]}>DÉPENSES À RÉDUIRE</Text>
+                </View>
+                <Text style={styles.cardHint}>
+                  Vos revenus sont en baisse — voici ce qu'il est possible de réduire ou supprimer.
+                </Text>
+                {advice.cutSuggestions.map((item, i) => (
+                  <View key={i} style={styles.tipRow}>
+                    <Ionicons name="remove-circle-outline" size={16} color={t.colors.danger} />
+                    <Text style={[styles.tipText, styles.cutText]}>{item}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+
+            {/* Merchant optimisation plan */}
+            {advice.merchantPlan.length > 0 && (
+              <View style={styles.card}>
+                <View style={styles.cardHeader}>
+                  <Ionicons name="cart-outline" size={16} color={t.colors.primary} />
+                  <Text style={styles.sectionLabel}>PLAN D'ACHATS OPTIMISÉ</Text>
+                </View>
+                <Text style={styles.cardHint}>
+                  Basé sur vos habitudes, voici où concentrer vos achats pour optimiser vos dépenses.
+                </Text>
+                {advice.merchantPlan.map((entry, i) => (
+                  <View key={i} style={styles.merchantBlock}>
+                    <View style={styles.merchantHeader}>
+                      <Ionicons name="storefront-outline" size={15} color={t.colors.primary} />
+                      <Text style={styles.merchantName}>{entry.merchant}</Text>
+                    </View>
+                    <Text style={styles.merchantReason}>{entry.reason}</Text>
+                    <View style={styles.itemsList}>
+                      {entry.items.map((item, j) => (
+                        <View key={j} style={styles.itemChip}>
+                          <Text style={styles.itemChipText}>{item}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                ))}
+              </View>
+            )}
+
+            {/* Savings advice */}
             {advice.savingsAdvice ? (
               <View style={[styles.savingsCard, { borderColor: cfg.border }]}>
                 <View style={styles.savingsHeader}>
@@ -108,7 +160,7 @@ export function BudgetAdviceScreen({ navigation: _navigation }: Props) {
             <Ionicons name="bulb-outline" size={40} color={t.colors.gray400} />
             <Text style={styles.emptyTitle}>Aucune analyse disponible</Text>
             <Text style={styles.emptyText}>
-              Appuyez sur le bouton ci-dessous pour générer vos conseils personnalisés du mois.
+              Appuyez sur le bouton ci-dessous pour générer vos conseils personnalisés basés sur tout votre historique.
             </Text>
           </View>
         )}
@@ -163,8 +215,30 @@ const styles = StyleSheet.create({
     gap: t.spacing.md,
     padding: t.spacing.lg,
   },
+  cardHeader: { alignItems: "center", flexDirection: "row", gap: t.spacing.xs },
+  cardHint: { color: t.colors.gray600, fontSize: 12, lineHeight: 18, marginTop: -t.spacing.xs },
   tipRow: { alignItems: "flex-start", flexDirection: "row", gap: t.spacing.sm },
   tipText: { color: t.colors.foreground, flex: 1, lineHeight: 22 },
+  cutCard: { borderColor: "#FECACA", borderWidth: 1.5 },
+  cutText: { color: "#991B1B" },
+  merchantBlock: {
+    borderColor: t.colors.border,
+    borderRadius: t.radius.lg,
+    borderWidth: 1,
+    gap: t.spacing.sm,
+    padding: t.spacing.md,
+  },
+  merchantHeader: { alignItems: "center", flexDirection: "row", gap: t.spacing.xs },
+  merchantName: { color: t.colors.primary, fontWeight: "800", fontSize: 14 },
+  merchantReason: { color: t.colors.gray600, fontSize: 12, lineHeight: 18 },
+  itemsList: { flexDirection: "row", flexWrap: "wrap", gap: t.spacing.xs },
+  itemChip: {
+    backgroundColor: t.colors.primaryLight,
+    borderRadius: t.radius.sm,
+    paddingHorizontal: t.spacing.sm,
+    paddingVertical: 3,
+  },
+  itemChipText: { color: t.colors.primary, fontSize: 12, fontWeight: "700" },
   savingsCard: {
     backgroundColor: t.colors.card,
     borderRadius: t.radius.xl,

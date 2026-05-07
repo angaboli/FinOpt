@@ -133,6 +133,7 @@ from src.presentation.schemas import (
     ParsedPdfRowResponse,
     BudgetAdviceRequest,
     BudgetAdviceResponse,
+    MerchantPlanItemResponse,
     BudgetLineResponse,
     BudgetRequest,
     BudgetResponse,
@@ -755,4 +756,9 @@ async def generate_budget_advice(
         savings_advice=result.savings_advice,
         period_label=result.period_label,
         sentiment=result.sentiment,
+        cut_suggestions=result.cut_suggestions,
+        merchant_plan=[
+            MerchantPlanItemResponse(merchant=m.merchant, items=m.items, reason=m.reason)
+            for m in result.merchant_plan
+        ],
     )

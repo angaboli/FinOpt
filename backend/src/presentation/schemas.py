@@ -258,9 +258,17 @@ class BudgetAdviceRequest(BaseModel):
     month: int = Field(ge=1, le=12)
 
 
+class MerchantPlanItemResponse(BaseModel):
+    merchant: str
+    items: list[str]
+    reason: str
+
+
 class BudgetAdviceResponse(BaseModel):
     summary: str
     tips: list[str]
     savings_advice: str | None
     period_label: str
     sentiment: str
+    cut_suggestions: list[str] = []
+    merchant_plan: list[MerchantPlanItemResponse] = []

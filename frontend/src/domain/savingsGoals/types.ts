@@ -12,10 +12,18 @@ export interface SavingsGoal {
 
 export type BudgetSentiment = "positive" | "neutral" | "negative";
 
+export interface MerchantPlanItem {
+  merchant: string;
+  items: string[];
+  reason: string;
+}
+
 export interface BudgetAdvice {
   summary: string;
   tips: string[];
   savingsAdvice: string | null;
   periodLabel: string;
   sentiment: BudgetSentiment;
+  cutSuggestions: string[];
+  merchantPlan: MerchantPlanItem[];
 }
