@@ -41,10 +41,13 @@ export async function scheduleBudgetAlert(ratio: number): Promise<void> {
     if (!granted) return;
     await Notifications.cancelAllScheduledNotificationsAsync();
     const pct = Math.round(ratio * 100);
+    const exceeded = ratio >= 1;
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: "Alerte budget",
-        body: `Vous avez utilisé ${pct}% de votre budget mensuel.`,
+        title: exceeded ? "Budget dépassé !" : "Alerte budget",
+        body: exceeded
+          ? `Vous avez dépassé votre budget mensuel (${pct}%). Pensez à ajuster vos dépenses.`
+          : `Vous avez utilisé ${pct}% de votre budget mensuel.`,
         data: { type: "budget_alert" },
       },
       trigger: null,

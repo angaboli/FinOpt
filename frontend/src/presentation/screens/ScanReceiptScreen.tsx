@@ -18,6 +18,7 @@ import { useAccountsStore } from "@/application/accounts/accountsStore";
 import { useCategoriesStore } from "@/application/categories/categoriesStore";
 import { useReceiptsStore } from "@/application/receipts/receiptsStore";
 import { useTransactionsStore } from "@/application/transactions/transactionsStore";
+import { categoryIcon } from "@/domain/categories/categoryIcons";
 import type { ReceiptItem } from "@/domain/receipts/types";
 import { transactionsApi } from "@/infrastructure/api/transactionsApi";
 import type { RootStackParamList } from "../../../App";
@@ -254,6 +255,11 @@ export function ScanReceiptScreen({ navigation }: Props) {
                 style={[styles.chip, styles.chipSmall, item.categoryId === c.id && { backgroundColor: c.color, borderColor: c.color }]}
                 onPress={() => updateItem(idx, "categoryId", c.id)}
               >
+                <Ionicons
+                  name={categoryIcon(c.name) as any}
+                  size={11}
+                  color={item.categoryId === c.id ? t.colors.white : c.color}
+                />
                 <Text style={[styles.chipText, styles.chipTextSmall, item.categoryId === c.id && styles.chipTextActive]}>
                   {c.name}
                 </Text>
