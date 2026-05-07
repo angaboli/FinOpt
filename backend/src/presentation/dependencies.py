@@ -45,6 +45,7 @@ from src.application.transactions.use_cases import (
     CreateTransaction,
     DeleteTransaction,
     ListTransactions,
+    TransferBetweenAccounts,
     UpdateTransaction,
 )
 from src.domain.ports.repositories import (
@@ -270,6 +271,13 @@ def delete_transaction_use_case(
     accounts: AccountRepository = Depends(account_repository),
 ) -> DeleteTransaction:
     return DeleteTransaction(transactions, accounts)
+
+
+def transfer_use_case(
+    transactions: TransactionRepository = Depends(transaction_repository),
+    accounts: AccountRepository = Depends(account_repository),
+) -> TransferBetweenAccounts:
+    return TransferBetweenAccounts(transactions, accounts)
 
 
 async def bank_import_repository(

@@ -1,8 +1,11 @@
+import * as SecureStore from "expo-secure-store";
 import { create } from "zustand";
 
 import type { AccountFormValues, AccountSummary } from "@/domain/accounts/types";
 import { accountsApi } from "@/infrastructure/api/accountsApi";
 import { finoptTheme } from "@/presentation/theme/theme";
+
+const DEFAULT_ACCOUNT_KEY = "finopt.defaultAccountId";
 
 interface AccountsState {
   accounts: AccountSummary[];
@@ -55,9 +58,11 @@ export const useAccountsStore = create<AccountsState>((set, get) => ({
         }
         accounts = await accountsApi.list();
       }
+      const stored = await SecureStore.getItemAsync(DEFAULT_ACCOUNT_KEY);
+      const validStored = stored && accounts.some((a) => a.id === stored) ? stored : null;
       set({
         accounts,
-        selectedAccountId: get().selectedAccountId ?? accounts[0]?.id ?? null,
+        selectedAccountId: validStored ?? get().selectedAccountId ?? accounts[0]?.id ?? null,
         isLoading: false,
       });
     } catch {
@@ -95,5 +100,6 @@ export const useAccountsStore = create<AccountsState>((set, get) => ({
 
   selectAccount(accountId) {
     set({ selectedAccountId: accountId });
+    void SecureStore.setItemAsync(DEFAULT_ACCOUNT_KEY, accountId);
   },
 }));

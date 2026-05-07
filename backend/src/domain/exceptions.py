@@ -99,3 +99,7 @@ class InvalidSavingsGoalError(DomainError):
 
 class SavingsGoalNotFoundError(DomainError):
     pass
+
+
+class InvalidTransferError(DomainError):
+    pass

@@ -116,6 +116,20 @@ class TransactionResponse(BaseModel):
     note: str | None
 
 
+class TransferRequest(BaseModel):
+    from_account_id: str
+    to_account_id: str
+    category_id: str
+    amount: Decimal = Field(gt=0)
+    date: DateType
+    note: str | None = None
+
+
+class TransferResponse(BaseModel):
+    debit_transaction_id: str
+    credit_transaction_id: str
+
+
 class ImportRowRequest(BaseModel):
     date: DateType
     title: str = Field(min_length=1, max_length=200)

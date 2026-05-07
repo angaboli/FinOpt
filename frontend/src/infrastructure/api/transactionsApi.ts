@@ -77,4 +77,29 @@ export const transactionsApi = {
   async remove(id: string): Promise<void> {
     await httpClient.delete(`/transactions/${id}`);
   },
+
+  async transfer(values: {
+    fromAccountId: string;
+    toAccountId: string;
+    categoryId: string;
+    amount: number;
+    date: string;
+    note: string | null;
+  }): Promise<{ debitTransactionId: string; creditTransactionId: string }> {
+    const response = await httpClient.post<{
+      debit_transaction_id: string;
+      credit_transaction_id: string;
+    }>("/transfers", {
+      from_account_id: values.fromAccountId,
+      to_account_id: values.toAccountId,
+      category_id: values.categoryId,
+      amount: values.amount.toFixed(2),
+      date: values.date,
+      note: values.note,
+    });
+    return {
+      debitTransactionId: response.data.debit_transaction_id,
+      creditTransactionId: response.data.credit_transaction_id,
+    };
+  },
 };

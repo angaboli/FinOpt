@@ -20,6 +20,7 @@ import { HomeScreen } from "@/presentation/screens/HomeScreen";
 import { IncomesScreen } from "@/presentation/screens/IncomesScreen";
 import { SetBudgetScreen } from "@/presentation/screens/SetBudgetScreen";
 import { TransactionsScreen } from "@/presentation/screens/TransactionsScreen";
+import { TransferScreen } from "@/presentation/screens/TransferScreen";
 import { LoginScreen } from "@/presentation/screens/LoginScreen";
 import { OnboardingScreen } from "@/presentation/screens/OnboardingScreen";
 import { ProfileScreen } from "@/presentation/screens/ProfileScreen";
@@ -39,6 +40,7 @@ export type RootStackParamList = {
   Transactions: undefined;
   AddTransaction: undefined;
   EditTransaction: { transactionId: string };
+  Transfer: undefined;
   Budget: undefined;
   SetBudget: undefined;
   Import: undefined;
@@ -149,6 +151,11 @@ export default function App() {
               name="BudgetAdvice"
               component={BudgetAdviceScreen}
               options={{ title: "Conseils IA" }}
+            />
+            <Stack.Screen
+              name="Transfer"
+              component={TransferScreen}
+              options={{ title: "Virement" }}
             />
           </>
         ) : (

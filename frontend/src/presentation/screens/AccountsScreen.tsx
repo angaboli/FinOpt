@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
@@ -54,14 +55,25 @@ export function AccountsScreen({ navigation }: Props) {
           </View>
         ))}
 
-        <Pressable
-          accessibilityLabel="Ajouter un compte"
-          accessibilityRole="button"
-          onPress={() => navigation.navigate("AddAccount")}
-          style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
-        >
-          <Text style={styles.buttonText}>Ajouter un compte</Text>
-        </Pressable>
+        <View style={styles.actions}>
+          <Pressable
+            accessibilityLabel="Faire un virement"
+            accessibilityRole="button"
+            onPress={() => navigation.navigate("Transfer")}
+            style={({ pressed }) => [styles.button, styles.buttonSecondary, pressed && { opacity: 0.7 }]}
+          >
+            <Ionicons name="swap-horizontal" size={18} color={finoptTheme.colors.primary} />
+            <Text style={styles.buttonTextSecondary}>Virement</Text>
+          </Pressable>
+          <Pressable
+            accessibilityLabel="Ajouter un compte"
+            accessibilityRole="button"
+            onPress={() => navigation.navigate("AddAccount")}
+            style={({ pressed }) => [styles.button, styles.buttonFlex, pressed && styles.buttonPressed]}
+          >
+            <Text style={styles.buttonText}>Ajouter un compte</Text>
+          </Pressable>
+        </View>
       </ScrollView>
     </View>
   );
@@ -134,19 +146,27 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginTop: finoptTheme.spacing.sm,
   },
+  actions: { flexDirection: "row", gap: finoptTheme.spacing.sm },
   button: {
     alignItems: "center",
-    backgroundColor: finoptTheme.colors.primary,
     borderRadius: finoptTheme.radius.lg,
+    flexDirection: "row",
+    gap: finoptTheme.spacing.sm,
     justifyContent: "center",
     minHeight: 54,
+    paddingHorizontal: finoptTheme.spacing.lg,
+  },
+  buttonFlex: {
+    flex: 1,
+    backgroundColor: finoptTheme.colors.primary,
     ...finoptTheme.shadow.action,
   },
-  buttonPressed: {
-    backgroundColor: finoptTheme.colors.primaryDark,
+  buttonSecondary: {
+    backgroundColor: finoptTheme.colors.card,
+    borderColor: finoptTheme.colors.primary,
+    borderWidth: 1.5,
   },
-  buttonText: {
-    color: finoptTheme.colors.white,
-    fontWeight: "800",
-  },
+  buttonPressed: { backgroundColor: finoptTheme.colors.primaryDark },
+  buttonText: { color: finoptTheme.colors.white, fontWeight: "800" },
+  buttonTextSecondary: { color: finoptTheme.colors.primary, fontWeight: "700" },
 });

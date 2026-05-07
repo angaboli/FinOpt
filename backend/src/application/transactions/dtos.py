@@ -55,3 +55,20 @@ class TransactionResult:
     transaction_type: str
     date: DateType
     note: str | None
+
+
+@dataclass(frozen=True)
+class TransferCommand:
+    user_id: str
+    from_account_id: str
+    to_account_id: str
+    category_id: str
+    amount: Decimal
+    date: DateType
+    note: str | None
+
+
+@dataclass(frozen=True)
+class TransferResult:
+    debit_transaction_id: str
+    credit_transaction_id: str

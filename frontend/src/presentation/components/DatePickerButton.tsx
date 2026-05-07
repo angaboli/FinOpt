@@ -54,7 +54,7 @@ export function DatePickerButton({ value, onChange }: Props) {
       </Pressable>
 
       {show && Platform.OS === "android" && (
-        <DateTimePicker value={parseDate(value)} mode="date" display="calendar" onChange={handleAndroid} />
+        <DateTimePicker value={parseDate(value)} mode="date" display="default" onChange={handleAndroid} />
       )}
 
       {Platform.OS === "ios" && (
@@ -68,6 +68,7 @@ export function DatePickerButton({ value, onChange }: Props) {
                 onChange={handleIos}
                 style={styles.picker}
                 locale="fr-FR"
+                themeVariant="light"
               />
               <Pressable
                 style={styles.confirmBtn}

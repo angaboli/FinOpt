@@ -4,6 +4,7 @@ import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "rea
 
 import type { RootStackParamList } from "../../../App";
 import { useAuthStore } from "@/application/auth/authStore";
+import { useAccountsStore } from "@/application/accounts/accountsStore";
 import { finoptTheme } from "@/presentation/theme/theme";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Profile">;
@@ -13,6 +14,9 @@ const t = finoptTheme;
 export function ProfileScreen({ navigation: _navigation }: Props) {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
+  const accounts = useAccountsStore((s) => s.accounts);
+  const selectedAccountId = useAccountsStore((s) => s.selectedAccountId);
+  const selectAccount = useAccountsStore((s) => s.selectAccount);
 
   function handleLogout() {
     Alert.alert(
@@ -76,6 +80,35 @@ export function ProfileScreen({ navigation: _navigation }: Props) {
           </View>
         </View>
       </View>
+
+      {accounts.length > 0 && (
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>PRÉFÉRENCES</Text>
+          <View style={styles.card}>
+            <View style={[styles.row, { flexWrap: "wrap", gap: t.spacing.sm }]}>
+              <View style={{ flex: 1, minWidth: "100%" }}>
+                <Text style={styles.rowLabel}>Compte par défaut pour les transactions</Text>
+              </View>
+              {accounts.map((a, idx) => (
+                <TouchableOpacity
+                  key={a.id}
+                  onPress={() => selectAccount(a.id)}
+                  style={[
+                    styles.accountChip,
+                    selectedAccountId === a.id && styles.accountChipActive,
+                    idx < accounts.length - 1 && { marginRight: t.spacing.xs },
+                  ]}
+                >
+                  <View style={[styles.chipDot, { backgroundColor: a.color }]} />
+                  <Text style={[styles.chipText, selectedAccountId === a.id && styles.chipTextActive]}>
+                    {a.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        </View>
+      )}
 
       <View style={styles.section}>
         <Text style={styles.sectionLabel}>APPLICATION</Text>
@@ -153,4 +186,22 @@ const styles = StyleSheet.create({
     paddingVertical: t.spacing.lg,
   },
   logoutText: { color: t.colors.danger, fontWeight: "800", fontSize: 16 },
+  accountChip: {
+    alignItems: "center",
+    borderColor: t.colors.border,
+    borderRadius: t.radius.sm,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: t.spacing.xs,
+    paddingHorizontal: t.spacing.md,
+    paddingVertical: t.spacing.sm,
+    backgroundColor: t.colors.muted,
+  },
+  accountChipActive: {
+    backgroundColor: t.colors.primaryLight,
+    borderColor: t.colors.primary,
+  },
+  chipDot: { width: 10, height: 10, borderRadius: 5 },
+  chipText: { color: t.colors.foreground, fontSize: 13, fontWeight: "600" },
+  chipTextActive: { color: t.colors.primary, fontWeight: "700" },
 });

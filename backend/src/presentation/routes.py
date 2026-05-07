@@ -76,12 +76,14 @@ from src.application.transactions.dtos import (
     CreateTransactionCommand,
     DeleteTransactionCommand,
     ListTransactionsQuery,
+    TransferCommand,
     UpdateTransactionCommand,
 )
 from src.application.transactions.use_cases import (
     CreateTransaction,
     DeleteTransaction,
     ListTransactions,
+    TransferBetweenAccounts,
     UpdateTransaction,
 )
 from src.presentation.dependencies import (
@@ -107,6 +109,7 @@ from src.presentation.dependencies import (
     delete_category_use_case,
     delete_income_source_use_case,
     delete_transaction_use_case,
+    transfer_use_case,
     get_current_user_use_case,
     list_accounts_use_case,
     list_categories_use_case,
@@ -152,6 +155,8 @@ from src.presentation.schemas import (
     TransactionRequest,
     TransactionResponse,
     TransactionUpdateRequest,
+    TransferRequest,
+    TransferResponse,
     UserResponse,
 )
 
@@ -454,6 +459,29 @@ async def delete_transaction(
 ) -> Response:
     await use_case.execute(DeleteTransactionCommand(user_id=user_id, transaction_id=transaction_id))
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post("/transfers", response_model=TransferResponse, status_code=status.HTTP_201_CREATED)
+async def transfer_between_accounts(
+    request: TransferRequest,
+    user_id: str = Depends(current_user_id),
+    use_case: TransferBetweenAccounts = Depends(transfer_use_case),
+) -> TransferResponse:
+    result = await use_case.execute(
+        TransferCommand(
+            user_id=user_id,
+            from_account_id=request.from_account_id,
+            to_account_id=request.to_account_id,
+            category_id=request.category_id,
+            amount=request.amount,
+            date=request.date,
+            note=request.note,
+        )
+    )
+    return TransferResponse(
+        debit_transaction_id=result.debit_transaction_id,
+        credit_transaction_id=result.credit_transaction_id,
+    )
 
 
 @router.post("/bank-imports", response_model=BankImportResponse, status_code=status.HTTP_201_CREATED)
