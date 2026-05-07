@@ -1,8 +1,9 @@
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import type { RootStackParamList } from "../../../App";
+import { showAlert } from "@/application/alert/alertStore";
 import { useSavingsGoalsStore } from "@/application/savingsGoals/savingsGoalsStore";
 import { finoptTheme } from "@/presentation/theme/theme";
 
@@ -22,7 +23,7 @@ export function SavingsGoalsScreen({ navigation }: Props) {
   }, [loadGoals]);
 
   function confirmDelete(id: string, name: string) {
-    Alert.alert("Supprimer", `Supprimer l'objectif "${name}" ?`, [
+    showAlert("Supprimer", `Supprimer l'objectif "${name}" ?`, [
       { text: "Annuler", style: "cancel" },
       { text: "Supprimer", style: "destructive", onPress: () => void deleteGoal(id) },
     ]);

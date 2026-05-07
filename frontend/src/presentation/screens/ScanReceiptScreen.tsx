@@ -2,7 +2,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Image,
   ScrollView,
   StyleSheet,
@@ -11,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { showAlert } from "@/application/alert/alertStore";
 import * as ImagePicker from "expo-image-picker";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
@@ -60,7 +60,7 @@ export function ScanReceiptScreen({ navigation }: Props) {
       ? await ImagePicker.requestCameraPermissionsAsync()
       : await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert("Permission refusée", "Accès à la caméra/galerie requis.");
+      showAlert("Permission refusée", "Accès à la caméra/galerie requis.");
       return;
     }
     const result = fromCamera
@@ -69,7 +69,7 @@ export function ScanReceiptScreen({ navigation }: Props) {
     if (result.canceled || !result.assets[0]) return;
     const asset = result.assets[0];
     if (!asset.base64) {
-      Alert.alert("Erreur", "Impossible de lire l'image.");
+      showAlert("Erreur", "Impossible de lire l'image.");
       return;
     }
     setImageUri(asset.uri);
@@ -86,7 +86,7 @@ export function ScanReceiptScreen({ navigation }: Props) {
       );
       setStep("review");
     } catch {
-      Alert.alert("Analyse échouée", "Impossible d'analyser le ticket. Clé API non configurée ?");
+      showAlert("Analyse échouée", "Impossible d'analyser le ticket. Clé API non configurée ?");
     }
   }
 
@@ -105,11 +105,11 @@ export function ScanReceiptScreen({ navigation }: Props) {
   async function handleSave() {
     const validItems = items.filter((i) => (Number(i.amount) || 0) > 0 && i.name.trim());
     if (validItems.length === 0) {
-      Alert.alert("Aucun article", "Ajoutez au moins un article avec un nom et un montant.");
+      showAlert("Aucun article", "Ajoutez au moins un article avec un nom et un montant.");
       return;
     }
     if (!accountId) {
-      Alert.alert("Compte requis", "Sélectionnez un compte à débiter.");
+      showAlert("Compte requis", "Sélectionnez un compte à débiter.");
       return;
     }
     setIsSaving(true);

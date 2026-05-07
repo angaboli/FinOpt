@@ -1,7 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { categoryIcon } from "@/domain/categories/categoryIcons";
 import { useEffect, useState } from "react";
-import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { showAlert } from "@/application/alert/alertStore";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import type { RootStackParamList } from "../../../App";
@@ -70,7 +71,7 @@ export function EditTransactionScreen({ route, navigation }: Props) {
   }
 
   function handleDelete() {
-    Alert.alert(
+    showAlert(
       "Supprimer la transaction",
       `Supprimer "${tx!.title}" (${tx!.amount} €) ?`,
       [

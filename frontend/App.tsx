@@ -22,6 +22,7 @@ import { SetBudgetScreen } from "@/presentation/screens/SetBudgetScreen";
 import { TransactionsScreen } from "@/presentation/screens/TransactionsScreen";
 import { EditAccountScreen } from "@/presentation/screens/EditAccountScreen";
 import { TransferScreen } from "@/presentation/screens/TransferScreen";
+import { ThemedAlert } from "@/presentation/components/ThemedAlert";
 import { LoginScreen } from "@/presentation/screens/LoginScreen";
 import { NotificationsScreen } from "@/presentation/screens/NotificationsScreen";
 import { OnboardingScreen } from "@/presentation/screens/OnboardingScreen";
@@ -211,6 +212,7 @@ export default function App() {
         )}
       </Stack.Navigator>
     </NavigationContainer>
+      <ThemedAlert />
     </SafeAreaProvider>
   );
 }

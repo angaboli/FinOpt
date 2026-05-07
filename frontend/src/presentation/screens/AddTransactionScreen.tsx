@@ -1,7 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect, useState } from "react";
-import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { showAlert } from "@/application/alert/alertStore";
 
 import type { RootStackParamList } from "../../../App";
 import { useAccountsStore } from "@/application/accounts/accountsStore";
@@ -108,7 +109,7 @@ export function AddTransactionScreen({ navigation }: Props) {
       (t) => t.accountId === accountId && t.amount === parsedAmount && t.date === date && t.title.toLowerCase() === title.trim().toLowerCase(),
     );
     if (duplicate) {
-      Alert.alert(
+      showAlert(
         "Doublon détecté",
         `Une transaction « ${duplicate.title} » de ${parsedAmount} € à la même date existe déjà. Enregistrer quand même ?`,
         [

@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { showAlert } from "@/application/alert/alertStore";
 
 import type { RootStackParamList } from "../../../App";
 import { useAuthStore } from "@/application/auth/authStore";
@@ -19,7 +20,7 @@ export function ProfileScreen({ navigation: _navigation }: Props) {
   const selectAccount = useAccountsStore((s) => s.selectAccount);
 
   function handleLogout() {
-    Alert.alert(
+    showAlert(
       "Déconnexion",
       "Êtes-vous sûr de vouloir vous déconnecter ?",
       [

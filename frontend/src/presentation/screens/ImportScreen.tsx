@@ -2,7 +2,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -28,6 +27,7 @@ async function readUriAsBase64(uri: string): Promise<string> {
   });
 }
 
+import { showAlert } from "@/application/alert/alertStore";
 import { useAccountsStore } from "@/application/accounts/accountsStore";
 import { useBankImportsStore } from "@/application/bankImports/bankImportsStore";
 import { useCategoriesStore } from "@/application/categories/categoriesStore";
@@ -82,7 +82,7 @@ export function ImportScreen({ navigation }: Props) {
   function detectAndGoToMap(text: string) {
     const { headers: h } = parseCSV(text);
     if (h.length === 0) {
-      Alert.alert("Erreur", "Impossible de détecter les colonnes.");
+      showAlert("Erreur", "Impossible de détecter les colonnes.");
       return;
     }
     setHeaders(h);
@@ -147,7 +147,7 @@ export function ImportScreen({ navigation }: Props) {
       if (file.name) setSourceName(file.name);
       detectAndGoToMap(csv);
     } catch (e) {
-      Alert.alert(
+      showAlert(
         "Erreur",
         `Impossible de lire ce fichier.\n${e instanceof Error ? e.message : String(e)}`,
       );
@@ -166,7 +166,7 @@ export function ImportScreen({ navigation }: Props) {
       const base64 = await readUriAsBase64(file.uri);
       const parsed = await bankImportsApi.parsePdf(base64, file.name ?? "PDF");
       if (parsed.length === 0) {
-        Alert.alert(
+        showAlert(
           "Aucune transaction",
           "Aucune transaction n'a pu être extraite de ce PDF.",
         );
@@ -182,7 +182,7 @@ export function ImportScreen({ navigation }: Props) {
       if (file.name) setSourceName(file.name);
       setStep("preview");
     } catch (e) {
-      Alert.alert(
+      showAlert(
         "Erreur",
         `Impossible d'analyser ce PDF.\n${e instanceof Error ? e.message : String(e)}`,
       );
@@ -209,7 +209,7 @@ export function ImportScreen({ navigation }: Props) {
       });
     }
     if (parsed.length === 0) {
-      Alert.alert("Erreur", "Aucune ligne valide détectée avec ces colonnes.");
+      showAlert("Erreur", "Aucune ligne valide détectée avec ces colonnes.");
       return;
     }
     setRows(parsed);
@@ -219,7 +219,7 @@ export function ImportScreen({ navigation }: Props) {
   async function handleConfirm() {
     const included = rows.filter((r) => r.included);
     if (included.length === 0) {
-      Alert.alert("Erreur", "Sélectionnez au moins une ligne.");
+      showAlert("Erreur", "Sélectionnez au moins une ligne.");
       return;
     }
     try {
@@ -227,7 +227,7 @@ export function ImportScreen({ navigation }: Props) {
       await loadTransactions();
       setStep("done");
     } catch {
-      Alert.alert("Erreur", "L'import a échoué. Vérifiez les données.");
+      showAlert("Erreur", "L'import a échoué. Vérifiez les données.");
     }
   }
 

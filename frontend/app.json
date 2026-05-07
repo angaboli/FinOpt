@@ -16,10 +16,34 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/finoptIcon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.finopt.app",
+      "versionCode": 1,
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE",
+        "POST_NOTIFICATIONS"
+      ]
     },
     "plugins": [
-      "@react-native-community/datetimepicker"
-    ]
+      "@react-native-community/datetimepicker",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/finoptIcon.png",
+          "color": "#6C47FF",
+          "defaultChannel": "default"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "6d0b5a99-c310-4f85-b311-f04640167fd2"
+      }
+    },
+    "owner": "angaboli"
   }
 }

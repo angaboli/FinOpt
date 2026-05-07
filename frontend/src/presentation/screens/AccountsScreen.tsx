@@ -1,8 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import type { RootStackParamList } from "../../../App";
+import { showAlert } from "@/application/alert/alertStore";
 import { useAccountsStore } from "@/application/accounts/accountsStore";
 import { finoptTheme } from "@/presentation/theme/theme";
 
@@ -21,8 +22,29 @@ export function AccountsScreen({ navigation }: Props) {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.hero}>
-          <Text style={styles.title}>Comptes</Text>
-          <Text style={styles.subtitle}>Pilotez vos comptes courants, epargnes et comptes partages.</Text>
+          <View style={styles.heroTop}>
+            <View>
+              <Text style={styles.title}>Comptes</Text>
+              <Text style={styles.subtitle}>Gérez vos comptes courants, épargnes et partagés.</Text>
+            </View>
+            <Pressable
+              accessibilityLabel="Ajouter un compte"
+              accessibilityRole="button"
+              onPress={() => navigation.navigate("AddAccount")}
+              style={({ pressed }) => [styles.addBtn, pressed && { opacity: 0.8 }]}
+            >
+              <Text style={styles.addBtnText}>+ Ajouter</Text>
+            </Pressable>
+          </View>
+          <Pressable
+            accessibilityLabel="Faire un virement"
+            accessibilityRole="button"
+            onPress={() => navigation.navigate("Transfer")}
+            style={({ pressed }) => [styles.transferBtn, pressed && { opacity: 0.8 }]}
+          >
+            <Ionicons name="swap-horizontal" size={15} color={finoptTheme.colors.primary} />
+            <Text style={styles.transferBtnText}>Virement entre comptes</Text>
+          </Pressable>
         </View>
 
         {accounts.map((account) => (
@@ -47,7 +69,7 @@ export function AccountsScreen({ navigation }: Props) {
                 <Pressable
                   accessibilityRole="button"
                   onPress={() =>
-                    Alert.alert(
+                    showAlert(
                       "Supprimer le compte",
                       `Supprimer « ${account.name} » ? Cette action est irréversible.`,
                       [
@@ -64,25 +86,6 @@ export function AccountsScreen({ navigation }: Props) {
           </View>
         ))}
 
-        <View style={styles.actions}>
-          <Pressable
-            accessibilityLabel="Faire un virement"
-            accessibilityRole="button"
-            onPress={() => navigation.navigate("Transfer")}
-            style={({ pressed }) => [styles.button, styles.buttonSecondary, pressed && { opacity: 0.7 }]}
-          >
-            <Ionicons name="swap-horizontal" size={18} color={finoptTheme.colors.primary} />
-            <Text style={styles.buttonTextSecondary}>Virement</Text>
-          </Pressable>
-          <Pressable
-            accessibilityLabel="Ajouter un compte"
-            accessibilityRole="button"
-            onPress={() => navigation.navigate("AddAccount")}
-            style={({ pressed }) => [styles.button, styles.buttonFlex, pressed && styles.buttonPressed]}
-          >
-            <Text style={styles.buttonText}>Ajouter un compte</Text>
-          </Pressable>
-        </View>
       </ScrollView>
     </View>
   );
@@ -97,9 +100,31 @@ const styles = StyleSheet.create({
     gap: finoptTheme.spacing.lg,
     padding: finoptTheme.spacing.xl,
   },
-  hero: {
-    gap: finoptTheme.spacing.xs,
+  hero: { gap: finoptTheme.spacing.sm },
+  heroTop: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between" },
+  addBtn: {
+    alignItems: "center",
+    backgroundColor: finoptTheme.colors.primary,
+    borderRadius: finoptTheme.radius.lg,
+    justifyContent: "center",
+    paddingHorizontal: finoptTheme.spacing.lg,
+    paddingVertical: finoptTheme.spacing.sm,
+    ...finoptTheme.shadow.action,
   },
+  addBtnText: { color: finoptTheme.colors.white, fontWeight: "800", fontSize: 13 },
+  transferBtn: {
+    alignItems: "center",
+    alignSelf: "flex-start",
+    backgroundColor: finoptTheme.colors.card,
+    borderColor: finoptTheme.colors.primary,
+    borderRadius: finoptTheme.radius.lg,
+    borderWidth: 1.5,
+    flexDirection: "row",
+    gap: finoptTheme.spacing.xs,
+    paddingHorizontal: finoptTheme.spacing.md,
+    paddingVertical: finoptTheme.spacing.xs,
+  },
+  transferBtnText: { color: finoptTheme.colors.primary, fontWeight: "700", fontSize: 13 },
   title: {
     color: finoptTheme.colors.foreground,
     fontSize: 30,
@@ -153,27 +178,4 @@ const styles = StyleSheet.create({
   edit: { color: finoptTheme.colors.primary, fontSize: 12, fontWeight: "700" },
   separator: { color: finoptTheme.colors.gray400, fontSize: 12 },
   delete: { color: finoptTheme.colors.danger, fontSize: 12, fontWeight: "700" },
-  actions: { flexDirection: "row", gap: finoptTheme.spacing.sm },
-  button: {
-    alignItems: "center",
-    borderRadius: finoptTheme.radius.lg,
-    flexDirection: "row",
-    gap: finoptTheme.spacing.sm,
-    justifyContent: "center",
-    minHeight: 54,
-    paddingHorizontal: finoptTheme.spacing.lg,
-  },
-  buttonFlex: {
-    flex: 1,
-    backgroundColor: finoptTheme.colors.primary,
-    ...finoptTheme.shadow.action,
-  },
-  buttonSecondary: {
-    backgroundColor: finoptTheme.colors.card,
-    borderColor: finoptTheme.colors.primary,
-    borderWidth: 1.5,
-  },
-  buttonPressed: { backgroundColor: finoptTheme.colors.primaryDark },
-  buttonText: { color: finoptTheme.colors.white, fontWeight: "800" },
-  buttonTextSecondary: { color: finoptTheme.colors.primary, fontWeight: "700" },
 });

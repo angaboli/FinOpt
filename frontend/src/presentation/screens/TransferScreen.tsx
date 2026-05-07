@@ -2,7 +2,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -15,6 +14,7 @@ import {
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import type { RootStackParamList } from "../../../App";
+import { showAlert } from "@/application/alert/alertStore";
 import { useAccountsStore } from "@/application/accounts/accountsStore";
 import { useCategoriesStore } from "@/application/categories/categoriesStore";
 import { useTransactionsStore } from "@/application/transactions/transactionsStore";
@@ -72,13 +72,13 @@ export function TransferScreen({ navigation }: Props) {
         note: note.trim() || null,
       });
       await Promise.all([loadTransactions(), loadAccounts()]);
-      Alert.alert(
+      showAlert(
         "Virement effectué",
         `${fmt.format(parsedAmount)} transféré de « ${fromAccount?.name} » vers « ${toAccount?.name} ».`,
         [{ text: "OK", onPress: () => navigation.goBack() }],
       );
     } catch {
-      Alert.alert("Erreur", "Le virement a échoué. Vérifiez votre connexion.");
+      showAlert("Erreur", "Le virement a échoué. Vérifiez votre connexion.");
     } finally {
       setIsSaving(false);
     }
