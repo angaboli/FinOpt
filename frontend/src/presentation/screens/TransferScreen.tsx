@@ -196,6 +196,9 @@ export function TransferScreen({ navigation }: Props) {
           />
         </View>
 
+      </ScrollView>
+
+      <View style={styles.footer}>
         <Pressable
           disabled={!canSave || isSaving}
           onPress={() => void handleSave()}
@@ -210,7 +213,7 @@ export function TransferScreen({ navigation }: Props) {
             </>
           )}
         </Pressable>
-      </ScrollView>
+      </View>
     </KeyboardAvoidingView>
   );
 }
@@ -221,7 +224,13 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     gap: t.spacing.lg,
     padding: t.spacing.xl,
-    paddingBottom: 40,
+    paddingBottom: t.spacing.lg,
+  },
+  footer: {
+    backgroundColor: t.colors.background,
+    borderTopColor: t.colors.border,
+    borderTopWidth: 1,
+    padding: t.spacing.xl,
   },
   title: { color: t.colors.foreground, fontSize: 28, fontWeight: "800" },
   subtitle: { color: t.colors.gray600, lineHeight: 20 },

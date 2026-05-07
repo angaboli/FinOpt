@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { categoryIcon } from "@/domain/categories/categoryIcons";
 import { useEffect, useState } from "react";
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { showAlert } from "@/application/alert/alertStore";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
@@ -184,6 +184,9 @@ export function EditTransactionScreen({ route, navigation }: Props) {
           />
         </View>
 
+      </ScrollView>
+
+      <View style={styles.footer}>
         <Pressable
           accessibilityLabel="Enregistrer les modifications"
           accessibilityRole="button"
@@ -204,7 +207,7 @@ export function EditTransactionScreen({ route, navigation }: Props) {
           <Ionicons name="trash-outline" size={18} color={t.colors.danger} />
           <Text style={styles.deleteText}>Supprimer</Text>
         </Pressable>
-      </ScrollView>
+      </View>
     </KeyboardAvoidingView>
   );
 }
@@ -215,7 +218,14 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     gap: t.spacing.lg,
     padding: t.spacing.xl,
-    paddingBottom: 40,
+    paddingBottom: t.spacing.lg,
+  },
+  footer: {
+    backgroundColor: t.colors.background,
+    borderTopColor: t.colors.border,
+    borderTopWidth: 1,
+    gap: t.spacing.md,
+    padding: t.spacing.xl,
   },
   center: { flex: 1, alignItems: "center", justifyContent: "center" },
   notFound: { color: t.colors.gray600 },

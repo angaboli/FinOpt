@@ -2,7 +2,6 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useState } from "react";
 import {
   KeyboardAvoidingView,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -126,6 +125,9 @@ export function EditAccountScreen({ route, navigation }: Props) {
           </View>
         </View>
 
+      </ScrollView>
+
+      <View style={styles.footer}>
         <Pressable
           accessibilityLabel="Enregistrer les modifications"
           accessibilityRole="button"
@@ -135,7 +137,7 @@ export function EditAccountScreen({ route, navigation }: Props) {
         >
           <Text style={styles.buttonText}>{isLoading ? "Enregistrement..." : "Enregistrer"}</Text>
         </Pressable>
-      </ScrollView>
+      </View>
     </KeyboardAvoidingView>
   );
 }
@@ -146,7 +148,13 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     gap: t.spacing.lg,
     padding: t.spacing.xl,
-    paddingBottom: t.spacing.xxl,
+    paddingBottom: t.spacing.lg,
+  },
+  footer: {
+    backgroundColor: t.colors.background,
+    borderTopColor: t.colors.border,
+    borderTopWidth: 1,
+    padding: t.spacing.xl,
   },
   center: { flex: 1, alignItems: "center", justifyContent: "center" },
   notFound: { color: t.colors.gray600 },

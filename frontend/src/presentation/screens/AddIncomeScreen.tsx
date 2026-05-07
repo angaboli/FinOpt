@@ -1,6 +1,6 @@
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useState } from "react";
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
 import type { RootStackParamList } from "../../../App";
 import { useIncomeSourcesStore } from "@/application/income_sources/incomeSourcesStore";
@@ -78,6 +78,9 @@ export function AddIncomeScreen({ navigation }: Props) {
         </View>
       </View>
 
+    </ScrollView>
+
+    <View style={styles.footer}>
       <Pressable
         accessibilityLabel="Enregistrer le revenu"
         accessibilityRole="button"
@@ -87,7 +90,7 @@ export function AddIncomeScreen({ navigation }: Props) {
       >
         <Text style={styles.buttonText}>{isLoading ? "Enregistrement..." : "Enregistrer"}</Text>
       </Pressable>
-    </ScrollView>
+    </View>
     </KeyboardAvoidingView>
   );
 }
@@ -97,6 +100,13 @@ const styles = StyleSheet.create({
     backgroundColor: finoptTheme.colors.background,
     flexGrow: 1,
     gap: finoptTheme.spacing.lg,
+    padding: finoptTheme.spacing.xl,
+    paddingBottom: finoptTheme.spacing.lg,
+  },
+  footer: {
+    backgroundColor: finoptTheme.colors.background,
+    borderTopColor: finoptTheme.colors.border,
+    borderTopWidth: 1,
     padding: finoptTheme.spacing.xl,
   },
   title: {

@@ -121,6 +121,9 @@ export function AddSavingsGoalScreen({ navigation, route }: Props) {
         />
       </View>
 
+    </ScrollView>
+
+    <View style={styles.footer}>
       <Pressable
         accessibilityLabel={existing ? "Mettre à jour l'objectif" : "Créer l'objectif"}
         accessibilityRole="button"
@@ -132,7 +135,7 @@ export function AddSavingsGoalScreen({ navigation, route }: Props) {
           {isLoading ? "Enregistrement..." : existing ? "Mettre à jour" : "Créer l'objectif"}
         </Text>
       </Pressable>
-    </ScrollView>
+    </View>
     </KeyboardAvoidingView>
   );
 }
@@ -143,7 +146,13 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     gap: finoptTheme.spacing.lg,
     padding: finoptTheme.spacing.xl,
-    paddingBottom: finoptTheme.spacing.xxl,
+    paddingBottom: finoptTheme.spacing.lg,
+  },
+  footer: {
+    backgroundColor: finoptTheme.colors.background,
+    borderTopColor: finoptTheme.colors.border,
+    borderTopWidth: 1,
+    padding: finoptTheme.spacing.xl,
   },
   title: { color: finoptTheme.colors.foreground, fontSize: 30, fontWeight: "800" },
   subtitle: { color: finoptTheme.colors.gray600, lineHeight: 21 },

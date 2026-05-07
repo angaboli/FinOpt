@@ -1,6 +1,6 @@
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useState } from "react";
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
 import type { RootStackParamList } from "../../../App";
 import { useAccountsStore } from "@/application/accounts/accountsStore";
@@ -50,74 +50,76 @@ export function AddAccountScreen({ navigation }: Props) {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-      <Text style={styles.title}>Nouveau compte</Text>
-      <Text style={styles.subtitle}>Ajoutez un compte bancaire, epargne ou compte partage.</Text>
+        <Text style={styles.title}>Nouveau compte</Text>
+        <Text style={styles.subtitle}>Ajoutez un compte bancaire, épargne ou compte partagé.</Text>
 
-      <View style={styles.card}>
-        <Text style={styles.label}>Nom</Text>
-        <TextInput
-          accessibilityLabel="Nom du compte"
-          onChangeText={setName}
-          placeholder="Compte Courant"
-          placeholderTextColor={finoptTheme.colors.gray500}
-          style={styles.input}
-          value={name}
-        />
+        <View style={styles.card}>
+          <Text style={styles.label}>Nom</Text>
+          <TextInput
+            accessibilityLabel="Nom du compte"
+            onChangeText={setName}
+            placeholder="Compte Courant"
+            placeholderTextColor={finoptTheme.colors.gray500}
+            style={styles.input}
+            value={name}
+          />
 
-        <Text style={styles.label}>Type</Text>
-        <View style={styles.chips}>
-          {accountTypes.map((type) => (
-            <Pressable
-              accessibilityRole="button"
-              key={type}
-              onPress={() => setAccountType(type)}
-              style={[styles.chip, accountType === type && styles.chipActive]}
-            >
-              <Text style={[styles.chipText, accountType === type && styles.chipTextActive]}>
-                {type}
-              </Text>
-            </Pressable>
-          ))}
+          <Text style={styles.label}>Type</Text>
+          <View style={styles.chips}>
+            {accountTypes.map((type) => (
+              <Pressable
+                accessibilityRole="button"
+                key={type}
+                onPress={() => setAccountType(type)}
+                style={[styles.chip, accountType === type && styles.chipActive]}
+              >
+                <Text style={[styles.chipText, accountType === type && styles.chipTextActive]}>
+                  {type}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+
+          <Text style={styles.label}>Solde initial</Text>
+          <TextInput
+            accessibilityLabel="Solde initial"
+            keyboardType="numbers-and-punctuation"
+            onChangeText={setBalance}
+            placeholder="0.00 (négatif si découvert)"
+            placeholderTextColor={finoptTheme.colors.gray500}
+            style={styles.input}
+            value={balance}
+          />
+
+          <Text style={styles.label}>Couleur</Text>
+          <View style={styles.colors}>
+            {colors.map((item) => (
+              <Pressable
+                accessibilityRole="button"
+                key={item}
+                onPress={() => setColor(item)}
+                style={[
+                  styles.colorChoice,
+                  { backgroundColor: item },
+                  color === item && styles.colorChoiceActive,
+                ]}
+              />
+            ))}
+          </View>
         </View>
-
-        <Text style={styles.label}>Solde initial</Text>
-        <TextInput
-          accessibilityLabel="Solde initial"
-          keyboardType="numbers-and-punctuation"
-          onChangeText={setBalance}
-          placeholder="0.00 (négatif si découvert)"
-          placeholderTextColor={finoptTheme.colors.gray500}
-          style={styles.input}
-          value={balance}
-        />
-
-        <Text style={styles.label}>Couleur</Text>
-        <View style={styles.colors}>
-          {colors.map((item) => (
-            <Pressable
-              accessibilityRole="button"
-              key={item}
-              onPress={() => setColor(item)}
-              style={[
-                styles.colorChoice,
-                { backgroundColor: item },
-                color === item && styles.colorChoiceActive,
-              ]}
-            />
-          ))}
-        </View>
-      </View>
-
-      <Pressable
-        accessibilityLabel="Enregistrer le compte"
-        accessibilityRole="button"
-        disabled={!canSubmit || isLoading}
-        onPress={handleSave}
-        style={[styles.button, (!canSubmit || isLoading) && styles.buttonDisabled]}
-      >
-        <Text style={styles.buttonText}>{isLoading ? "Enregistrement..." : "Enregistrer"}</Text>
-      </Pressable>
       </ScrollView>
+
+      <View style={styles.footer}>
+        <Pressable
+          accessibilityLabel="Enregistrer le compte"
+          accessibilityRole="button"
+          disabled={!canSubmit || isLoading}
+          onPress={handleSave}
+          style={[styles.button, (!canSubmit || isLoading) && styles.buttonDisabled]}
+        >
+          <Text style={styles.buttonText}>{isLoading ? "Enregistrement..." : "Créer le compte"}</Text>
+        </Pressable>
+      </View>
     </KeyboardAvoidingView>
   );
 }
@@ -128,7 +130,14 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     gap: finoptTheme.spacing.lg,
     padding: finoptTheme.spacing.xl,
-    paddingBottom: finoptTheme.spacing.xxl,
+    paddingBottom: finoptTheme.spacing.lg,
+  },
+  footer: {
+    backgroundColor: finoptTheme.colors.background,
+    borderTopColor: finoptTheme.colors.border,
+    borderTopWidth: 1,
+    padding: finoptTheme.spacing.xl,
+    paddingBottom: finoptTheme.spacing.xl,
   },
   title: {
     color: finoptTheme.colors.foreground,

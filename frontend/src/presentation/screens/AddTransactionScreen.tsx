@@ -268,6 +268,9 @@ export function AddTransactionScreen({ navigation }: Props) {
           <DatePickerButton value={date} onChange={setDate} />
         </View>
 
+      </ScrollView>
+
+      <View style={styles.footer}>
         <Pressable
           accessibilityLabel="Enregistrer la transaction"
           accessibilityRole="button"
@@ -277,7 +280,7 @@ export function AddTransactionScreen({ navigation }: Props) {
         >
           <Text style={styles.buttonText}>{isLoading ? "Enregistrement..." : "Enregistrer"}</Text>
         </Pressable>
-      </ScrollView>
+      </View>
     </KeyboardAvoidingView>
   );
 }
@@ -287,6 +290,13 @@ const styles = StyleSheet.create({
     backgroundColor: t.colors.background,
     flexGrow: 1,
     gap: t.spacing.lg,
+    padding: t.spacing.xl,
+    paddingBottom: t.spacing.lg,
+  },
+  footer: {
+    backgroundColor: t.colors.background,
+    borderTopColor: t.colors.border,
+    borderTopWidth: 1,
     padding: t.spacing.xl,
   },
   title: { color: t.colors.foreground, fontSize: 30, fontWeight: "800" },
