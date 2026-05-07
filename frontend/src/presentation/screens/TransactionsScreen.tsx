@@ -40,7 +40,6 @@ export function TransactionsScreen({ navigation }: Props) {
   const transactions = useTransactionsStore((s) => s.transactions);
   const isLoading = useTransactionsStore((s) => s.isLoading);
   const loadTransactions = useTransactionsStore((s) => s.loadTransactions);
-  const deleteTransaction = useTransactionsStore((s) => s.deleteTransaction);
   const accounts = useAccountsStore((s) => s.accounts);
   const categories = useCategoriesStore((s) => s.categories);
   const loadCategories = useCategoriesStore((s) => s.loadCategories);
@@ -103,9 +102,9 @@ export function TransactionsScreen({ navigation }: Props) {
                 {items.map((tx) => (
                   <Pressable
                     key={tx.id}
-                    onLongPress={() => void deleteTransaction(tx.id)}
-                    accessibilityLabel={`Supprimer ${tx.title}`}
-                    accessibilityHint="Appui long pour supprimer"
+                    onPress={() => navigation.navigate("EditTransaction", { transactionId: tx.id })}
+                    accessibilityLabel={`Modifier ${tx.title}`}
+                    accessibilityRole="button"
                   >
                     <TransactionCard transaction={{ ...tx, date: formatDate(tx.date) }} />
                   </Pressable>

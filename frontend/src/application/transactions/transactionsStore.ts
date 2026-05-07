@@ -10,6 +10,7 @@ interface TransactionsState {
   error: string | null;
   loadTransactions: (filters?: TransactionFilters) => Promise<void>;
   createTransaction: (values: TransactionFormValues) => Promise<void>;
+  updateTransaction: (id: string, values: Omit<TransactionFormValues, "accountId">) => Promise<void>;
   deleteTransaction: (id: string) => Promise<void>;
 }
 
@@ -35,6 +36,19 @@ export const useTransactionsStore = create<TransactionsState>((set) => ({
       set((state) => ({ transactions: [tx, ...state.transactions], isLoading: false }));
     } catch {
       set({ error: "Impossible de créer la transaction", isLoading: false });
+    }
+  },
+
+  async updateTransaction(id, values) {
+    set({ isLoading: true, error: null });
+    try {
+      const tx = await transactionsApi.update(id, values);
+      set((state) => ({
+        transactions: state.transactions.map((t) => (t.id === id ? tx : t)),
+        isLoading: false,
+      }));
+    } catch {
+      set({ error: "Impossible de modifier la transaction", isLoading: false });
     }
   },
 

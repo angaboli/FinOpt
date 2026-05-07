@@ -34,7 +34,11 @@ import { useCategoriesStore } from "@/application/categories/categoriesStore";
 import { useTransactionsStore } from "@/application/transactions/transactionsStore";
 import type { ParsedRow } from "@/domain/bankImports/types";
 import { bankImportsApi } from "@/infrastructure/api/bankImportsApi";
-import { parseAmount, parseCSV, parseDate } from "@/infrastructure/csv/csvParser";
+import {
+  parseAmount,
+  parseCSV,
+  parseDate,
+} from "@/infrastructure/csv/csvParser";
 import type { RootStackParamList } from "../../../App";
 import { finoptTheme } from "@/presentation/theme/theme";
 
@@ -42,7 +46,10 @@ type Props = NativeStackScreenProps<RootStackParamList, "Import">;
 
 type Step = "source" | "paste" | "map" | "preview" | "done";
 
-const currencyFormatter = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" });
+const currencyFormatter = new Intl.NumberFormat("fr-FR", {
+  style: "currency",
+  currency: "EUR",
+});
 
 export function ImportScreen({ navigation }: Props) {
   const accounts = useAccountsStore((s) => s.accounts);
@@ -60,7 +67,9 @@ export function ImportScreen({ navigation }: Props) {
   const [titleCol, setTitleCol] = useState("");
   const [amountCol, setAmountCol] = useState("");
   const [rows, setRows] = useState<ParsedRow[]>([]);
-  const [accountId, setAccountId] = useState(selectedAccountId ?? accounts[0]?.id ?? "");
+  const [accountId, setAccountId] = useState(
+    selectedAccountId ?? accounts[0]?.id ?? "",
+  );
   const [sourceName, setSourceName] = useState("Relevé bancaire");
   const [isPdfLoading, setIsPdfLoading] = useState(false);
 
@@ -79,8 +88,29 @@ export function ImportScreen({ navigation }: Props) {
     setHeaders(h);
     const lc = h.map((x) => x.toLowerCase());
     setDateCol(h[lc.findIndex((x) => x.includes("date"))] ?? h[0]);
-    setTitleCol(h[lc.findIndex((x) => x.includes("libel") || x.includes("desc") || x.includes("label"))] ?? h[1] ?? h[0]);
-    setAmountCol(h[lc.findIndex((x) => x.includes("mont") || x.includes("amount") || x.includes("débit") || x.includes("credit"))] ?? h[2] ?? h[0]);
+    setTitleCol(
+      h[
+        lc.findIndex(
+          (x) =>
+            x.includes("libel") || x.includes("desc") || x.includes("label"),
+        )
+      ] ??
+        h[1] ??
+        h[0],
+    );
+    setAmountCol(
+      h[
+        lc.findIndex(
+          (x) =>
+            x.includes("mont") ||
+            x.includes("amount") ||
+            x.includes("débit") ||
+            x.includes("credit"),
+        )
+      ] ??
+        h[2] ??
+        h[0],
+    );
     setStep("map");
   }
 
@@ -117,7 +147,10 @@ export function ImportScreen({ navigation }: Props) {
       if (file.name) setSourceName(file.name);
       detectAndGoToMap(csv);
     } catch (e) {
-      Alert.alert("Erreur", `Impossible de lire ce fichier.\n${e instanceof Error ? e.message : String(e)}`);
+      Alert.alert(
+        "Erreur",
+        `Impossible de lire ce fichier.\n${e instanceof Error ? e.message : String(e)}`,
+      );
     }
   }
 
@@ -133,14 +166,26 @@ export function ImportScreen({ navigation }: Props) {
       const base64 = await readUriAsBase64(file.uri);
       const parsed = await bankImportsApi.parsePdf(base64, file.name ?? "PDF");
       if (parsed.length === 0) {
-        Alert.alert("Aucune transaction", "Aucune transaction n'a pu être extraite de ce PDF.");
+        Alert.alert(
+          "Aucune transaction",
+          "Aucune transaction n'a pu être extraite de ce PDF.",
+        );
         return;
       }
-      setRows(parsed.map((r) => ({ ...r, categoryId: defaultCategoryId, included: true })));
+      setRows(
+        parsed.map((r) => ({
+          ...r,
+          categoryId: defaultCategoryId,
+          included: true,
+        })),
+      );
       if (file.name) setSourceName(file.name);
       setStep("preview");
     } catch (e) {
-      Alert.alert("Erreur", `Impossible d'analyser ce PDF.\n${e instanceof Error ? e.message : String(e)}`);
+      Alert.alert(
+        "Erreur",
+        `Impossible d'analyser ce PDF.\n${e instanceof Error ? e.message : String(e)}`,
+      );
     } finally {
       setIsPdfLoading(false);
     }
@@ -187,21 +232,37 @@ export function ImportScreen({ navigation }: Props) {
   }
 
   function toggleRow(idx: number) {
-    setRows((prev) => prev.map((r, i) => (i === idx ? { ...r, included: !r.included } : r)));
+    setRows((prev) =>
+      prev.map((r, i) => (i === idx ? { ...r, included: !r.included } : r)),
+    );
   }
 
   function setRowCategory(idx: number, categoryId: string) {
-    setRows((prev) => prev.map((r, i) => (i === idx ? { ...r, categoryId } : r)));
+    setRows((prev) =>
+      prev.map((r, i) => (i === idx ? { ...r, categoryId } : r)),
+    );
   }
 
   if (step === "done") {
     const count = rows.filter((r) => r.included).length;
     return (
       <View style={styles.center}>
-        <Ionicons name="checkmark-circle" size={72} color={finoptTheme.colors.primary} />
-        <Text style={styles.doneTitle}>{count} transaction{count > 1 ? "s" : ""} importée{count > 1 ? "s" : ""}</Text>
-        <Text style={styles.doneSubtitle}>Le solde du compte a été mis à jour.</Text>
-        <TouchableOpacity style={styles.primaryButton} onPress={() => navigation.goBack()}>
+        <Ionicons
+          name="checkmark-circle"
+          size={72}
+          color={finoptTheme.colors.primary}
+        />
+        <Text style={styles.doneTitle}>
+          {count} transaction{count > 1 ? "s" : ""} importée
+          {count > 1 ? "s" : ""}
+        </Text>
+        <Text style={styles.doneSubtitle}>
+          Le solde du compte a été mis à jour.
+        </Text>
+        <TouchableOpacity
+          style={styles.primaryButton}
+          onPress={() => navigation.goBack()}
+        >
           <Text style={styles.primaryButtonText}>Retour</Text>
         </TouchableOpacity>
       </View>
@@ -209,46 +270,90 @@ export function ImportScreen({ navigation }: Props) {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      keyboardShouldPersistTaps="handled"
+    >
       {/* Step 0 — Choose source */}
       {step === "source" && (
         <>
           <Text style={styles.stepLabel}>Choisir la source</Text>
-          <Text style={styles.hint}>Sélectionnez comment importer votre relevé bancaire.</Text>
+          <Text style={styles.hint}>
+            Sélectionnez comment importer votre relevé bancaire.
+          </Text>
 
           <View style={styles.field}>
             <Text style={styles.label}>Compte cible</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipRow}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.chipRow}
+            >
               {accounts.map((a) => (
                 <TouchableOpacity
                   key={a.id}
                   style={[styles.chip, accountId === a.id && styles.chipActive]}
                   onPress={() => setAccountId(a.id)}
                 >
-                  <View style={[styles.chipDot, { backgroundColor: a.color }]} />
-                  <Text style={[styles.chipText, accountId === a.id && styles.chipTextActive]}>{a.name}</Text>
+                  <View
+                    style={[styles.chipDot, { backgroundColor: a.color }]}
+                  />
+                  <Text
+                    style={[
+                      styles.chipText,
+                      accountId === a.id && styles.chipTextActive,
+                    ]}
+                  >
+                    {a.name}
+                  </Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
           </View>
 
-          <TouchableOpacity style={styles.sourceCard} onPress={() => setStep("paste")}>
-            <Ionicons name="clipboard-outline" size={28} color={finoptTheme.colors.primary} />
+          <TouchableOpacity
+            style={styles.sourceCard}
+            onPress={() => setStep("paste")}
+          >
+            <Ionicons
+              name="clipboard-outline"
+              size={28}
+              color={finoptTheme.colors.primary}
+            />
             <View style={styles.sourceCardText}>
               <Text style={styles.sourceCardTitle}>Coller du texte CSV</Text>
-              <Text style={styles.sourceCardSub}>Copiez-collez le contenu de votre relevé</Text>
+              <Text style={styles.sourceCardSub}>
+                Copiez-collez le contenu de votre relevé
+              </Text>
             </View>
-            <Ionicons name="chevron-forward" size={18} color={finoptTheme.colors.gray600} />
+            <Ionicons
+              name="chevron-forward"
+              size={18}
+              color={finoptTheme.colors.gray600}
+            />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.sourceCard} onPress={() => void handlePickFile()}>
-            <Ionicons name="document-text-outline" size={28} color={finoptTheme.colors.primary} />
+          <TouchableOpacity
+            style={styles.sourceCard}
+            onPress={() => void handlePickFile()}
+          >
+            <Ionicons
+              name="document-text-outline"
+              size={28}
+              color={finoptTheme.colors.primary}
+            />
             <View style={styles.sourceCardText}>
               <Text style={styles.sourceCardTitle}>Importer CSV / Excel</Text>
-              <Text style={styles.sourceCardSub}>Fichier .csv ou .xlsx depuis votre appareil</Text>
+              <Text style={styles.sourceCardSub}>
+                Fichier .csv ou .xlsx depuis votre appareil
+              </Text>
             </View>
-            <Ionicons name="chevron-forward" size={18} color={finoptTheme.colors.gray600} />
+            <Ionicons
+              name="chevron-forward"
+              size={18}
+              color={finoptTheme.colors.gray600}
+            />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -256,15 +361,26 @@ export function ImportScreen({ navigation }: Props) {
             onPress={() => void handlePickPdf()}
             disabled={isPdfLoading}
           >
-            <Ionicons name="document-outline" size={28} color={finoptTheme.colors.primary} />
+            <Ionicons
+              name="document-outline"
+              size={28}
+              color={finoptTheme.colors.primary}
+            />
             <View style={styles.sourceCardText}>
               <Text style={styles.sourceCardTitle}>Importer PDF (IA)</Text>
-              <Text style={styles.sourceCardSub}>Extraction automatique via intelligence artificielle</Text>
+              <Text style={styles.sourceCardSub}>
+                Extraction automatique via intelligence artificielle
+              </Text>
             </View>
-            {isPdfLoading
-              ? <ActivityIndicator color={finoptTheme.colors.primary} />
-              : <Ionicons name="chevron-forward" size={18} color={finoptTheme.colors.gray600} />
-            }
+            {isPdfLoading ? (
+              <ActivityIndicator color={finoptTheme.colors.primary} />
+            ) : (
+              <Ionicons
+                name="chevron-forward"
+                size={18}
+                color={finoptTheme.colors.gray600}
+              />
+            )}
           </TouchableOpacity>
         </>
       )}
@@ -274,7 +390,8 @@ export function ImportScreen({ navigation }: Props) {
         <>
           <Text style={styles.stepLabel}>Étape 1 / 3 — Coller le relevé</Text>
           <Text style={styles.hint}>
-            Exportez votre relevé en CSV depuis votre banque, copiez le contenu et collez-le ici.
+            Exportez votre relevé en CSV depuis votre banque, copiez le contenu
+            et collez-le ici.
           </Text>
           <View style={styles.field}>
             <Text style={styles.label}>Nom de la source</Text>
@@ -290,14 +407,23 @@ export function ImportScreen({ navigation }: Props) {
             multiline
             value={csvText}
             onChangeText={setCsvText}
-            placeholder={"Date;Libellé;Montant\n01/05/2025;Carrefour;-45,20\n..."}
+            placeholder={
+              "Date;Libellé;Montant\n01/05/2025;Carrefour;-45,20\n..."
+            }
             textAlignVertical="top"
             autoCapitalize="none"
             autoCorrect={false}
           />
           <View style={styles.row}>
-            <TouchableOpacity style={styles.secondaryButton} onPress={() => setStep("source")}>
-              <Ionicons name="arrow-back" size={16} color={finoptTheme.colors.foreground} />
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={() => setStep("source")}
+            >
+              <Ionicons
+                name="arrow-back"
+                size={16}
+                color={finoptTheme.colors.foreground}
+              />
               <Text style={styles.secondaryButtonText}>Retour</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -315,8 +441,12 @@ export function ImportScreen({ navigation }: Props) {
       {/* Step 2 — Map columns */}
       {step === "map" && (
         <>
-          <Text style={styles.stepLabel}>Étape 2 / 3 — Mapper les colonnes</Text>
-          <Text style={styles.hint}>Colonnes détectées : {headers.join(", ")}</Text>
+          <Text style={styles.stepLabel}>
+            Étape 2 / 3 — Mapper les colonnes
+          </Text>
+          <Text style={styles.hint}>
+            Colonnes détectées : {headers.join(", ")}
+          </Text>
           {[
             { label: "Colonne date", value: dateCol, set: setDateCol },
             { label: "Colonne libellé", value: titleCol, set: setTitleCol },
@@ -324,25 +454,46 @@ export function ImportScreen({ navigation }: Props) {
           ].map(({ label, value, set }) => (
             <View key={label} style={styles.field}>
               <Text style={styles.label}>{label}</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipRow}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.chipRow}
+              >
                 {headers.map((h) => (
                   <TouchableOpacity
                     key={h}
                     style={[styles.chip, value === h && styles.chipActive]}
                     onPress={() => set(h)}
                   >
-                    <Text style={[styles.chipText, value === h && styles.chipTextActive]}>{h}</Text>
+                    <Text
+                      style={[
+                        styles.chipText,
+                        value === h && styles.chipTextActive,
+                      ]}
+                    >
+                      {h}
+                    </Text>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
             </View>
           ))}
           <View style={styles.row}>
-            <TouchableOpacity style={styles.secondaryButton} onPress={() => setStep("paste")}>
-              <Ionicons name="arrow-back" size={16} color={finoptTheme.colors.foreground} />
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={() => setStep("paste")}
+            >
+              <Ionicons
+                name="arrow-back"
+                size={16}
+                color={finoptTheme.colors.foreground}
+              />
               <Text style={styles.secondaryButtonText}>Retour</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.primaryButton} onPress={handleBuildPreview}>
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={handleBuildPreview}
+            >
               <Text style={styles.primaryButtonText}>Aperçu</Text>
               <Ionicons name="arrow-forward" size={16} color="#fff" />
             </TouchableOpacity>
@@ -353,9 +504,12 @@ export function ImportScreen({ navigation }: Props) {
       {/* Step 3 — Preview + category assignment */}
       {step === "preview" && (
         <>
-          <Text style={styles.stepLabel}>Étape 3 / 3 — Vérifier et importer</Text>
+          <Text style={styles.stepLabel}>
+            Étape 3 / 3 — Vérifier et importer
+          </Text>
           <Text style={styles.hint}>
-            {rows.filter((r) => r.included).length} / {rows.length} lignes sélectionnées
+            {rows.filter((r) => r.included).length} / {rows.length} lignes
+            sélectionnées
           </Text>
           {rows.map((row, idx) => (
             <TouchableOpacity
@@ -366,21 +520,47 @@ export function ImportScreen({ navigation }: Props) {
             >
               <View style={styles.rowCardHeader}>
                 <Text style={styles.rowDate}>{row.date}</Text>
-                <Text style={[styles.rowAmount, row.transactionType === "INCOME" ? styles.income : styles.expense]}>
-                  {row.transactionType === "INCOME" ? "+" : "-"}{currencyFormatter.format(row.amount)}
+                <Text
+                  style={[
+                    styles.rowAmount,
+                    row.transactionType === "INCOME"
+                      ? styles.income
+                      : styles.expense,
+                  ]}
+                >
+                  {row.transactionType === "INCOME" ? "+" : "-"}
+                  {currencyFormatter.format(row.amount)}
                 </Text>
               </View>
-              <Text style={styles.rowTitle} numberOfLines={1}>{row.title}</Text>
+              <Text style={styles.rowTitle} numberOfLines={1}>
+                {row.title}
+              </Text>
               {row.included && (
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipRow}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.chipRow}
+                >
                   {categories.map((c) => (
                     <TouchableOpacity
                       key={c.id}
-                      style={[styles.chip, styles.chipSmall, row.categoryId === c.id && styles.chipActive]}
+                      style={[
+                        styles.chip,
+                        styles.chipSmall,
+                        row.categoryId === c.id && styles.chipActive,
+                      ]}
                       onPress={() => setRowCategory(idx, c.id)}
                     >
-                      <View style={[styles.chipDot, { backgroundColor: c.color }]} />
-                      <Text style={[styles.chipText, styles.chipTextSmall, row.categoryId === c.id && styles.chipTextActive]}>
+                      <View
+                        style={[styles.chipDot, { backgroundColor: c.color }]}
+                      />
+                      <Text
+                        style={[
+                          styles.chipText,
+                          styles.chipTextSmall,
+                          row.categoryId === c.id && styles.chipTextActive,
+                        ]}
+                      >
                         {c.name}
                       </Text>
                     </TouchableOpacity>
@@ -390,8 +570,15 @@ export function ImportScreen({ navigation }: Props) {
             </TouchableOpacity>
           ))}
           <View style={styles.row}>
-            <TouchableOpacity style={styles.secondaryButton} onPress={() => setStep("map")}>
-              <Ionicons name="arrow-back" size={16} color={finoptTheme.colors.foreground} />
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={() => setStep("map")}
+            >
+              <Ionicons
+                name="arrow-back"
+                size={16}
+                color={finoptTheme.colors.foreground}
+              />
               <Text style={styles.secondaryButtonText}>Retour</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -418,11 +605,25 @@ export function ImportScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: finoptTheme.colors.background },
   content: { padding: finoptTheme.spacing.lg, gap: finoptTheme.spacing.md },
-  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: finoptTheme.spacing.lg, padding: finoptTheme.spacing.xl },
-  stepLabel: { fontSize: 13, fontWeight: "700", color: finoptTheme.colors.primary },
+  center: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: finoptTheme.spacing.lg,
+    padding: finoptTheme.spacing.xl,
+  },
+  stepLabel: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: finoptTheme.colors.primary,
+  },
   hint: { fontSize: 13, color: finoptTheme.colors.gray600, lineHeight: 20 },
   field: { gap: finoptTheme.spacing.xs },
-  label: { fontSize: 13, fontWeight: "600", color: finoptTheme.colors.foreground },
+  label: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: finoptTheme.colors.foreground,
+  },
   input: {
     backgroundColor: finoptTheme.colors.card,
     borderRadius: finoptTheme.radius.md,
@@ -455,7 +656,11 @@ const styles = StyleSheet.create({
     ...finoptTheme.shadow.card,
   },
   sourceCardText: { flex: 1, gap: 2 },
-  sourceCardTitle: { color: finoptTheme.colors.foreground, fontWeight: "700", fontSize: 15 },
+  sourceCardTitle: {
+    color: finoptTheme.colors.foreground,
+    fontWeight: "700",
+    fontSize: 15,
+  },
   sourceCardSub: { color: finoptTheme.colors.gray600, fontSize: 12 },
   chipRow: { flexDirection: "row" as any },
   chip: {
@@ -471,7 +676,10 @@ const styles = StyleSheet.create({
     borderColor: "transparent",
   },
   chipSmall: { paddingHorizontal: finoptTheme.spacing.sm, paddingVertical: 2 },
-  chipActive: { backgroundColor: finoptTheme.colors.primaryLight, borderColor: finoptTheme.colors.primary },
+  chipActive: {
+    backgroundColor: finoptTheme.colors.primaryLight,
+    borderColor: finoptTheme.colors.primary,
+  },
   chipDot: { width: 8, height: 8, borderRadius: 4 },
   chipText: { fontSize: 13, color: finoptTheme.colors.foreground },
   chipTextSmall: { fontSize: 11 },
@@ -481,6 +689,7 @@ const styles = StyleSheet.create({
     backgroundColor: finoptTheme.colors.primary,
     borderRadius: finoptTheme.radius.xl,
     paddingVertical: finoptTheme.spacing.lg,
+    paddingHorizontal: finoptTheme.spacing.xl,
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "center",
@@ -493,6 +702,7 @@ const styles = StyleSheet.create({
     backgroundColor: finoptTheme.colors.card,
     borderRadius: finoptTheme.radius.xl,
     paddingVertical: finoptTheme.spacing.lg,
+    paddingHorizontal: finoptTheme.spacing.xl,
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "center",
@@ -500,7 +710,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: finoptTheme.colors.border,
   },
-  secondaryButtonText: { color: finoptTheme.colors.foreground, fontWeight: "700", fontSize: 15 },
+  secondaryButtonText: {
+    color: finoptTheme.colors.foreground,
+    fontWeight: "700",
+    fontSize: 15,
+  },
   disabled: { opacity: 0.5 },
   row: { flexDirection: "row", gap: finoptTheme.spacing.md },
   rowCard: {
@@ -513,12 +727,29 @@ const styles = StyleSheet.create({
     ...finoptTheme.shadow.card,
   },
   rowCardExcluded: { opacity: 0.4 },
-  rowCardHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  rowCardHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
   rowDate: { fontSize: 12, color: finoptTheme.colors.gray500 },
-  rowTitle: { fontSize: 13, fontWeight: "600", color: finoptTheme.colors.foreground },
+  rowTitle: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: finoptTheme.colors.foreground,
+  },
   rowAmount: { fontSize: 14, fontWeight: "800" },
   income: { color: finoptTheme.colors.primary },
   expense: { color: finoptTheme.colors.danger },
-  doneTitle: { fontSize: 22, fontWeight: "800", color: finoptTheme.colors.foreground, textAlign: "center" },
-  doneSubtitle: { fontSize: 14, color: finoptTheme.colors.gray600, textAlign: "center" },
+  doneTitle: {
+    fontSize: 22,
+    fontWeight: "800",
+    color: finoptTheme.colors.foreground,
+    textAlign: "center",
+  },
+  doneSubtitle: {
+    fontSize: 14,
+    color: finoptTheme.colors.gray600,
+    textAlign: "center",
+  },
 });

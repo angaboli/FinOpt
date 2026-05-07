@@ -9,6 +9,7 @@ import { AccountsScreen } from "@/presentation/screens/AccountsScreen";
 import { AddAccountScreen } from "@/presentation/screens/AddAccountScreen";
 import { AddIncomeScreen } from "@/presentation/screens/AddIncomeScreen";
 import { AddTransactionScreen } from "@/presentation/screens/AddTransactionScreen";
+import { EditTransactionScreen } from "@/presentation/screens/EditTransactionScreen";
 import { AddSavingsGoalScreen } from "@/presentation/screens/AddSavingsGoalScreen";
 import { BudgetAdviceScreen } from "@/presentation/screens/BudgetAdviceScreen";
 import { BudgetScreen } from "@/presentation/screens/BudgetScreen";
@@ -37,6 +38,7 @@ export type RootStackParamList = {
   AddIncome: undefined;
   Transactions: undefined;
   AddTransaction: undefined;
+  EditTransaction: { transactionId: string };
   Budget: undefined;
   SetBudget: undefined;
   Import: undefined;
@@ -107,6 +109,11 @@ export default function App() {
               name="AddTransaction"
               component={AddTransactionScreen}
               options={{ title: "Nouvelle transaction" }}
+            />
+            <Stack.Screen
+              name="EditTransaction"
+              component={EditTransactionScreen}
+              options={{ title: "Modifier la transaction" }}
             />
             <Stack.Screen
               name="Budget"
