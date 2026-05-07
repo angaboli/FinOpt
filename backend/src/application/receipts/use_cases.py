@@ -5,7 +5,7 @@ import re
 from datetime import date as DateType
 from decimal import Decimal, InvalidOperation
 
-import anthropic
+import openai
 
 from src.application.receipts.dtos import (
     ListReceiptsQuery,
@@ -84,23 +84,21 @@ class ScanReceipt:
         self._settings = settings
 
     async def execute(self, cmd: ScanReceiptCommand) -> ScanReceiptResult:
-        if not self._settings.anthropic_api_key:
-            raise InvalidReceiptError("Anthropic API key not configured")
+        if not self._settings.openai_api_key:
+            raise InvalidReceiptError("OpenAI API key not configured")
 
-        client = anthropic.Anthropic(api_key=self._settings.anthropic_api_key)
-        message = client.messages.create(
-            model="claude-haiku-4-5-20251001",
+        client = openai.OpenAI(api_key=self._settings.openai_api_key)
+        response = client.chat.completions.create(
+            model="gpt-4o",
             max_tokens=1024,
             messages=[
                 {
                     "role": "user",
                     "content": [
                         {
-                            "type": "image",
-                            "source": {
-                                "type": "base64",
-                                "media_type": cmd.media_type,
-                                "data": cmd.image_base64,
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:{cmd.media_type};base64,{cmd.image_base64}",
                             },
                         },
                         {"type": "text", "text": _OCR_PROMPT},
@@ -108,7 +106,7 @@ class ScanReceipt:
                 }
             ],
         )
-        response_text = message.content[0].text if message.content else ""
+        response_text = response.choices[0].message.content or ""
         return _parse_ocr_response(response_text)
 
 

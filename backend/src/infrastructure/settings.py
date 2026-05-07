@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     access_token_minutes: int = 15
     refresh_token_days: int = 30
     environment: str = "development"
-    anthropic_api_key: str = ""
+    openai_api_key: str = ""
     allowed_origins: list[str] = ["*"]
     log_level: str = "INFO"
 

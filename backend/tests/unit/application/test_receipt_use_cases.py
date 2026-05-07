@@ -113,8 +113,8 @@ class TestParseOcrResponse:
 class TestScanReceipt:
     async def test_raises_without_api_key(self, user_id: str) -> None:
         settings = MagicMock(spec=Settings)
-        settings.anthropic_api_key = ""
-        with pytest.raises(InvalidReceiptError, match="Anthropic API key"):
+        settings.openai_api_key = ""
+        with pytest.raises(InvalidReceiptError, match="OpenAI API key"):
             await ScanReceipt(settings).execute(
                 ScanReceiptCommand(user_id=user_id, image_base64="abc123")
             )

@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Finopt backend API"
 requires-python = ">=3.12"
 dependencies = [
-  "anthropic>=0.100.0",
+  "openai>=1.0.0",
   "aiosqlite>=0.20.0",
   "alembic>=1.13.2",
   "asyncpg>=0.29.0",

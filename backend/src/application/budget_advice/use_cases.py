@@ -5,7 +5,7 @@ import re
 from datetime import date as DateType
 from decimal import Decimal
 
-import anthropic
+import openai
 
 from src.application.budget_advice.dtos import BudgetAdviceResult, GenerateBudgetAdviceCommand
 from src.domain.entities.transaction import TransactionType
@@ -158,8 +158,8 @@ class GenerateBudgetAdvice:
         self._goals = goals
 
     async def execute(self, cmd: GenerateBudgetAdviceCommand) -> BudgetAdviceResult:
-        if not self._settings.anthropic_api_key:
-            raise InvalidReceiptError("Anthropic API key not configured")
+        if not self._settings.openai_api_key:
+            raise InvalidReceiptError("OpenAI API key not configured")
 
         user_id = UserId.from_string(cmd.user_id)
 
@@ -175,13 +175,13 @@ class GenerateBudgetAdvice:
 
         prompt = _build_prompt(cmd.year, cmd.month, incomes, txs, budget, goals)
 
-        client = anthropic.Anthropic(api_key=self._settings.anthropic_api_key)
-        message = client.messages.create(
-            model="claude-haiku-4-5-20251001",
+        client = openai.OpenAI(api_key=self._settings.openai_api_key)
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
             max_tokens=1024,
             messages=[{"role": "user", "content": prompt}],
         )
-        response_text = message.content[0].text if message.content else ""
+        response_text = response.choices[0].message.content or ""
         summary, tips, savings_advice = _parse_advice_response(response_text)
 
         period_label = f"{_MONTHS_FR[cmd.month].capitalize()} {cmd.year}"

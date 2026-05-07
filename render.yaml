@@ -26,7 +26,7 @@ services:
         value: production
       - key: FINOPT_LOG_LEVEL
         value: INFO
-      - key: FINOPT_ANTHROPIC_API_KEY
+      - key: FINOPT_OPENAI_API_KEY
         sync: false
       - key: FINOPT_ALLOWED_ORIGINS
         sync: false
