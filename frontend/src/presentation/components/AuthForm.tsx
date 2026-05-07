@@ -23,7 +23,7 @@ export function AuthForm({ title, submitLabel, error, isLoading, showName, onSub
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      behavior="padding"
       style={{ flex: 1 }}
     >
       <ScrollView

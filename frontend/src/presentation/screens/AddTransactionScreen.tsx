@@ -123,7 +123,7 @@ export function AddTransactionScreen({ navigation }: Props) {
   }
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
+    <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
       <ScrollView
         contentContainerStyle={styles.container}
         keyboardDismissMode="on-drag"

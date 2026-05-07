@@ -29,8 +29,8 @@ export function AddIncomeScreen({ navigation }: Props) {
   }
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
-    <ScrollView
+    <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+    <ScrollView style={{ flex: 1 }}
       contentContainerStyle={styles.container}
       keyboardDismissMode="on-drag"
       keyboardShouldPersistTaps="handled"
