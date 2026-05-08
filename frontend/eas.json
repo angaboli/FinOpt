@@ -6,12 +6,18 @@
   "build": {
     "preview": {
       "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://finopt.onrender.com"
+      },
       "android": {
         "buildType": "apk",
         "gradleCommand": ":app:assembleRelease"
       }
     },
     "production": {
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://finopt.onrender.com"
+      },
       "android": {
         "buildType": "app-bundle"
       }
