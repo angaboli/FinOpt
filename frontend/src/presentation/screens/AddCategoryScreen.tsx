@@ -7,6 +7,7 @@ import type { RootStackParamList } from "../../../App";
 import { showAlert } from "@/application/alert/alertStore";
 import { useCategoriesStore } from "@/application/categories/categoriesStore";
 import { categoryIcon } from "@/domain/categories/categoryIcons";
+import type { CategoryUsage } from "@/domain/categories/types";
 import { finoptTheme as t } from "@/presentation/theme/theme";
 
 type Props = NativeStackScreenProps<RootStackParamList, "AddCategory">;
@@ -28,11 +29,13 @@ export function AddCategoryScreen({ navigation, route }: Props) {
 
   const [name, setName] = useState(existing?.name ?? "");
   const [color, setColor] = useState(existing?.color ?? PRESET_COLORS[0]);
+  const [usage, setUsage] = useState<CategoryUsage>(existing?.usage ?? "EXPENSE");
 
   useEffect(() => {
     if (existing) {
       setName(existing.name);
       setColor(existing.color);
+      setUsage(existing.usage);
     }
   }, [existing]);
 
@@ -43,9 +46,9 @@ export function AddCategoryScreen({ navigation, route }: Props) {
     if (!canSubmit) return;
     try {
       if (existing) {
-        await updateCategory(existing.id, { name: name.trim(), color });
+        await updateCategory(existing.id, { name: name.trim(), color, usage });
       } else {
-        await createCategory({ name: name.trim(), color });
+        await createCategory({ name: name.trim(), color, usage });
       }
       navigation.goBack();
     } catch {
@@ -88,6 +91,21 @@ export function AddCategoryScreen({ navigation, route }: Props) {
             style={styles.input}
             value={name}
           />
+
+          <Text style={styles.label}>Type</Text>
+          <View style={styles.usageRow}>
+            {(["EXPENSE", "INCOME", "BOTH"] as CategoryUsage[]).map((u) => (
+              <Pressable
+                key={u}
+                onPress={() => setUsage(u)}
+                style={[styles.usageChip, usage === u && styles.usageChipActive]}
+              >
+                <Text style={[styles.usageChipText, usage === u && styles.usageChipTextActive]}>
+                  {u === "EXPENSE" ? "Dépense" : u === "INCOME" ? "Revenu" : "Les deux"}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
 
           <Text style={styles.label}>Couleur</Text>
           <View style={styles.colorGrid}>
@@ -163,6 +181,18 @@ const styles = StyleSheet.create({
     minHeight: 48,
     paddingHorizontal: t.spacing.md,
   },
+  usageRow: { flexDirection: "row", gap: t.spacing.sm },
+  usageChip: {
+    borderColor: t.colors.border,
+    borderRadius: t.radius.sm,
+    borderWidth: 1,
+    flex: 1,
+    alignItems: "center",
+    paddingVertical: t.spacing.sm,
+  },
+  usageChipActive: { backgroundColor: t.colors.primary, borderColor: t.colors.primary },
+  usageChipText: { color: t.colors.gray700, fontSize: 12, fontWeight: "700" },
+  usageChipTextActive: { color: t.colors.white },
   colorGrid: {
     flexDirection: "row",
     flexWrap: "wrap",

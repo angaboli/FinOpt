@@ -59,6 +59,7 @@ class CategoryModel(Base):
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"), index=True, nullable=False)
     name: Mapped[str] = mapped_column(String(80), nullable=False)
     color: Mapped[str] = mapped_column(String(32), nullable=False)
+    usage: Mapped[str] = mapped_column(String(16), nullable=False, default="EXPENSE")
 
 
 class TransactionModel(Base):

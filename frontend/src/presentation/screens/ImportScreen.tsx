@@ -541,7 +541,7 @@ export function ImportScreen({ navigation }: Props) {
                   showsHorizontalScrollIndicator={false}
                   style={styles.chipRow}
                 >
-                  {categories.map((c) => (
+                  {categories.filter((c) => c.usage === row.transactionType || c.usage === "BOTH").map((c) => (
                     <TouchableOpacity
                       key={c.id}
                       style={[

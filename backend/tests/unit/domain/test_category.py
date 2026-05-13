@@ -51,11 +51,12 @@ def test_update_category_rejects_empty_name() -> None:
 
 def test_default_categories_are_defined() -> None:
     assert len(DEFAULT_CATEGORIES) >= 8
-    for name, color in DEFAULT_CATEGORIES:
+    for name, color, usage in DEFAULT_CATEGORIES:
         assert name.strip()
         assert color.strip()
+        assert usage in ("EXPENSE", "INCOME", "BOTH")
 
 
 def test_default_category_names_are_unique() -> None:
-    names = [name for name, _ in DEFAULT_CATEGORIES]
+    names = [name for name, _, _u in DEFAULT_CATEGORIES]
     assert len(names) == len(set(names))

@@ -9,8 +9,14 @@ const ICON_MAP: Record<string, string> = {
   shopping: "bag-handle-outline",
   éducation: "school-outline",
   autres: "grid-outline",
+  divers: "grid-outline",
   revenu: "cash-outline",
   salaire: "briefcase-outline",
+  freelance: "laptop-outline",
+  dons: "gift-outline",
+  crypto: "logo-bitcoin",
+  investissements: "trending-up-outline",
+  remboursements: "return-down-back-outline",
   virement: "swap-horizontal-outline",
 };
 

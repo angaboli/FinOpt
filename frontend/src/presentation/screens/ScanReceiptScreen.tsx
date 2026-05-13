@@ -250,7 +250,7 @@ export function ScanReceiptScreen({ navigation }: Props) {
             </TouchableOpacity>
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipRow}>
-            {categories.map((c) => (
+            {categories.filter((c) => c.usage === "EXPENSE" || c.usage === "BOTH").map((c) => (
               <TouchableOpacity
                 key={c.id}
                 style={[styles.chip, styles.chipSmall, item.categoryId === c.id && { backgroundColor: c.color, borderColor: c.color }]}

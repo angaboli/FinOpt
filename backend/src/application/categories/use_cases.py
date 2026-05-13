@@ -17,6 +17,7 @@ def to_category_result(category: Category) -> CategoryResult:
         user_id=str(category.user_id.value),
         name=category.name,
         color=category.color,
+        usage=category.usage,
     )
 
 
@@ -29,6 +30,7 @@ class CreateCategory:
             user_id=UserId.from_string(command.user_id),
             name=command.name,
             color=command.color,
+            usage=command.usage,
         )
         await self._categories.save(category)
         return to_category_result(category)
@@ -59,7 +61,7 @@ class UpdateCategory:
         )
         if category is None:
             raise CategoryNotFoundError("Category not found")
-        category.update(name=command.name, color=command.color)
+        category.update(name=command.name, color=command.color, usage=command.usage)
         await self._categories.save(category)
         return to_category_result(category)
 

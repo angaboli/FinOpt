@@ -76,6 +76,7 @@ class IncomeSourceResponse(BaseModel):
 class CategoryRequest(BaseModel):
     name: str = Field(min_length=1, max_length=80)
     color: str = Field(min_length=1, max_length=32)
+    usage: str = "EXPENSE"
 
 
 class CategoryResponse(BaseModel):
@@ -83,6 +84,7 @@ class CategoryResponse(BaseModel):
     user_id: str
     name: str
     color: str
+    usage: str = "EXPENSE"
 
 
 class TransactionRequest(BaseModel):

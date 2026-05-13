@@ -95,7 +95,7 @@ export function BudgetScreen({ navigation }: Props) {
         </TouchableOpacity>
       </View>
 
-      {categories.map((cat) => {
+      {categories.filter((c) => c.usage === "EXPENSE" || c.usage === "BOTH").map((cat) => {
         const planned = budget?.lines.find((l) => l.categoryId === cat.id)?.plannedAmount ?? 0;
         const spent = spentByCategory.get(cat.id) ?? 0;
         const ratio = planned > 0 ? Math.min(spent / planned, 1) : 0;

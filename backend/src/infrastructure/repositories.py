@@ -292,11 +292,13 @@ class SqlAlchemyCategoryRepository(CategoryRepository):
                     user_id=category.user_id.value,
                     name=category.name,
                     color=category.color,
+                    usage=category.usage,
                 )
             )
         else:
             model.name = category.name
             model.color = category.color
+            model.usage = category.usage
         await self._session.commit()
 
     async def save_many(self, categories: list[Category]) -> None:
@@ -307,6 +309,7 @@ class SqlAlchemyCategoryRepository(CategoryRepository):
                     user_id=category.user_id.value,
                     name=category.name,
                     color=category.color,
+                    usage=category.usage,
                 )
             )
         await self._session.commit()
@@ -349,6 +352,7 @@ class SqlAlchemyCategoryRepository(CategoryRepository):
             user_id=UserId(model.user_id),
             name=model.name,
             color=model.color,
+            usage=model.usage,
         )
 
 

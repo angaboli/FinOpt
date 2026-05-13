@@ -67,7 +67,7 @@ export function SetBudgetScreen({ navigation }: Props) {
         Définissez un montant maximum par catégorie pour ce mois
       </Text>
 
-      {categories.map((cat) => (
+      {categories.filter((c) => c.usage === "EXPENSE" || c.usage === "BOTH").map((cat) => (
         <View key={cat.id} style={styles.row}>
           <View style={[styles.dot, { backgroundColor: cat.color }]} />
           <Text style={styles.catName}>{cat.name}</Text>

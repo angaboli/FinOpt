@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass(frozen=True)
@@ -6,6 +6,7 @@ class CreateCategoryCommand:
     user_id: str
     name: str
     color: str
+    usage: str = "EXPENSE"
 
 
 @dataclass(frozen=True)
@@ -14,6 +15,7 @@ class UpdateCategoryCommand:
     category_id: str
     name: str
     color: str
+    usage: str = "EXPENSE"
 
 
 @dataclass(frozen=True)
@@ -33,3 +35,4 @@ class CategoryResult:
     user_id: str
     name: str
     color: str
+    usage: str = "EXPENSE"

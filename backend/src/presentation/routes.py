@@ -338,7 +338,7 @@ async def create_category(
     use_case: CreateCategory = Depends(create_category_use_case),
 ) -> CategoryResponse:
     result = await use_case.execute(
-        CreateCategoryCommand(user_id=user_id, name=request.name, color=request.color)
+        CreateCategoryCommand(user_id=user_id, name=request.name, color=request.color, usage=request.usage)
     )
     return CategoryResponse.model_validate(result, from_attributes=True)
 
@@ -365,6 +365,7 @@ async def update_category(
             category_id=category_id,
             name=request.name,
             color=request.color,
+            usage=request.usage,
         )
     )
     return CategoryResponse.model_validate(result, from_attributes=True)

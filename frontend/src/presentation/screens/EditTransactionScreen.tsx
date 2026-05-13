@@ -148,26 +148,28 @@ export function EditTransactionScreen({ route, navigation }: Props) {
 
           <Text style={styles.label}>Catégorie</Text>
           <View style={styles.chips}>
-            {categories.map((c) => (
-              <Pressable
-                key={c.id}
-                accessibilityRole="button"
-                onPress={() => setCategoryId(c.id)}
-                style={[
-                  styles.chip,
-                  categoryId === c.id && { backgroundColor: c.color, borderColor: c.color },
-                ]}
-              >
-                <Ionicons
-                  name={categoryIcon(c.name) as any}
-                  size={13}
-                  color={categoryId === c.id ? t.colors.white : c.color}
-                />
-                <Text style={[styles.chipText, categoryId === c.id && styles.chipTextActive]}>
-                  {c.name}
-                </Text>
-              </Pressable>
-            ))}
+            {categories
+              .filter((c) => c.usage === transactionType || c.usage === "BOTH")
+              .map((c) => (
+                <Pressable
+                  key={c.id}
+                  accessibilityRole="button"
+                  onPress={() => setCategoryId(c.id)}
+                  style={[
+                    styles.chip,
+                    categoryId === c.id && { backgroundColor: c.color, borderColor: c.color },
+                  ]}
+                >
+                  <Ionicons
+                    name={categoryIcon(c.name) as any}
+                    size={13}
+                    color={categoryId === c.id ? t.colors.white : c.color}
+                  />
+                  <Text style={[styles.chipText, categoryId === c.id && styles.chipTextActive]}>
+                    {c.name}
+                  </Text>
+                </Pressable>
+              ))}
           </View>
 
           <Pressable

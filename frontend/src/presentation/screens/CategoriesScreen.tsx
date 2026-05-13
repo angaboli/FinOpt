@@ -35,13 +35,45 @@ export function CategoriesScreen({ navigation }: Props) {
     );
   }
 
+  const expenseCategories = categories.filter((c) => c.usage === "EXPENSE" || c.usage === "BOTH");
+  const incomeCategories = categories.filter((c) => c.usage === "INCOME" || c.usage === "BOTH");
+
+  function renderList(cats: typeof categories) {
+    return (
+      <View style={styles.list}>
+        {cats.map((cat) => (
+          <View key={cat.id} style={styles.row}>
+            <View style={[styles.iconBox, { backgroundColor: cat.color }]}>
+              <Ionicons name={categoryIcon(cat.name) as any} size={18} color={t.colors.white} />
+            </View>
+            <Text style={styles.name}>{cat.name}</Text>
+            <View style={styles.actions}>
+              <Pressable
+                onPress={() => navigation.navigate("AddCategory", { categoryId: cat.id })}
+                style={styles.actionBtn}
+              >
+                <Ionicons name="pencil-outline" size={18} color={t.colors.primary} />
+              </Pressable>
+              <Pressable
+                onPress={() => handleDelete(cat.id, cat.name)}
+                style={styles.actionBtn}
+              >
+                <Ionicons name="trash-outline" size={18} color={t.colors.danger} />
+              </Pressable>
+            </View>
+          </View>
+        ))}
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.heroTop}>
           <View style={styles.heroTextBlock}>
             <Text style={styles.title}>Catégories</Text>
-            <Text style={styles.subtitle}>Personnalisez vos catégories de dépenses.</Text>
+            <Text style={styles.subtitle}>Personnalisez vos catégories.</Text>
           </View>
           <Pressable
             onPress={() => navigation.navigate("AddCategory", {})}
@@ -51,34 +83,11 @@ export function CategoriesScreen({ navigation }: Props) {
           </Pressable>
         </View>
 
-        <View style={styles.list}>
-          {categories.map((cat) => (
-            <View key={cat.id} style={styles.row}>
-              <View style={[styles.iconBox, { backgroundColor: cat.color }]}>
-                <Ionicons
-                  name={categoryIcon(cat.name) as any}
-                  size={18}
-                  color={t.colors.white}
-                />
-              </View>
-              <Text style={styles.name}>{cat.name}</Text>
-              <View style={styles.actions}>
-                <Pressable
-                  onPress={() => navigation.navigate("AddCategory", { categoryId: cat.id })}
-                  style={styles.actionBtn}
-                >
-                  <Ionicons name="pencil-outline" size={18} color={t.colors.primary} />
-                </Pressable>
-                <Pressable
-                  onPress={() => handleDelete(cat.id, cat.name)}
-                  style={styles.actionBtn}
-                >
-                  <Ionicons name="trash-outline" size={18} color={t.colors.danger} />
-                </Pressable>
-              </View>
-            </View>
-          ))}
-        </View>
+        <Text style={styles.sectionLabel}>Dépenses</Text>
+        {renderList(expenseCategories)}
+
+        <Text style={styles.sectionLabel}>Revenus</Text>
+        {renderList(incomeCategories)}
       </ScrollView>
     </View>
   );
@@ -101,6 +110,14 @@ const styles = StyleSheet.create({
     ...t.shadow.action,
   },
   addBtnText: { color: t.colors.white, fontWeight: "800", fontSize: 13 },
+  sectionLabel: {
+    color: t.colors.gray600,
+    fontSize: 12,
+    fontWeight: "700",
+    letterSpacing: 0.8,
+    marginBottom: -t.spacing.xs,
+    textTransform: "uppercase",
+  },
   list: {
     backgroundColor: t.colors.card,
     borderColor: t.colors.border,

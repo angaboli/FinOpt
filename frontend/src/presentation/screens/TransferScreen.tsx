@@ -163,7 +163,7 @@ export function TransferScreen({ navigation }: Props) {
 
           <Text style={styles.label}>Catégorie</Text>
           <View style={styles.chips}>
-            {categories.map((c) => (
+            {categories.filter((c) => c.usage === "EXPENSE" || c.usage === "BOTH").map((c) => (
               <Pressable
                 key={c.id}
                 style={[styles.chip, categoryId === c.id && { backgroundColor: c.color, borderColor: c.color }]}

@@ -59,13 +59,15 @@ export function AddTransactionScreen({ navigation }: Props) {
 
   useEffect(() => {
     if (categories.length > 0 && !categoryId) {
-      setCategoryId(categories[0].id);
+      const first = categories.find((c) => c.usage === transactionType || c.usage === "BOTH");
+      if (first) setCategoryId(first.id);
     }
-  }, [categories, categoryId]);
+  }, [categories, categoryId, transactionType]);
 
-  // Reset frequency when switching to EXPENSE
   useEffect(() => {
     if (transactionType === "EXPENSE") setFrequency("ONCE");
+    // Reset category when switching types so an incompatible category isn't carried over
+    setCategoryId("");
   }, [transactionType]);
 
   const parsedAmount = Number(amount.replace(",", ".") || "0");
@@ -217,23 +219,25 @@ export function AddTransactionScreen({ navigation }: Props) {
 
           <Text style={styles.label}>Catégorie</Text>
           <View style={styles.chips}>
-            {categories.map((c) => (
-              <Pressable
-                key={c.id}
-                accessibilityRole="button"
-                onPress={() => setCategoryId(c.id)}
-                style={[styles.chip, categoryId === c.id && { backgroundColor: c.color, borderColor: c.color }]}
-              >
-                <Ionicons
-                  name={categoryIcon(c.name) as any}
-                  size={13}
-                  color={categoryId === c.id ? t.colors.white : c.color}
-                />
-                <Text style={[styles.chipText, categoryId === c.id && styles.chipTextActive]}>
-                  {c.name}
-                </Text>
-              </Pressable>
-            ))}
+            {categories
+              .filter((c) => c.usage === transactionType || c.usage === "BOTH")
+              .map((c) => (
+                <Pressable
+                  key={c.id}
+                  accessibilityRole="button"
+                  onPress={() => setCategoryId(c.id)}
+                  style={[styles.chip, categoryId === c.id && { backgroundColor: c.color, borderColor: c.color }]}
+                >
+                  <Ionicons
+                    name={categoryIcon(c.name) as any}
+                    size={13}
+                    color={categoryId === c.id ? t.colors.white : c.color}
+                  />
+                  <Text style={[styles.chipText, categoryId === c.id && styles.chipTextActive]}>
+                    {c.name}
+                  </Text>
+                </Pressable>
+              ))}
           </View>
 
           <Pressable
