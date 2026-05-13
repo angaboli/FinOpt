@@ -14,12 +14,14 @@ from src.application.budget_advice.dtos import (
     MerchantPlanItem,
 )
 from src.domain.entities.budget import Budget as BudgetEntity
+from src.domain.entities.category import Category
 from src.domain.entities.income_source import IncomeSource
 from src.domain.entities.savings_goal import SavingsGoal
 from src.domain.entities.transaction import Transaction, TransactionType
 from src.domain.exceptions import InvalidReceiptError
 from src.domain.ports.repositories import (
     BudgetRepository,
+    CategoryRepository,
     IncomeSourceRepository,
     SavingsGoalRepository,
     TransactionRepository,
@@ -101,7 +103,9 @@ def _build_prompt(
     all_transactions: list[Transaction],
     budget: BudgetEntity | None,
     goals: list[SavingsGoal],
+    categories: list[Category],
 ) -> str:
+    category_names: dict[str, str] = {str(c.id.value): c.name for c in categories}
     period = _month_label(year, month)
     month_prefix = f"{year}-{month:02d}"
 
@@ -168,6 +172,7 @@ def _build_prompt(
     if budget is not None and budget.lines:
         budget_lines = []
         for line in budget.lines:
+            cat_name = category_names.get(str(line.category_id.value), str(line.category_id.value))
             actual = Decimal(sum(
                 tx.amount for tx in all_transactions
                 if tx.transaction_type == TransactionType.EXPENSE
@@ -176,23 +181,25 @@ def _build_prompt(
             ))
             pct = int(actual / line.planned_amount * 100) if line.planned_amount > 0 else 0
             budget_lines.append(
-                f"- Prévu {_fmt(line.planned_amount)} € / Réel {_fmt(actual)} € ({pct}%)"
+                f"- {cat_name} : prévu {_fmt(line.planned_amount)} € / réel {_fmt(actual)} € ({pct}%)"
             )
         budget_section = "\n".join(budget_lines)
     else:
         budget_section = "Aucun budget défini pour ce mois"
 
     # --- subscription section (all unique subscriptions seen over 6 months) ---
-    all_subscriptions: dict[str, list[Decimal]] = defaultdict(list)
+    # key: (title, category_name)
+    all_subscriptions: dict[tuple[str, str], list[Decimal]] = defaultdict(list)
     for tx in all_transactions:
         if tx.is_subscription and tx.transaction_type == TransactionType.EXPENSE:
-            all_subscriptions[tx.title.strip()].append(tx.amount)
+            cat_name = category_names.get(str(tx.category_id.value), "—")
+            all_subscriptions[(tx.title.strip(), cat_name)].append(tx.amount)
 
     if all_subscriptions:
         sub_lines = []
-        for name, amounts in sorted(all_subscriptions.items()):
+        for (title, cat_name), amounts in sorted(all_subscriptions.items()):
             avg_sub = Decimal(sum(amounts)) / Decimal(len(amounts))
-            sub_lines.append(f"- {name} : ~{_fmt(avg_sub)} €/mois ({len(amounts)} occurrence(s))")
+            sub_lines.append(f"- {title} [{cat_name}] : ~{_fmt(avg_sub)} €/mois ({len(amounts)} occurrence(s))")
         subscription_section = "\n".join(sub_lines)
     else:
         subscription_section = "Aucun abonnement enregistré"
@@ -283,12 +290,14 @@ class GenerateBudgetAdvice:
         budgets: BudgetRepository,
         income_sources: IncomeSourceRepository,
         goals: SavingsGoalRepository,
+        categories: CategoryRepository,
     ) -> None:
         self._settings = settings
         self._transactions = transactions
         self._budgets = budgets
         self._income_sources = income_sources
         self._goals = goals
+        self._categories = categories
 
     async def execute(self, cmd: GenerateBudgetAdviceCommand) -> BudgetAdviceResult:
         if not self._settings.openai_api_key:
@@ -303,12 +312,12 @@ class GenerateBudgetAdvice:
         hist_year, hist_month = _six_months_from(cmd.year, cmd.month)
         hist_from = DateType(hist_year, hist_month, 1)
 
-        txs, budget, incomes, goals = await _gather(
-            self._transactions, self._budgets, self._income_sources, self._goals,
+        txs, budget, incomes, goals, cats = await _gather(
+            self._transactions, self._budgets, self._income_sources, self._goals, self._categories,
             user_id, cmd.year, cmd.month, hist_from, to_date,
         )
 
-        prompt = _build_prompt(cmd.year, cmd.month, incomes, txs, budget, goals)
+        prompt = _build_prompt(cmd.year, cmd.month, incomes, txs, budget, goals, cats)
 
         client = openai.OpenAI(api_key=self._settings.openai_api_key)
         response = client.chat.completions.create(
@@ -336,12 +345,13 @@ async def _gather(
     budgets: BudgetRepository,
     income_sources: IncomeSourceRepository,
     goals: SavingsGoalRepository,
+    categories: CategoryRepository,
     user_id: UserId,
     year: int,
     month: int,
     from_date: DateType,
     to_date: DateType,
-) -> tuple[list[Transaction], BudgetEntity | None, list[IncomeSource], list[SavingsGoal]]:
+) -> tuple[list[Transaction], BudgetEntity | None, list[IncomeSource], list[SavingsGoal], list[Category]]:
     txs = await transactions.list_by_user(
         user_id=user_id,
         account_id=None,
@@ -354,4 +364,5 @@ async def _gather(
     budget = await budgets.get_by_month(user_id, year, month)
     incomes = await income_sources.list_by_user(user_id)
     goal_list = await goals.list_by_user(user_id)
-    return txs, budget, incomes, goal_list
+    cat_list = await categories.list_by_user(user_id)
+    return txs, budget, incomes, goal_list, cat_list

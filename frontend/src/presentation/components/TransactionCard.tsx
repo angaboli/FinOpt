@@ -86,8 +86,8 @@ const styles = StyleSheet.create({
   },
   subBadge: {
     alignItems: "center",
-    backgroundColor: finoptTheme.colors.primaryLight,
-    borderColor: finoptTheme.colors.primary,
+    backgroundColor: "#FCE7F3",
+    borderColor: "#EC4899",
     borderRadius: 4,
     borderWidth: 1,
     flexDirection: "row",
@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
     paddingVertical: 1,
   },
   subBadgeText: {
-    color: finoptTheme.colors.primary,
+    color: "#EC4899",
     fontSize: 9,
     fontWeight: "800",
   },

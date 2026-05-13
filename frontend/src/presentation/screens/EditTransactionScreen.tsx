@@ -178,7 +178,7 @@ export function EditTransactionScreen({ route, navigation }: Props) {
             <Ionicons
               name="repeat"
               size={14}
-              color={isSubscription ? t.colors.white : t.colors.primary}
+              color={isSubscription ? "#fff" : "#EC4899"}
             />
             <Text style={[styles.subscriptionChipText, isSubscription && styles.chipTextActive]}>
               Abonnement récurrent
@@ -280,8 +280,8 @@ const styles = StyleSheet.create({
   subscriptionChip: {
     alignItems: "center",
     alignSelf: "flex-start",
-    backgroundColor: t.colors.primaryLight,
-    borderColor: t.colors.primary,
+    backgroundColor: "#FCE7F3",
+    borderColor: "#EC4899",
     borderRadius: t.radius.sm,
     borderWidth: 1.5,
     flexDirection: "row",
@@ -289,8 +289,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: t.spacing.md,
     paddingVertical: t.spacing.sm,
   },
-  subscriptionChipActive: { backgroundColor: t.colors.primary, borderColor: t.colors.primary },
-  subscriptionChipText: { color: t.colors.primary, fontSize: 12, fontWeight: "700" },
+  subscriptionChipActive: { backgroundColor: "#EC4899", borderColor: "#EC4899" },
+  subscriptionChipText: { color: "#EC4899", fontSize: 12, fontWeight: "700" },
   accountBadge: {
     alignItems: "center",
     backgroundColor: t.colors.muted,

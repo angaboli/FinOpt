@@ -10,6 +10,8 @@ import { AddAccountScreen } from "@/presentation/screens/AddAccountScreen";
 import { AddIncomeScreen } from "@/presentation/screens/AddIncomeScreen";
 import { AddTransactionScreen } from "@/presentation/screens/AddTransactionScreen";
 import { EditTransactionScreen } from "@/presentation/screens/EditTransactionScreen";
+import { AddCategoryScreen } from "@/presentation/screens/AddCategoryScreen";
+import { CategoriesScreen } from "@/presentation/screens/CategoriesScreen";
 import { AddSavingsGoalScreen } from "@/presentation/screens/AddSavingsGoalScreen";
 import { BudgetAdviceScreen } from "@/presentation/screens/BudgetAdviceScreen";
 import { BudgetScreen } from "@/presentation/screens/BudgetScreen";
@@ -57,6 +59,8 @@ export type RootStackParamList = {
   SavingsGoals: undefined;
   AddSavingsGoal: { goalId?: string };
   BudgetAdvice: undefined;
+  Categories: undefined;
+  AddCategory: { categoryId?: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -202,6 +206,17 @@ export default function App() {
               name="Notifications"
               component={NotificationsScreen}
               options={{ title: "Notifications" }}
+            />
+            <Stack.Screen
+              name="Categories"
+              component={CategoriesScreen}
+              options={{ title: "Catégories" }}
+            />
+            <Stack.Screen
+              name="AddCategory"
+              component={AddCategoryScreen}
+              options={({ route }) =>
+                ({ title: route.params?.categoryId ? "Modifier la catégorie" : "Nouvelle catégorie" })}
             />
           </>
         ) : (

@@ -384,8 +384,9 @@ def generate_budget_advice_use_case(
     budgets: BudgetRepository = Depends(budget_repository),
     income_sources: IncomeSourceRepository = Depends(income_source_repository),
     goals: SavingsGoalRepository = Depends(savings_goal_repository),
+    categories: CategoryRepository = Depends(category_repository),
 ) -> GenerateBudgetAdvice:
-    return GenerateBudgetAdvice(settings, transactions, budgets, income_sources, goals)
+    return GenerateBudgetAdvice(settings, transactions, budgets, income_sources, goals, categories)
 
 
 async def current_user_id(

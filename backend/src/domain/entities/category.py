@@ -11,7 +11,6 @@ DEFAULT_CATEGORIES: list[tuple[str, str]] = [
     ("Logement", "#8B5CF6"),
     ("Santé", "#EF4444"),
     ("Loisirs", "#F59E0B"),
-    ("Abonnements", "#EC4899"),
     ("Restaurant", "#F97316"),
     ("Shopping", "#06B6D4"),
     ("Éducation", "#10B981"),

@@ -12,7 +12,7 @@ type Props = NativeStackScreenProps<RootStackParamList, "Profile">;
 
 const t = finoptTheme;
 
-export function ProfileScreen({ navigation: _navigation }: Props) {
+export function ProfileScreen({ navigation }: Props) {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const accounts = useAccountsStore((s) => s.accounts);
@@ -110,6 +110,20 @@ export function ProfileScreen({ navigation: _navigation }: Props) {
           </View>
         </View>
       )}
+
+      <View style={styles.section}>
+        <Text style={styles.sectionLabel}>PERSONNALISATION</Text>
+        <View style={styles.card}>
+          <TouchableOpacity style={styles.row} onPress={() => navigation.navigate("Categories")}>
+            <Ionicons name="pricetags-outline" size={20} color={t.colors.gray600} />
+            <View style={styles.rowContent}>
+              <Text style={styles.rowLabel}>Catégories</Text>
+              <Text style={styles.rowValue}>Gérer mes catégories</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={16} color={t.colors.gray400} />
+          </TouchableOpacity>
+        </View>
+      </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionLabel}>APPLICATION</Text>
