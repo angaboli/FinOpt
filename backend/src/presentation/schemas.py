@@ -93,6 +93,7 @@ class TransactionRequest(BaseModel):
     transaction_type: TransactionType
     date: DateType
     note: str | None = None
+    is_subscription: bool = False
 
 
 class TransactionUpdateRequest(BaseModel):
@@ -102,6 +103,7 @@ class TransactionUpdateRequest(BaseModel):
     transaction_type: TransactionType
     date: DateType
     note: str | None = None
+    is_subscription: bool = False
 
 
 class TransactionResponse(BaseModel):
@@ -114,6 +116,7 @@ class TransactionResponse(BaseModel):
     transaction_type: str
     date: DateType
     note: str | None
+    is_subscription: bool = False
 
 
 class TransferRequest(BaseModel):

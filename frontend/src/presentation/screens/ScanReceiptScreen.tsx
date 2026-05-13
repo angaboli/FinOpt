@@ -127,6 +127,7 @@ export function ScanReceiptScreen({ navigation }: Props) {
           transactionType: "EXPENSE",
           date: today,
           note,
+          isSubscription: false,
         });
         count++;
       } catch {

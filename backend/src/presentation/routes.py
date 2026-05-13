@@ -400,6 +400,7 @@ async def create_transaction(
             transaction_type=request.transaction_type.value,
             date=request.date,
             note=request.note,
+            is_subscription=request.is_subscription,
         )
     )
     return TransactionResponse.model_validate(result, from_attributes=True)
@@ -447,6 +448,7 @@ async def update_transaction(
             transaction_type=request.transaction_type.value,
             date=request.date,
             note=request.note,
+            is_subscription=request.is_subscription,
         )
     )
     return TransactionResponse.model_validate(result, from_attributes=True)

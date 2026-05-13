@@ -73,6 +73,7 @@ export function TransactionsScreen({ navigation }: Props) {
           accountName: account?.name ?? "—",
           accountColor: account?.color ?? finoptTheme.colors.gray400,
           type: tx.transactionType === "INCOME" ? "income" : "expense",
+          isSubscription: tx.isSubscription,
         };
       }),
     [transactions, accountMap, categoryMap],

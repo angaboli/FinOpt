@@ -41,6 +41,7 @@ export function EditTransactionScreen({ route, navigation }: Props) {
   const [categoryId, setCategoryId] = useState(tx?.categoryId ?? "");
   const [date, setDate] = useState(tx?.date ?? "");
   const [note, setNote] = useState(tx?.note ?? "");
+  const [isSubscription, setIsSubscription] = useState(tx?.isSubscription ?? false);
 
   useEffect(() => {
     void loadCategories();
@@ -66,6 +67,7 @@ export function EditTransactionScreen({ route, navigation }: Props) {
       transactionType,
       date,
       note: note.trim() || null,
+      isSubscription,
     });
     navigation.goBack();
   }
@@ -168,6 +170,21 @@ export function EditTransactionScreen({ route, navigation }: Props) {
             ))}
           </View>
 
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => setIsSubscription((v) => !v)}
+            style={[styles.subscriptionChip, isSubscription && styles.subscriptionChipActive]}
+          >
+            <Ionicons
+              name="repeat"
+              size={14}
+              color={isSubscription ? t.colors.white : t.colors.primary}
+            />
+            <Text style={[styles.subscriptionChipText, isSubscription && styles.chipTextActive]}>
+              Abonnement récurrent
+            </Text>
+          </Pressable>
+
           <Text style={styles.label}>Date</Text>
           <DatePickerButton value={date} onChange={setDate} />
 
@@ -260,6 +277,20 @@ const styles = StyleSheet.create({
   chipActive: { backgroundColor: t.colors.primary, borderColor: t.colors.primary },
   chipText: { color: t.colors.gray700, fontSize: 12, fontWeight: "700" },
   chipTextActive: { color: t.colors.white },
+  subscriptionChip: {
+    alignItems: "center",
+    alignSelf: "flex-start",
+    backgroundColor: t.colors.primaryLight,
+    borderColor: t.colors.primary,
+    borderRadius: t.radius.sm,
+    borderWidth: 1.5,
+    flexDirection: "row",
+    gap: t.spacing.xs,
+    paddingHorizontal: t.spacing.md,
+    paddingVertical: t.spacing.sm,
+  },
+  subscriptionChipActive: { backgroundColor: t.colors.primary, borderColor: t.colors.primary },
+  subscriptionChipText: { color: t.colors.primary, fontSize: 12, fontWeight: "700" },
   accountBadge: {
     alignItems: "center",
     backgroundColor: t.colors.muted,

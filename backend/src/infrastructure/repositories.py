@@ -370,6 +370,7 @@ class SqlAlchemyTransactionRepository(TransactionRepository):
                     transaction_type=transaction.transaction_type.value,
                     date=transaction.date,
                     note=transaction.note,
+                    is_subscription=transaction.is_subscription,
                 )
             )
         else:
@@ -379,6 +380,7 @@ class SqlAlchemyTransactionRepository(TransactionRepository):
             model.transaction_type = transaction.transaction_type.value
             model.date = transaction.date
             model.note = transaction.note
+            model.is_subscription = transaction.is_subscription
         await self._session.commit()
 
     async def list_by_user(
@@ -445,6 +447,7 @@ class SqlAlchemyTransactionRepository(TransactionRepository):
             transaction_type=TransactionType(model.transaction_type),
             date=model.date,
             note=model.note,
+            is_subscription=model.is_subscription,
         )
 
 

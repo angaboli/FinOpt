@@ -34,7 +34,15 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
         />
       </View>
       <View style={styles.content}>
-        <Text style={styles.title}>{transaction.title}</Text>
+        <View style={styles.titleRow}>
+          <Text style={styles.title} numberOfLines={1}>{transaction.title}</Text>
+          {transaction.isSubscription && (
+            <View style={styles.subBadge}>
+              <Ionicons name="repeat" size={10} color={finoptTheme.colors.primary} />
+              <Text style={styles.subBadgeText}>ABN</Text>
+            </View>
+          )}
+        </View>
         <Text style={styles.meta}>
           {transaction.category} · {transaction.accountName}
         </Text>
@@ -63,10 +71,33 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+    overflow: "hidden",
+  },
+  titleRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 6,
   },
   title: {
     color: finoptTheme.colors.foreground,
+    flex: 1,
     fontSize: 15,
+    fontWeight: "800",
+  },
+  subBadge: {
+    alignItems: "center",
+    backgroundColor: finoptTheme.colors.primaryLight,
+    borderColor: finoptTheme.colors.primary,
+    borderRadius: 4,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 2,
+    paddingHorizontal: 4,
+    paddingVertical: 1,
+  },
+  subBadgeText: {
+    color: finoptTheme.colors.primary,
+    fontSize: 9,
     fontWeight: "800",
   },
   meta: {

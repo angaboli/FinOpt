@@ -24,6 +24,7 @@ def to_transaction_result(tx: Transaction) -> TransactionResult:
         transaction_type=tx.transaction_type.value,
         date=tx.date,
         note=tx.note,
+        is_subscription=tx.is_subscription,
     )
 
 
@@ -49,6 +50,7 @@ class CreateTransaction:
             transaction_type=TransactionType(command.transaction_type),
             date=command.date,
             note=command.note,
+            is_subscription=command.is_subscription,
         )
         account.balance += tx.balance_delta
         await self._transactions.save(tx)
@@ -98,6 +100,7 @@ class UpdateTransaction:
             transaction_type=TransactionType(command.transaction_type),
             date=command.date,
             note=command.note,
+            is_subscription=command.is_subscription,
         )
         account.balance += tx.balance_delta
         await self._transactions.save(tx)

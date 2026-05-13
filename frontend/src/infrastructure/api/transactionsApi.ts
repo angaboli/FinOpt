@@ -11,6 +11,7 @@ interface TransactionApiResponse {
   transaction_type: "INCOME" | "EXPENSE";
   date: string;
   note: string | null;
+  is_subscription: boolean;
 }
 
 function toTransaction(r: TransactionApiResponse): Transaction {
@@ -24,6 +25,7 @@ function toTransaction(r: TransactionApiResponse): Transaction {
     transactionType: r.transaction_type,
     date: r.date,
     note: r.note,
+    isSubscription: r.is_subscription ?? false,
   };
 }
 
@@ -58,6 +60,7 @@ export const transactionsApi = {
       transaction_type: values.transactionType,
       date: values.date,
       note: values.note,
+      is_subscription: values.isSubscription,
     });
     return toTransaction(response.data);
   },
@@ -70,6 +73,7 @@ export const transactionsApi = {
       transaction_type: values.transactionType,
       date: values.date,
       note: values.note,
+      is_subscription: values.isSubscription,
     });
     return toTransaction(response.data);
   },

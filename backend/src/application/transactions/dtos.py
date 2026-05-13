@@ -13,6 +13,7 @@ class CreateTransactionCommand:
     transaction_type: str
     date: DateType
     note: str | None
+    is_subscription: bool = False
 
 
 @dataclass(frozen=True)
@@ -25,6 +26,7 @@ class UpdateTransactionCommand:
     transaction_type: str
     date: DateType
     note: str | None
+    is_subscription: bool = False
 
 
 @dataclass(frozen=True)
@@ -55,6 +57,7 @@ class TransactionResult:
     transaction_type: str
     date: DateType
     note: str | None
+    is_subscription: bool = False
 
 
 @dataclass(frozen=True)

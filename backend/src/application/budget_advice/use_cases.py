@@ -46,14 +46,19 @@ Analyse les données financières ci-dessous et génère des conseils personnali
 
 ### Mois courant ({period})
 - Revenus : {monthly_income} €  (moyenne mensuelle sur 6 mois : {avg_income} €)
-- Dépenses : {monthly_expenses} €
+- Dépenses variables : {variable_expenses} €
+- Dépenses fixes (abonnements) : {subscription_expenses} € — {subscription_count} abonnement(s)
+- Total dépenses : {monthly_expenses} €
 - Solde net : {net} €
 {income_alert}
+
+### Abonnements actifs détectés (charges fixes récurrentes)
+{subscription_section}
 
 ### Budget vs réel par catégorie
 {budget_section}
 
-### Fréquence d'achat par enseigne/article (dépenses uniquement — 6 mois)
+### Fréquence d'achat par enseigne/article — dépenses variables uniquement (6 mois)
 {merchant_section}
 
 ### Objectifs d'épargne
@@ -63,11 +68,11 @@ Analyse les données financières ci-dessous et génère des conseils personnali
 Réponds UNIQUEMENT avec un JSON valide (sans markdown) selon ce schéma exact :
 {{"summary": "1-2 phrases de résumé", "tips": ["conseil 1", "conseil 2", "conseil 3"], "savings_advice": "conseil épargne ou null", "cut_suggestions": ["dépense à couper 1", "dépense à couper 2"], "merchant_plan": [{{"merchant": "Enseigne", "items": ["article 1", "article 2"], "reason": "raison courte"}}], "sentiment": "positive"}}
 
-- summary : analyse concise de la situation financière du mois courant
-- tips : 3 conseils concrets et actionnables adaptés aux données
+- summary : analyse concise distinguant charges fixes (abonnements) et dépenses variables
+- tips : 3 conseils concrets. Si les abonnements représentent plus de 30% des dépenses totales, inclure au moins un conseil sur leur optimisation. Si les revenus baissent, prioriser les abonnements non essentiels à couper.
 - savings_advice : conseil sur les objectifs d'épargne, ou null si aucun objectif
-- cut_suggestions : dépenses spécifiques à réduire ou supprimer si les revenus sont insuffisants ou si le budget est dépassé — mentionner le libellé exact et le montant. Retourner [] si la situation est confortable.
-- merchant_plan : plan d'optimisation des achats basé sur l'historique. Regroupe les articles/enseignes habituels par magasin optimal pour économiser au mieux. Chaque entrée = un magasin avec la liste des articles/courses à y concentrer et la raison chiffrée si possible. Retourner [] si moins de 3 enseignes différentes identifiées.
+- cut_suggestions : abonnements ou dépenses variables spécifiques à réduire/supprimer — mentionner le libellé exact et le montant mensuel estimé. Prioriser les abonnements si les revenus sont insuffisants. Retourner [] si la situation est confortable.
+- merchant_plan : plan d'optimisation des achats VARIABLES (exclure les abonnements). Regroupe les articles/enseignes habituels par magasin optimal. Retourner [] si moins de 3 enseignes différentes identifiées.
 - sentiment : "positive" si la situation est globalement bonne, "negative" si elle est préoccupante, "neutral" sinon
 """
 
@@ -133,6 +138,16 @@ def _build_prompt(
     monthly_expenses = monthly_expense_map.get(month_prefix, Decimal(0))
     net = monthly_income - monthly_expenses
 
+    # --- subscription split for current month ---
+    subscription_txs = [
+        tx for tx in all_transactions
+        if tx.is_subscription
+        and tx.transaction_type == TransactionType.EXPENSE
+        and tx.date.isoformat().startswith(month_prefix)
+    ]
+    subscription_expenses = Decimal(sum(tx.amount for tx in subscription_txs))
+    variable_expenses = monthly_expenses - subscription_expenses
+
     # --- 6-month average income (excluding current month) ---
     past_months = [ym for ym in all_months if ym != month_prefix]
     if past_months:
@@ -167,10 +182,25 @@ def _build_prompt(
     else:
         budget_section = "Aucun budget défini pour ce mois"
 
-    # --- merchant frequency analysis (all EXPENSE transactions) ---
+    # --- subscription section (all unique subscriptions seen over 6 months) ---
+    all_subscriptions: dict[str, list[Decimal]] = defaultdict(list)
+    for tx in all_transactions:
+        if tx.is_subscription and tx.transaction_type == TransactionType.EXPENSE:
+            all_subscriptions[tx.title.strip()].append(tx.amount)
+
+    if all_subscriptions:
+        sub_lines = []
+        for name, amounts in sorted(all_subscriptions.items()):
+            avg_sub = Decimal(sum(amounts)) / Decimal(len(amounts))
+            sub_lines.append(f"- {name} : ~{_fmt(avg_sub)} €/mois ({len(amounts)} occurrence(s))")
+        subscription_section = "\n".join(sub_lines)
+    else:
+        subscription_section = "Aucun abonnement enregistré"
+
+    # --- merchant frequency analysis (variable EXPENSE transactions only) ---
     merchant_map: dict[str, list[Decimal]] = defaultdict(list)
     for tx in all_transactions:
-        if tx.transaction_type == TransactionType.EXPENSE:
+        if tx.transaction_type == TransactionType.EXPENSE and not tx.is_subscription:
             merchant_map[tx.title.strip()].append(tx.amount)
 
     merchant_stats = [
@@ -201,9 +231,13 @@ def _build_prompt(
         trend_section=trend_section,
         monthly_income=_fmt(monthly_income),
         avg_income=_fmt(avg_income),
+        variable_expenses=_fmt(variable_expenses),
+        subscription_expenses=_fmt(subscription_expenses),
+        subscription_count=len(subscription_txs),
         monthly_expenses=_fmt(monthly_expenses),
         net=_fmt(net),
         income_alert=income_alert,
+        subscription_section=subscription_section,
         budget_section=budget_section,
         merchant_section=merchant_section,
         goals_section=goals_section,

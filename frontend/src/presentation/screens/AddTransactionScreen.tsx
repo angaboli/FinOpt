@@ -50,6 +50,7 @@ export function AddTransactionScreen({ navigation }: Props) {
   const [categoryId, setCategoryId] = useState("");
   const [date, setDate] = useState(todayIso());
   const [frequency, setFrequency] = useState<Frequency>("ONCE");
+  const [isSubscription, setIsSubscription] = useState(false);
 
   useEffect(() => {
     void loadCategories();
@@ -83,7 +84,7 @@ export function AddTransactionScreen({ navigation }: Props) {
   }
 
   async function doSave() {
-    await createTransaction({ accountId, categoryId, title, amount: parsedAmount, transactionType, date, note: null });
+    await createTransaction({ accountId, categoryId, title, amount: parsedAmount, transactionType, date, note: null, isSubscription });
 
     // Sync: auto-create income source if recurring and not yet registered
     if (transactionType === "INCOME" && frequency !== "ONCE") {
@@ -235,6 +236,21 @@ export function AddTransactionScreen({ navigation }: Props) {
             ))}
           </View>
 
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => setIsSubscription((v) => !v)}
+            style={[styles.subscriptionChip, isSubscription && styles.subscriptionChipActive]}
+          >
+            <Ionicons
+              name="repeat"
+              size={14}
+              color={isSubscription ? t.colors.white : t.colors.primary}
+            />
+            <Text style={[styles.subscriptionChipText, isSubscription && styles.chipTextActive]}>
+              Abonnement récurrent
+            </Text>
+          </Pressable>
+
           {/* Frequency — only for income */}
           {transactionType === "INCOME" && (
             <>
@@ -336,6 +352,20 @@ const styles = StyleSheet.create({
   chipActive: { backgroundColor: t.colors.primary, borderColor: t.colors.primary },
   chipText: { color: t.colors.gray700, fontSize: 12, fontWeight: "700" },
   chipTextActive: { color: t.colors.white },
+  subscriptionChip: {
+    alignItems: "center",
+    alignSelf: "flex-start",
+    backgroundColor: t.colors.primaryLight,
+    borderColor: t.colors.primary,
+    borderRadius: t.radius.sm,
+    borderWidth: 1.5,
+    flexDirection: "row",
+    gap: t.spacing.xs,
+    paddingHorizontal: t.spacing.md,
+    paddingVertical: t.spacing.sm,
+  },
+  subscriptionChipActive: { backgroundColor: t.colors.primary, borderColor: t.colors.primary },
+  subscriptionChipText: { color: t.colors.primary, fontSize: 12, fontWeight: "700" },
   syncHint: {
     alignItems: "center",
     backgroundColor: t.colors.primaryLight,

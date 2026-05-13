@@ -10,6 +10,7 @@ export interface TransactionSummary {
   accountColor: string;
   amount: number;
   type: "income" | "expense";
+  isSubscription: boolean;
 }
 
 export interface Transaction {
@@ -22,6 +23,7 @@ export interface Transaction {
   transactionType: TransactionType;
   date: string;
   note: string | null;
+  isSubscription: boolean;
 }
 
 export interface TransactionFormValues {
@@ -32,4 +34,5 @@ export interface TransactionFormValues {
   transactionType: TransactionType;
   date: string;
   note: string | null;
+  isSubscription: boolean;
 }

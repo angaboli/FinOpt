@@ -25,6 +25,7 @@ class Transaction:
     transaction_type: TransactionType
     date: DateType
     note: str | None
+    is_subscription: bool = False
 
     @classmethod
     def create(
@@ -37,6 +38,7 @@ class Transaction:
         transaction_type: TransactionType,
         date: DateType,
         note: str | None,
+        is_subscription: bool = False,
     ) -> Transaction:
         return cls(
             id=TransactionId.new(),
@@ -48,6 +50,7 @@ class Transaction:
             transaction_type=transaction_type,
             date=date,
             note=note,
+            is_subscription=is_subscription,
         )
 
     def __post_init__(self) -> None:
@@ -66,6 +69,7 @@ class Transaction:
         transaction_type: TransactionType,
         date: DateType,
         note: str | None,
+        is_subscription: bool = False,
     ) -> None:
         self.category_id = category_id
         self.title = title
@@ -73,6 +77,7 @@ class Transaction:
         self.transaction_type = transaction_type
         self.date = date
         self.note = note
+        self.is_subscription = is_subscription
         self.__post_init__()
 
     @property

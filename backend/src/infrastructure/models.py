@@ -3,7 +3,7 @@ from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import Date, DateTime, ForeignKey, Integer, Numeric, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, Numeric, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.infrastructure.database import Base
@@ -73,6 +73,7 @@ class TransactionModel(Base):
     transaction_type: Mapped[str] = mapped_column(String(16), nullable=False)
     date: Mapped[DateType] = mapped_column(Date, nullable=False, index=True)
     note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    is_subscription: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
 
 class BankImportModel(Base):

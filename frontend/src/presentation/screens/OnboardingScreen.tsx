@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Image, Text, View } from "react-native";
 
 import { finoptTheme } from "@/presentation/theme/theme";
+
+const logo = require("../../../assets/FinOptLogo.png") as number;
 
 interface OnboardingScreenProps {
   onComplete: () => void;
@@ -20,7 +22,8 @@ const steps = [
   },
   {
     title: "Pret a commencer ?",
-    description: "Connectez-vous et laissez Finopt structurer votre budget personnel.",
+    description:
+      "Connectez-vous et laissez Finopt structurer votre budget personnel.",
   },
 ];
 
@@ -39,7 +42,12 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
   return (
     <View style={styles.container}>
       <View style={styles.topBar}>
-        <Text style={styles.brand}>Finopt</Text>
+        {/* <Text style={styles.brand}>Finopt</Text> */}
+        <Image
+          source={logo}
+          style={{ width: 100, height: 32 }}
+          resizeMode="contain"
+        />
         <Pressable accessibilityRole="button" onPress={onComplete}>
           <Text style={styles.skip}>Passer</Text>
         </Pressable>
@@ -68,7 +76,10 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
           {steps.map((item) => (
             <View
               key={item.title}
-              style={[styles.dot, item.title === step.title && styles.dotActive]}
+              style={[
+                styles.dot,
+                item.title === step.title && styles.dotActive,
+              ]}
             />
           ))}
         </View>
@@ -76,7 +87,10 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
           accessibilityLabel="Continuer"
           accessibilityRole="button"
           onPress={handleNext}
-          style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
+          style={({ pressed }) => [
+            styles.button,
+            pressed && styles.buttonPressed,
+          ]}
         >
           <Text style={styles.buttonText}>Continuer</Text>
         </Pressable>

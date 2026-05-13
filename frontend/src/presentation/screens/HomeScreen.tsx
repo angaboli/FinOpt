@@ -99,6 +99,7 @@ export function HomeScreen({ navigation }: Props) {
             tx.transactionType === "INCOME"
               ? ("income" as const)
               : ("expense" as const),
+          isSubscription: tx.isSubscription,
         };
       }),
     [transactions, accountMap, categoryMap],

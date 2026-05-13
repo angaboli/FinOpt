@@ -22,13 +22,22 @@ export function LoginScreen({ navigation }: Props) {
         isLoading={isLoading}
         onSubmit={login}
       />
-      <Pressable accessibilityRole="button" onPress={() => navigation.navigate("SignUp")}>
+      <Pressable
+        accessibilityRole="button"
+        onPress={() => navigation.navigate("SignUp")}
+      >
         <Text
           style={{
-            color: finoptTheme.colors.primary,
+            color: finoptTheme.colors.white,
             fontWeight: "700",
-            padding: 16,
+            padding: 18,
+            backgroundColor: finoptTheme.colors.primary,
+            marginBottom: 48,
             textAlign: "center",
+            borderRadius: 8,
+            width: "80%",
+            alignSelf: "center",
+            boxShadow: `0 2px 4px ${finoptTheme.colors.primary}80`,
           }}
         >
           Creer un compte

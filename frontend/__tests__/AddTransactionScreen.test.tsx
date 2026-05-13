@@ -35,6 +35,7 @@ const TX = {
   transactionType: "EXPENSE" as const,
   date: "2025-01-15",
   note: null,
+  isSubscription: false,
 };
 
 beforeEach(() => {
